@@ -2,8 +2,8 @@
 ### Particules ###
 ##################
 cmake_minimum_required(VERSION 3.9.2)
-project(ConvexHull VERSION 0.0.0 DESCRIPTION "Generates and renders a convex hull from a point cloud, using C++17 & OpenGL 4.6")
-include(Particules)
+project(Particules VERSION 0.0.1 DESCRIPTION "Generates and renders a convex hull from a point cloud, using C++17 & OpenGL 4.6")
+include(ExternalProject)
 
 # Set mandatory requirements
 set(CMAKE_CXX_STANDARD 17)
