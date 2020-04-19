@@ -1,4 +1,5 @@
 #define GLFW_INCLUDE_NONE
+#include "Utility/vec.hpp"
 #include "Utility/window.hpp"
 #include "engine.hpp"
 #include <GLFW/glfw3.h>
@@ -7,12 +8,12 @@
 #include <string>
 
 // Forward Declarations
-static Window init_backend();
+static Window init_backend(const vec2& windowSize);
 static void error_shutdown(const std::string& errorMsg);
 static void register_debug();
 
 int main() {
-    const Window window = init_backend();
+    const Window window = init_backend(vec2(512));
     Engine engine(window);
 
     // Main Loop
@@ -31,16 +32,17 @@ int main() {
 
     // Success
     glfwTerminate();
-    return 0;
+    exit(0);
 }
 
-static Window init_backend() {
+static Window init_backend(const vec2& windowSize) {
     // Init GLFW
     if (glfwInit() != GLFW_TRUE)
         error_shutdown("Failed to initialize GLFW\n");
 
     // Create Window
-    Window window(512, 512);
+    Window window(
+        static_cast<int>(windowSize.x()), static_cast<int>(windowSize.y()));
     if (!window.exists())
         error_shutdown("Failed to create a window.\n");
 
