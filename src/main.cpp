@@ -1,50 +1,71 @@
 #define GLFW_INCLUDE_NONE
-#include "Model/model.hpp"
-#include "Utility/indirectDraw.hpp"
-#include "Utility/shader.hpp"
-#include "Utility/vec.hpp"
 #include "Utility/window.hpp"
 #include <GLFW/glfw3.h>
-#include <algorithm>
-#include <cmath>
 #include <glad/glad.h>
 #include <iostream>
-#include <random>
-#include <vector>
+#include <string>
 
-constexpr auto const vertCode = R"END(
-    #version 430
+// Forward Declarations
+static const Window init_backend();
+static void error_shutdown(const std::string& errorMsg);
+static void register_debug();
+static void game_func(const double& deltaTime);
+static void render_func(const double& deltaTime);
 
-    layout (location = 0) in vec3 vertex;
-    layout (location = 0) uniform mat4 pMatrix;
-    layout (location = 4) uniform mat4 vMatrix;
-    layout (location = 8) uniform mat4 mMatrix;
+int main() {
+    const Window window = init_backend();
 
-    void main() {
-        gl_Position = pMatrix * vMatrix * mMatrix * vec4(vertex, 1.0);
-        gl_PointSize = 10.0;
+    // Main Loop
+    double lastTime(0.0);
+    while (glfwWindowShouldClose(window.pointer()) == 0) {
+        const auto time = glfwGetTime();
+        const auto deltaTime = time - lastTime;
+
+        // Game Tick
+        game_func(deltaTime);
+
+        // Render Tick
+        render_func(deltaTime);
+
+        lastTime = time;
+        glfwPollEvents();
+        glfwSwapBuffers(window.pointer());
     }
-)END";
 
-constexpr auto const fragCode = R"END(
-    #version 430
+    // Success
+    glfwTerminate();
+    return 0;
+}
 
-    layout (location = 0) out vec4 fragColor;
-    layout (location = 12) uniform vec4 color;
+static const Window init_backend() {
+    // Init GLFW
+    if (glfwInit() != GLFW_TRUE)
+        error_shutdown("Failed to initialize GLFW\n");
 
-    void main() {
-        fragColor = color;
-    }
-)END";
+    // Create Window
+    const Window window(512, 512);
+    if (!window.exists())
+        error_shutdown("Failed to create a window.\n");
+
+    // Init GL functions
+    glfwMakeContextCurrent(window.pointer());
+    if (gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) ==
+        0)
+        error_shutdown("Failed to initialize OpenGL context.\n");
+    register_debug();
+
+    return window;
+}
 
 /** Report an error and shutdown. */
-void error_shutdown(const std::string& errorMsg) {
+static void error_shutdown(const std::string& errorMsg) {
     std::cout << errorMsg;
     glfwTerminate();
     exit(-1);
 }
 
-void register_debug() {
+/** Register the OpenGL error debugging func. */
+static void register_debug() {
 #ifdef DEBUG
     if (GLAD_GL_KHR_debug != 0) {
         GLint v;
@@ -139,52 +160,8 @@ void register_debug() {
 #endif
 }
 
-int main() {
-    // Init GLFW
-    if (glfwInit() != GLFW_TRUE)
-        error_shutdown("Failed to initialize GLFW\n");
+/***/
+static void game_func(const double&) {}
 
-    // Create Window
-    const Window window(512, 512);
-    if (!window.exists())
-        error_shutdown("Failed to create a window.\n");
-
-    // Init GL functions
-    glfwMakeContextCurrent(window.pointer());
-    if (gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) ==
-        0)
-        error_shutdown("Failed to initialize OpenGL context.\n");
-    register_debug();
-
-    // Create objects within scope
-    {
-        // Make shaders
-        const Shader shader(vertCode, fragCode);
-        if (!shader.valid())
-            error_shutdown(shader.errorLog());
-
-        // Enable point rendering and blending
-        glEnable(GL_PROGRAM_POINT_SIZE);
-        glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glLineWidth(4.0F);
-
-        // Main Loop
-        double lastTime(0.0);
-        while (glfwWindowShouldClose(window.pointer()) == 0) {
-            const auto time = glfwGetTime();
-            const auto deltaTime = time - lastTime;
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            lastTime = time;
-            glfwPollEvents();
-            glfwSwapBuffers(window.pointer());
-        }
-    }
-
-    // Success
-    glfwTerminate();
-    return 0;
-}
+/***/
+static void render_func(const double&) {}

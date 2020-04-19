@@ -13,8 +13,8 @@ set(FILES
 
 # Create Library using the supplied files
 add_executable(${Module} ${FILES})
-target_include_directories(${Module} 
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} 
+target_include_directories(${Module}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
     PUBLIC ${PROJECT_SOURCE_DIR}/external/MiniGFX/external
     PUBLIC ${PROJECT_SOURCE_DIR}/external/MiniGFX/src
 )
