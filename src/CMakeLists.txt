@@ -6,9 +6,11 @@ set(Module particulesGame)
 # Configure and acquire files
 set(FILES
     # Header files
+    engine.hpp
 
     # Source files
     main.cpp
+    engine.cpp
 )
 
 # Create Library using the supplied files

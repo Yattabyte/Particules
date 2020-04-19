@@ -1,19 +1,19 @@
 #define GLFW_INCLUDE_NONE
 #include "Utility/window.hpp"
+#include "engine.hpp"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <iostream>
 #include <string>
 
 // Forward Declarations
-static const Window init_backend();
+static Window init_backend();
 static void error_shutdown(const std::string& errorMsg);
 static void register_debug();
-static void game_func(const double& deltaTime);
-static void render_func(const double& deltaTime);
 
 int main() {
     const Window window = init_backend();
+    Engine engine(window);
 
     // Main Loop
     double lastTime(0.0);
@@ -21,11 +21,8 @@ int main() {
         const auto time = glfwGetTime();
         const auto deltaTime = time - lastTime;
 
-        // Game Tick
-        game_func(deltaTime);
-
-        // Render Tick
-        render_func(deltaTime);
+        // Engine Tick
+        engine.tick(deltaTime);
 
         lastTime = time;
         glfwPollEvents();
@@ -37,13 +34,13 @@ int main() {
     return 0;
 }
 
-static const Window init_backend() {
+static Window init_backend() {
     // Init GLFW
     if (glfwInit() != GLFW_TRUE)
         error_shutdown("Failed to initialize GLFW\n");
 
     // Create Window
-    const Window window(512, 512);
+    Window window(512, 512);
     if (!window.exists())
         error_shutdown("Failed to create a window.\n");
 
@@ -68,7 +65,7 @@ static void error_shutdown(const std::string& errorMsg) {
 static void register_debug() {
 #ifdef DEBUG
     if (GLAD_GL_KHR_debug != 0) {
-        GLint v;
+        GLint v(0);
         glGetIntegerv(GL_CONTEXT_FLAGS, &v);
         if ((v != 0) && GL_CONTEXT_FLAG_DEBUG_BIT) {
             glEnable(GL_DEBUG_OUTPUT);
@@ -159,9 +156,3 @@ static void register_debug() {
     }
 #endif
 }
-
-/***/
-static void game_func(const double&) {}
-
-/***/
-static void render_func(const double&) {}
