@@ -7,10 +7,14 @@ set(Module particulesGame)
 set(FILES
     # Header files
     engine.hpp
+    particle.hpp
+    collision.hpp
 
     # Source files
     main.cpp
     engine.cpp
+    particle.cpp
+    collision.cpp
 )
 
 # Create Library using the supplied files

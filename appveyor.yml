@@ -4,7 +4,7 @@ platform:
 image:
   - Visual Studio 2017
   - Visual Studio 2019
-  
+
 clone_script:
 - cmd: >-
     git clone -q --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%

@@ -8,8 +8,10 @@
 #include "Utility/shader.hpp"
 #include "Utility/vec.hpp"
 #include "Utility/window.hpp"
+#include "particle.hpp"
 #include <vector>
 
+/***/
 class Engine {
     public:
     // Public (De)Constructors
@@ -33,14 +35,8 @@ class Engine {
     Shader m_shader;
     Model m_model;
     IndirectDraw m_draw;
-    struct Particle {
-        vec2 m_pos = vec2(0.0F);
-        vec2 m_velocity = vec2(0.0F);
-        float m_mass = 1.0F;
-        [[maybe_unused]] float padding;
-    };
     double m_accumulator = 0.0;
-    std::vector<Particle> m_particles;
+    std::vector<Game_Particle> m_gameParticles;
     glDynamicMultiBuffer<3> m_dataBuffer;
 };
 
