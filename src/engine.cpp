@@ -44,7 +44,7 @@ Engine::Engine(const Window& window)
       m_draw(4, 0, 0, GL_DYNAMIC_STORAGE_BIT) {
     std::uniform_real_distribution<float> randomFloats(-1.0F, 1.0F);
     std::mt19937 generator(0);
-    m_gameParticles.resize(1024);
+    m_gameParticles.resize(256);
     std::generate(
         std::begin(m_gameParticles), std::end(m_gameParticles), [&]() {
             return Game_Particle{
@@ -54,7 +54,7 @@ Engine::Engine(const Window& window)
                 // Zero Velocity
                 vec2(0.0), PARTICLE_TYPE::SAND,
                 // Generate random mass
-                (randomFloats(generator) * 0.5F + 0.5F) * 49.5F + 0.5F, 1.0F
+                (randomFloats(generator) * 0.5F + 0.5F) * 4.5F + 0.5F, 1.0F
             };
         });
     m_gameParticles.push_back(Game_Particle{
@@ -70,15 +70,6 @@ void Engine::gameTick(const double& deltaTime) {
     constexpr double timeStep = 0.01;
     m_accumulator += deltaTime;
     while (m_accumulator > timeStep) {
-        // Apply external forces (e.g. gravity)
-        for (auto& particle : m_gameParticles) {
-            const float force = particle.m_mass * -9.81F;
-            particle.m_velocity.y() += force * static_cast<float>(timeStep);
-
-            particle.m_pos +=
-                particle.m_velocity * vec2(static_cast<float>(timeStep));
-        }
-
         // Adjust for collision
         for (auto& particle : m_gameParticles) {
             // Ignore massless particles
@@ -94,37 +85,40 @@ void Engine::gameTick(const double& deltaTime) {
                         if (areColliding_SphereVsBox(
                                 particle.m_pos, 1.0F, otherParticle.m_pos,
                                 vec2(otherParticle.m_size))) {
-                            // Find collision normal
-                            const vec2 collisionNormal = vec2(0, 1);
-
-                            // Find the intersection point
-                            const vec2 intersectionPoint = lineLineIntersection(
-                                particle.m_pos - particle.m_velocity,
-                                particle.m_pos + particle.m_velocity,
-                                otherParticle.m_pos + vec2(
-                                                          -otherParticle.m_size,
-                                                          otherParticle.m_size),
-                                otherParticle.m_pos +
-                                    vec2(otherParticle.m_size));
+                            // Acquire specific collision information
+                            const auto& [hit, intPoint, normal] =
+                                rayBBoxIntersection(
+                                    particle.m_pos,
+                                    particle.m_velocity.normalize(),
+                                    otherParticle.m_pos,
+                                    vec2(otherParticle.m_size), true);
 
                             // Retract movement to intersection point
                             // (offset by radius of particle)
-                            particle.m_pos = intersectionPoint +
-                                             vec2(1.0F) * collisionNormal;
+                            particle.m_pos = intPoint + vec2(1.0F) * normal;
 
                             // Reflect the velocity off of the surface
                             particle.m_velocity =
                                 (particle.m_velocity -
                                  vec2(2.0F) *
-                                     vec2(particle.m_velocity.dot(
-                                         collisionNormal)) *
-                                     collisionNormal) *
+                                     vec2(particle.m_velocity.dot(normal)) *
+                                     normal) *
                                 vec2(0.5F);
                         }
                     }
                 }
             }
         }
+
+        // Apply external forces (e.g. gravity)
+        for (auto& particle : m_gameParticles) {
+            const float force = particle.m_mass * -9.81F;
+            particle.m_velocity.y() += force * static_cast<float>(timeStep);
+
+            particle.m_pos +=
+                particle.m_velocity * vec2(static_cast<float>(timeStep));
+        }
+
         m_accumulator -= timeStep;
     }
 }

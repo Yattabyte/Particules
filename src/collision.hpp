@@ -9,7 +9,7 @@ bool areColliding_SphereVsBox(
     const vec2& posA, const float& radA, const vec2& posB,
     const vec2& scaleB) noexcept;
 
-vec2 lineLineIntersection(
-    const vec2& A, const vec2& B, const vec2& C, const vec2& D) noexcept;
-
+std::tuple<bool, vec2, vec2> rayBBoxIntersection(
+    const vec2& rayPos, const vec2& rayDir, const vec2& boxCenter,
+    const vec2& boxExtents, const bool projectBackwards = false) noexcept;
 #endif // COLLISION_HPP
