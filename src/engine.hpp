@@ -2,14 +2,12 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include "Model/model.hpp"
-#include "Multibuffer/glDynamicMultiBuffer.hpp"
-#include "Utility/indirectDraw.hpp"
-#include "Utility/shader.hpp"
 #include "Utility/vec.hpp"
 #include "Utility/window.hpp"
-#include "particle.hpp"
-#include <vector>
+#include "collisionSystem.hpp"
+#include "ecsWorld.hpp"
+#include "gravitySystem.hpp"
+#include "renderSystem.hpp"
 
 /***/
 class Engine {
@@ -31,13 +29,14 @@ class Engine {
     void renderTick(const double& deltaTime);
 
     // Private Attributes
+    /** OS level winding attributes. */
     const Window& m_window;
-    Shader m_shader;
-    Model m_model;
-    IndirectDraw m_draw;
+    /** Game-play related attributes.*/
     double m_accumulator = 0.0;
-    std::vector<Game_Particle> m_gameParticles;
-    glDynamicMultiBuffer<3> m_dataBuffer;
+    ecsWorld m_gameWorld;
+    CollisionSystem m_collisionSystem;
+    GravitySystem m_gravitySystem;
+    RenderSystem m_renderSystem;
 };
 
 #endif // ENGINE_HPP

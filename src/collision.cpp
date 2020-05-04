@@ -23,7 +23,7 @@ std::tuple<bool, vec2, vec2> rayBBoxIntersection(
     const vec2& boxExtents, const bool projectBackwards) noexcept {
     const vec2 boxMin = boxCenter - boxExtents;
     const vec2 boxMax = boxCenter + boxExtents;
-    const vec2 invDir = vec2(1.0f) / rayDir;
+    const vec2 invDir = vec2(1.0F) / rayDir;
     const auto tx1 = (boxMin.x() - rayPos.x()) * invDir.x();
     const auto tx2 = (boxMax.x() - rayPos.x()) * invDir.x();
 

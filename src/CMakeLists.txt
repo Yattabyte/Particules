@@ -9,12 +9,17 @@ set(FILES
     engine.hpp
     particle.hpp
     collision.hpp
+    components.hpp
+    collisionSystem.hpp
+    gravitySystem.hpp
+    renderSystem.hpp
 
     # Source files
     main.cpp
     engine.cpp
     particle.cpp
     collision.cpp
+    renderSystem.cpp
 )
 
 # Create Library using the supplied files
@@ -23,11 +28,13 @@ target_include_directories(${Module}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
     PUBLIC ${PROJECT_SOURCE_DIR}/external/MiniGFX/external
     PUBLIC ${PROJECT_SOURCE_DIR}/external/MiniGFX/src
+    PUBLIC ${PROJECT_SOURCE_DIR}/external/MiniECS/external
+    PUBLIC ${PROJECT_SOURCE_DIR}/external/MiniECS/src
 )
 
 # Add library dependencies
-add_dependencies(${Module} MiniGFXCore)
-target_link_libraries(${Module} PUBLIC MiniGFXCore)
+add_dependencies(${Module} MiniGFXCore MiniECSCore)
+target_link_libraries(${Module} PUBLIC MiniGFXCore MiniECSCore)
 target_compile_features(${Module} PRIVATE cxx_std_17)
 target_link_libraries(${Module} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(${Module} PUBLIC glfw OpenGL::GL)
