@@ -7,12 +7,16 @@
 #include <iostream>
 #include <string>
 
+///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
+
 // Forward Declarations
 static Window init_backend(const vec2& windowSize);
 static void error_shutdown(const std::string& errorMsg);
 static void register_debug();
 
-int main() {
+int main() noexcept {
     const Window window = init_backend(vec2(512));
     Engine engine(window);
 

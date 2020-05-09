@@ -1,5 +1,9 @@
 #include "renderSystem.hpp"
 
+///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
+
 constexpr auto const vertCode = R"END(
     #version 430
     struct Particle {

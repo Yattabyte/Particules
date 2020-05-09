@@ -33,7 +33,7 @@ class Engine {
     const Window& m_window;
     /** Game-play related attributes.*/
     double m_accumulator = 0.0;
-    ecsWorld m_gameWorld;
+    mini::ecsWorld m_gameWorld;
     CollisionSystem m_collisionSystem;
     GravitySystem m_gravitySystem;
     RenderSystem m_renderSystem;

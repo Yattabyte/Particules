@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <random>
 
+///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
+
 Engine::Engine(const Window& window)
     : m_window(window), m_collisionSystem(m_gameWorld) {
     // Random number generation variables

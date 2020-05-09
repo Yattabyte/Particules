@@ -8,10 +8,10 @@
 #include "ecsWorld.hpp"
 
 /***/
-class CollisionSystem final : public ecsBaseSystem {
+class CollisionSystem final : public mini::ecsSystem {
     public:
     /***/
-    CollisionSystem(ecsWorld& gameWorld) : m_gameWorld(gameWorld) {
+    CollisionSystem(mini::ecsWorld& gameWorld) : m_gameWorld(gameWorld) {
         addComponentType(
             ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
         addComponentType(
@@ -23,8 +23,8 @@ class CollisionSystem final : public ecsBaseSystem {
     // Public Interface Implementation
     void updateComponents(
         const double& deltaTime,
-        const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
-        final {
+        const std::vector<std::vector<mini::ecsBaseComponent*>>&
+            entityComponents) final {
         for (auto& components : entityComponents) {
             auto& particle =
                 static_cast<ParticleComponent*>(components[0])->particle;
@@ -32,7 +32,7 @@ class CollisionSystem final : public ecsBaseSystem {
                 static_cast<BoundingSphereComponent*>(components[1])->radius;
 
             const std::vector<
-                std::pair<ComponentID, ecsBaseSystem::RequirementsFlag>>
+                std::pair<mini::ComponentID, ecsSystem::RequirementsFlag>>
                 nestedRequirements = { std::make_pair(
                                            ParticleComponent::Runtime_ID,
                                            RequirementsFlag::FLAG_REQUIRED),
@@ -41,7 +41,8 @@ class CollisionSystem final : public ecsBaseSystem {
                                            RequirementsFlag::FLAG_REQUIRED) };
             const auto nestedFunction =
                 [&](const double&,
-                    const std::vector<std::vector<ecsBaseComponent*>>& ec) {
+                    const std::vector<std::vector<mini::ecsBaseComponent*>>&
+                        ec) {
                     for (auto& c : ec) {
                         auto& otherParticle =
                             static_cast<ParticleComponent*>(c[0])->particle;
@@ -79,7 +80,7 @@ class CollisionSystem final : public ecsBaseSystem {
     }
 
     private:
-    ecsWorld& m_gameWorld;
+    mini::ecsWorld& m_gameWorld;
 };
 
 #endif // COLLISIONSYSTEM_HPP

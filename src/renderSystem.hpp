@@ -10,15 +10,15 @@
 #include "ecsSystem.hpp"
 
 /***/
-class RenderSystem final : public ecsBaseSystem {
+class RenderSystem final : public mini::ecsSystem {
     public:
     /***/
     RenderSystem();
     // Public Interface Implementation
     void updateComponents(
         const double& deltaTime,
-        const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
-        final;
+        const std::vector<std::vector<mini::ecsBaseComponent*>>&
+            entityComponents) final;
 
     private:
     // Private Attributes

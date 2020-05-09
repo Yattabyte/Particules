@@ -6,7 +6,7 @@
 #include "ecsSystem.hpp"
 
 /***/
-class GravitySystem final : public ecsBaseSystem {
+class GravitySystem final : public mini::ecsSystem {
     public:
     /***/
     GravitySystem() {
@@ -18,8 +18,8 @@ class GravitySystem final : public ecsBaseSystem {
     // Public Interface Implementation
     void updateComponents(
         const double& deltaTime,
-        const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
-        final {
+        const std::vector<std::vector<mini::ecsBaseComponent*>>&
+            entityComponents) final {
         for (auto& components : entityComponents) {
             auto& particleComponent =
                 *static_cast<ParticleComponent*>(components[0]);

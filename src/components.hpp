@@ -5,23 +5,25 @@
 #include "ecsComponent.hpp"
 #include "particle.hpp"
 
-struct ParticleComponent final : public ecsComponent<ParticleComponent> {
+struct ParticleComponent final : public mini::ecsComponent<ParticleComponent> {
     Game_Particle particle;
 };
 
-struct MassComponent final : public ecsComponent<MassComponent> {
+struct MassComponent final : public mini::ecsComponent<MassComponent> {
     float mass = 0.0F;
 };
 
 struct BoundingSphereComponent final
-    : public ecsComponent<BoundingSphereComponent> {
+    : public mini::ecsComponent<BoundingSphereComponent> {
     float radius = 1.0F;
 };
 
-struct BoundingBoxComponent final : public ecsComponent<BoundingBoxComponent> {
+struct BoundingBoxComponent final
+    : public mini::ecsComponent<BoundingBoxComponent> {
     vec2 extents;
 };
 
-struct MoveableComponent final : public ecsComponent<MoveableComponent> {};
+struct MoveableComponent final : public mini::ecsComponent<MoveableComponent> {
+};
 
 #endif // COMPONENTS_HPP
