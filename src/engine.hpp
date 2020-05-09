@@ -9,34 +9,39 @@
 #include "gravitySystem.hpp"
 #include "renderSystem.hpp"
 
-/***/
+/////////////////////////////////////////////////////////////////////////
+/// \class  Engine
+/// \brief  The core of the game-portion of the application.
 class Engine {
     public:
-    // Public (De)Constructors
-    /** Destroy the engine. */
+    /////////////////////////////////////////////////////////////////////////
+    /// \brief  Destroy the engine.
     ~Engine() = default;
-    /** Construct an engine object using a specific window. */
+    /////////////////////////////////////////////////////////////////////////
+    /// \brief  Construct an engine object using a specific window.
     explicit Engine(const Window& window);
 
-    // Public Methods
-    /** Tick the engine state. To be called externally by main loop. */
+    /////////////////////////////////////////////////////////////////////////
+    /// \brief  Tick the engine state. To be called externally by main loop.
+    /// \param  deltaTime   the amount of time since last frame.
     void tick(const double& deltaTime);
 
     private:
-    /***/
+    /////////////////////////////////////////////////////////////////////////
+    /// \brief  Tick the game logic ahead by delta-time.
+    /// \param  deltaTime   the amount of time since last frame.
     void gameTick(const double& deltaTime);
-    /***/
+    /////////////////////////////////////////////////////////////////////////
+    /// \brief  Tick the render logic ahead by delta-time.
+    /// \param  deltaTime   the amount of time since last frame.
     void renderTick(const double& deltaTime);
 
-    // Private Attributes
-    /** OS level winding attributes. */
-    const Window& m_window;
-    /** Game-play related attributes.*/
-    double m_accumulator = 0.0;
-    mini::ecsWorld m_gameWorld;
-    CollisionSystem m_collisionSystem;
-    GravitySystem m_gravitySystem;
-    RenderSystem m_renderSystem;
+    const Window& m_window;            ///< OS level window.
+    double m_accumulator = 0.0;        ///< Time left in the accumulator.
+    mini::ecsWorld m_gameWorld;        ///< The ECS world holding game state.
+    CollisionSystem m_collisionSystem; ///< System used to collide entities.
+    GravitySystem m_gravitySystem;     ///< System used to apply gravity.
+    RenderSystem m_renderSystem;       ///< System used to render the game.
 };
 
 #endif // ENGINE_HPP

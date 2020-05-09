@@ -7,10 +7,14 @@
 #include "ecsSystem.hpp"
 #include "ecsWorld.hpp"
 
-/***/
+///////////////////////////////////////////////////////////////////////////
+/// \class  CollisionSystem
+/// \brief  System used to check if components collide in an ECS.
 class CollisionSystem final : public mini::ecsSystem {
     public:
-    /***/
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Construct a collision system with an ecsWorld reference.
+    /// \param  gameWorld   reference to the engine's game world.
     CollisionSystem(mini::ecsWorld& gameWorld) : m_gameWorld(gameWorld) {
         addComponentType(
             ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
@@ -20,7 +24,11 @@ class CollisionSystem final : public mini::ecsSystem {
         addComponentType(
             MoveableComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
     }
-    // Public Interface Implementation
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Tick this system by deltaTime.
+    /// \param	deltaTime	    the amount of time passed since last update.
+    /// \param	components	    the components to update.
     void updateComponents(
         const double& deltaTime,
         const std::vector<std::vector<mini::ecsBaseComponent*>>&
@@ -80,7 +88,7 @@ class CollisionSystem final : public mini::ecsSystem {
     }
 
     private:
-    mini::ecsWorld& m_gameWorld;
+    mini::ecsWorld& m_gameWorld; ///< Reference to the engine's game world.
 };
 
 #endif // COLLISIONSYSTEM_HPP

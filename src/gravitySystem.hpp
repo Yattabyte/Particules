@@ -5,17 +5,24 @@
 #include "components.hpp"
 #include "ecsSystem.hpp"
 
-/***/
+/////////////////////////////////////////////////////////////////////////
+/// \class  GravitySystem
+/// \brief  System used to apply gravity to entity components.
 class GravitySystem final : public mini::ecsSystem {
     public:
-    /***/
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Construct a gravity system.
     GravitySystem() {
         addComponentType(
             ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
         addComponentType(
             MassComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
     }
-    // Public Interface Implementation
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Tick this system by deltaTime.
+    /// \param	deltaTime	    the amount of time passed since last update.
+    /// \param	components	    the components to update.
     void updateComponents(
         const double& deltaTime,
         const std::vector<std::vector<mini::ecsBaseComponent*>>&

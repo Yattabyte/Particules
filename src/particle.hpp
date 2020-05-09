@@ -4,15 +4,20 @@
 
 #include "Utility/vec.hpp"
 
+/////////////////////////////////////////////////////////////////////////
+/// Particle Enumerations
 enum class PARTICLE_TYPE : int { CONCRETE, SAND };
 
-/***/
+/////////////////////////////////////////////////////////////////////////
+/// \class GPU_Particle
 struct GPU_Particle {
     vec2 m_pos = vec2(0.0F);
     vec2 m_velocity = vec2(0.0F);
     vec2 m_scale = vec2(1.0F);
 };
 
+/////////////////////////////////////////////////////////////////////////
+/// \class Game_Particle
 struct Game_Particle {
     vec2 m_pos = vec2(0.0F);
     vec2 m_velocity = vec2(0.0F);
