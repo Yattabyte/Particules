@@ -1,20 +1,21 @@
 #define GLFW_INCLUDE_NONE
 #include "Utility/vec.hpp"
-#include "Utility/window.hpp"
 #include "engine.hpp"
+#include "window.hpp"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <iostream>
 #include <string>
 
-///////////////////////////////////////////////////////////////////////////
-/// Use the shared mini namespace
-using namespace mini;
-
-// Forward Declarations
+//////////////////////////////////////////////////////////////////////
+/// Forward Declarations
 static Window init_backend(const vec2& windowSize);
 static void error_shutdown(const std::string& errorMsg);
 static void register_debug();
+
+//////////////////////////////////////////////////////////////////////
+/// main
+//////////////////////////////////////////////////////////////////////
 
 int main() noexcept {
     const Window window = init_backend(vec2(512));
@@ -39,6 +40,10 @@ int main() noexcept {
     exit(0);
 }
 
+//////////////////////////////////////////////////////////////////////
+/// init_backend
+//////////////////////////////////////////////////////////////////////
+
 static Window init_backend(const vec2& windowSize) {
     // Init GLFW
     if (glfwInit() != GLFW_TRUE)
@@ -60,14 +65,20 @@ static Window init_backend(const vec2& windowSize) {
     return window;
 }
 
-/** Report an error and shutdown. */
+//////////////////////////////////////////////////////////////////////
+/// error_shutdown
+//////////////////////////////////////////////////////////////////////
+
 static void error_shutdown(const std::string& errorMsg) {
     std::cout << errorMsg;
     glfwTerminate();
     exit(-1);
 }
 
-/** Register the OpenGL error debugging func. */
+//////////////////////////////////////////////////////////////////////
+/// register_debug
+//////////////////////////////////////////////////////////////////////
+
 static void register_debug() {
 #ifdef DEBUG
     if (GLAD_GL_KHR_debug != 0) {

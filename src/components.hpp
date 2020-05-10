@@ -6,34 +6,36 @@
 #include "particle.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
+
+///////////////////////////////////////////////////////////////////////////
 /// \class  ParticleComponent
-struct ParticleComponent final : public mini::ecsComponent<ParticleComponent> {
+struct ParticleComponent final : public ecsComponent<ParticleComponent> {
     Game_Particle particle;
 };
 
 ///////////////////////////////////////////////////////////////////////////
 /// \class  MassComponent
-struct MassComponent final : public mini::ecsComponent<MassComponent> {
+struct MassComponent final : public ecsComponent<MassComponent> {
     float mass = 0.0F;
 };
 
 ///////////////////////////////////////////////////////////////////////////
 /// \class  BoundingSphereComponent
 struct BoundingSphereComponent final
-    : public mini::ecsComponent<BoundingSphereComponent> {
+    : public ecsComponent<BoundingSphereComponent> {
     float radius = 1.0F;
 };
 
 ///////////////////////////////////////////////////////////////////////////
 /// \class  BoundingBoxComponent
-struct BoundingBoxComponent final
-    : public mini::ecsComponent<BoundingBoxComponent> {
+struct BoundingBoxComponent final : public ecsComponent<BoundingBoxComponent> {
     vec2 extents;
 };
 
 ///////////////////////////////////////////////////////////////////////////
 /// \class  MoveableComponent
-struct MoveableComponent final : public mini::ecsComponent<MoveableComponent> {
-};
+struct MoveableComponent final : public ecsComponent<MoveableComponent> {};
 
 #endif // COMPONENTS_HPP

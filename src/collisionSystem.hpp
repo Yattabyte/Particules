@@ -8,14 +8,18 @@
 #include "ecsWorld.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
+
+///////////////////////////////////////////////////////////////////////////
 /// \class  CollisionSystem
 /// \brief  System used to check if components collide in an ECS.
-class CollisionSystem final : public mini::ecsSystem {
+class CollisionSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a collision system with an ecsWorld reference.
     /// \param  gameWorld   reference to the engine's game world.
-    CollisionSystem(mini::ecsWorld& gameWorld) : m_gameWorld(gameWorld) {
+    CollisionSystem(ecsWorld& gameWorld) : m_gameWorld(gameWorld) {
         addComponentType(
             ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
         addComponentType(
@@ -31,8 +35,8 @@ class CollisionSystem final : public mini::ecsSystem {
     /// \param	components	    the components to update.
     void updateComponents(
         const double& deltaTime,
-        const std::vector<std::vector<mini::ecsBaseComponent*>>&
-            entityComponents) final {
+        const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
+        final {
         for (auto& components : entityComponents) {
             auto& particle =
                 static_cast<ParticleComponent*>(components[0])->particle;
@@ -40,7 +44,7 @@ class CollisionSystem final : public mini::ecsSystem {
                 static_cast<BoundingSphereComponent*>(components[1])->radius;
 
             const std::vector<
-                std::pair<mini::ComponentID, ecsSystem::RequirementsFlag>>
+                std::pair<ComponentID, ecsSystem::RequirementsFlag>>
                 nestedRequirements = { std::make_pair(
                                            ParticleComponent::Runtime_ID,
                                            RequirementsFlag::FLAG_REQUIRED),
@@ -49,8 +53,7 @@ class CollisionSystem final : public mini::ecsSystem {
                                            RequirementsFlag::FLAG_REQUIRED) };
             const auto nestedFunction =
                 [&](const double&,
-                    const std::vector<std::vector<mini::ecsBaseComponent*>>&
-                        ec) {
+                    const std::vector<std::vector<ecsBaseComponent*>>& ec) {
                     for (auto& c : ec) {
                         auto& otherParticle =
                             static_cast<ParticleComponent*>(c[0])->particle;
@@ -88,7 +91,7 @@ class CollisionSystem final : public mini::ecsSystem {
     }
 
     private:
-    mini::ecsWorld& m_gameWorld; ///< Reference to the engine's game world.
+    ecsWorld& m_gameWorld; ///< Reference to the engine's game world.
 };
 
 #endif // COLLISIONSYSTEM_HPP

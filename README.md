@@ -1,5 +1,4 @@
 # Particules
-Hopefully a 2D particle physics sandbox game if I'm successfull
 
 [![Linux](https://img.shields.io/travis/yattabyte/Particules?label=Linux%20Build&logo=Travis)](https://travis-ci.com/Yattabyte/Particules)
 [![Windows](https://img.shields.io/appveyor/ci/yattabyte/Particules?label=Windows%20Build&logo=Appveyor)](https://ci.appveyor.com/project/Yattabyte/Particules)
@@ -8,7 +7,8 @@ Hopefully a 2D particle physics sandbox game if I'm successfull
 [![LGTM](https://img.shields.io/lgtm/grade/cpp/github/Yattabyte/Particules?label=Code%20Quality&logo=LGTM)](https://lgtm.com/projects/g/Yattabyte/Particules)
 [![CodeDocs](https://codedocs.xyz/Yattabyte/Particules.svg)](https://codedocs.xyz/Yattabyte/Particules/)
 [![license](https://img.shields.io/github/license/Yattabyte/Particules?label=License&logo=github)](https://github.com/Yattabyte/Particules/blob/master/LICENSE)
-  
+
+Hopefully a 2D particle physics sandbox game if I'm successfull  
 
 Use Git submodules to acquire dependencies.
 Requires C++17 and CMake. Configured to build dependencies.

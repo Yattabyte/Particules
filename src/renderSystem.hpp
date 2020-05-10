@@ -9,10 +9,14 @@
 #include "components.hpp"
 #include "ecsSystem.hpp"
 
+///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
+
 /////////////////////////////////////////////////////////////////////////
 /// \class  RenderSystem
 /// \brief  System used to render entities to the screen.
-class RenderSystem final : public mini::ecsSystem {
+class RenderSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a rendering system.
@@ -24,8 +28,8 @@ class RenderSystem final : public mini::ecsSystem {
     /// \param	components	    the components to update.
     void updateComponents(
         const double& deltaTime,
-        const std::vector<std::vector<mini::ecsBaseComponent*>>&
-            entityComponents) final;
+        const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
+        final;
 
     private:
     Shader m_shader;                      ///< A shader for displaying particles

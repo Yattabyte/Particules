@@ -3,11 +3,15 @@
 #define ENGINE_HPP
 
 #include "Utility/vec.hpp"
-#include "Utility/window.hpp"
 #include "collisionSystem.hpp"
 #include "ecsWorld.hpp"
 #include "gravitySystem.hpp"
 #include "renderSystem.hpp"
+#include "window.hpp"
+
+///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
 
 /////////////////////////////////////////////////////////////////////////
 /// \class  Engine
@@ -38,7 +42,7 @@ class Engine {
 
     const Window& m_window;            ///< OS level window.
     double m_accumulator = 0.0;        ///< Time left in the accumulator.
-    mini::ecsWorld m_gameWorld;        ///< The ECS world holding game state.
+    ecsWorld m_gameWorld;              ///< The ECS world holding game state.
     CollisionSystem m_collisionSystem; ///< System used to collide entities.
     GravitySystem m_gravitySystem;     ///< System used to apply gravity.
     RenderSystem m_renderSystem;       ///< System used to render the game.

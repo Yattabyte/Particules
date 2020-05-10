@@ -2,7 +2,7 @@
 ### Particules ###
 ##################
 cmake_minimum_required(VERSION 3.9.2)
-project(Particules VERSION 0.0.11 DESCRIPTION "A falling-sand-like game using several of my own libraries, C++17, and OpenGL 4.5+")
+project(Particules VERSION 0.1.0 DESCRIPTION "A falling-sand-like game using several of my own libraries, C++17, and OpenGL 4.5+")
 include(ExternalProject)
 
 # Set mandatory requirements
@@ -40,6 +40,7 @@ endif()
 # Add source files
 find_package(Threads REQUIRED)
 find_package(OpenGL REQUIRED)
+add_subdirectory(external/glfw)
 add_subdirectory(external/MiniGFX)
 add_subdirectory(external/MiniECS)
 add_subdirectory(src)

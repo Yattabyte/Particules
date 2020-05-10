@@ -5,10 +5,14 @@
 #include "components.hpp"
 #include "ecsSystem.hpp"
 
+///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
+
 /////////////////////////////////////////////////////////////////////////
 /// \class  GravitySystem
 /// \brief  System used to apply gravity to entity components.
-class GravitySystem final : public mini::ecsSystem {
+class GravitySystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a gravity system.
@@ -25,8 +29,8 @@ class GravitySystem final : public mini::ecsSystem {
     /// \param	components	    the components to update.
     void updateComponents(
         const double& deltaTime,
-        const std::vector<std::vector<mini::ecsBaseComponent*>>&
-            entityComponents) final {
+        const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
+        final {
         for (auto& components : entityComponents) {
             auto& particleComponent =
                 *static_cast<ParticleComponent*>(components[0]);

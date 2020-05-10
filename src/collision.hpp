@@ -6,6 +6,10 @@
 #include <tuple>
 
 ///////////////////////////////////////////////////////////////////////////
+/// Use the shared mini namespace
+using namespace mini;
+
+///////////////////////////////////////////////////////////////////////////
 /// \brief  Checks if sphere is colliding with an AABB.
 /// \param  posA    the position of the sphere.
 /// \param  radA    the radius of the sphere.

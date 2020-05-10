@@ -1,9 +1,5 @@
 #include "renderSystem.hpp"
 
-///////////////////////////////////////////////////////////////////////////
-/// Use the shared mini namespace
-using namespace mini;
-
 constexpr auto const vertCode = R"END(
     #version 430
     struct Particle {
@@ -37,6 +33,10 @@ constexpr auto const fragCode = R"END(
     }
 )END";
 
+//////////////////////////////////////////////////////////////////////
+/// Custom Constructor
+//////////////////////////////////////////////////////////////////////
+
 RenderSystem::RenderSystem()
     : m_shader(vertCode, fragCode), m_model({ vec3(-1, -1, 0), vec3(1, -1, 0),
                                               vec3(1, 1, 0), vec3(-1, 1, 0) }),
@@ -48,6 +48,10 @@ RenderSystem::RenderSystem()
     addComponentType(
         BoundingBoxComponent::Runtime_ID, RequirementsFlag::FLAG_OPTIONAL);
 }
+
+//////////////////////////////////////////////////////////////////////
+/// updateComponents
+//////////////////////////////////////////////////////////////////////
 
 void RenderSystem::updateComponents(
     const double& /*deltaTime*/,
