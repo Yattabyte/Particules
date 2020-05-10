@@ -22,11 +22,32 @@ bool areColliding_SphereVsBox(
         sphereTop > boxBottom && sphereBottom < boxTop);
 }
 
+bool areColliding_BoxVsBox(
+    const vec2& posA, const vec2& sclA, const vec2& posB,
+    const vec2& sclB) noexcept {
+    const bool x = std::abs(posA.data()[0] - posB.data()[0]) <=
+                   (sclA.data()[0] + sclB.data()[0]);
+    const bool y = std::abs(posA.data()[1] - posB.data()[1]) <=
+                   (sclA.data()[1] + sclB.data()[1]);
+    return x && y;
+
+    /*const auto aLeft = posA.x() - sclA.x();
+    const auto aRight = posA.x() + sclA.x();
+    const auto aBot = posA.y() - sclA.y();
+    const auto aTop = posA.y() + sclA.y();
+    const auto bLeft = posB.x() - sclB.x();
+    const auto bRight = posB.x() + sclB.x();
+    const auto bBot = posB.y() - sclB.y();
+    const auto bTop = posB.y() + sclB.y();
+    return (aRight >= bLeft && aLeft <= bRight && aTop >= bBot && aBot <=
+    bTop);*/
+}
+
 //////////////////////////////////////////////////////////////////////
 /// rayBBoxIntersection
 //////////////////////////////////////////////////////////////////////
 
-std::tuple<bool, vec2, vec2> rayBBoxIntersection(
+std::tuple<bool, vec2, vec2, float> rayBBoxIntersection(
     const vec2& rayPos, const vec2& rayDir, const vec2& boxCenter,
     const vec2& boxExtents, const bool projectBackwards) noexcept {
     const vec2 boxMin = boxCenter - boxExtents;
@@ -49,7 +70,7 @@ std::tuple<bool, vec2, vec2> rayBBoxIntersection(
         const vec2 intersectionPoint = rayPos + (rayDir * vec2(projectAmount));
         const vec2 p = intersectionPoint - boxCenter;
         const vec2 d = (boxMin - boxMax) * vec2(0.5);
-        constexpr float bias = 1.000001F;
+        constexpr float bias = 1.00001F;
         const vec2 normal =
             vec2(
                 static_cast<float>(
@@ -57,7 +78,8 @@ std::tuple<bool, vec2, vec2> rayBBoxIntersection(
                 static_cast<float>(
                     static_cast<int>(p.y() / std::abs(d.x()) * bias)))
                 .normalize();
-        return std::make_tuple(true, intersectionPoint, normal);
+        return std::make_tuple(
+            true, intersectionPoint, normal, std::abs(projectAmount));
     }
-    return std::make_tuple(false, vec2{ 0 }, vec2{ 0 });
+    return std::make_tuple(false, vec2{ 0 }, vec2{ 0 }, 0.0F);
 }

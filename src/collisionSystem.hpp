@@ -7,6 +7,8 @@
 #include "ecsSystem.hpp"
 #include "ecsWorld.hpp"
 
+constexpr float tolerance = 0.00001F;
+
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
 using namespace mini;
@@ -23,8 +25,9 @@ class CollisionSystem final : public ecsSystem {
         addComponentType(
             ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
         addComponentType(
-            BoundingSphereComponent::Runtime_ID,
-            RequirementsFlag::FLAG_REQUIRED);
+            BoundingBoxComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
+        addComponentType(
+            PhysicsComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
         addComponentType(
             MoveableComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
     }
@@ -38,60 +41,134 @@ class CollisionSystem final : public ecsSystem {
         const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
         final {
         for (auto& components : entityComponents) {
-            auto& particle =
-                static_cast<ParticleComponent*>(components[0])->particle;
-            auto& radius =
-                static_cast<BoundingSphereComponent*>(components[1])->radius;
+            m_particle = static_cast<ParticleComponent*>(components[0]);
+            m_bounds = static_cast<BoundingBoxComponent*>(components[1]);
+            m_physics = static_cast<PhysicsComponent*>(components[2]);
 
-            const std::vector<
-                std::pair<ComponentID, ecsSystem::RequirementsFlag>>
-                nestedRequirements = { std::make_pair(
-                                           ParticleComponent::Runtime_ID,
-                                           RequirementsFlag::FLAG_REQUIRED),
-                                       std::make_pair(
-                                           BoundingBoxComponent::Runtime_ID,
-                                           RequirementsFlag::FLAG_REQUIRED) };
-            const auto nestedFunction =
-                [&](const double&,
-                    const std::vector<std::vector<ecsBaseComponent*>>& ec) {
-                    for (auto& c : ec) {
-                        auto& otherParticle =
-                            static_cast<ParticleComponent*>(c[0])->particle;
-                        auto& extents =
-                            static_cast<BoundingBoxComponent*>(c[1])->extents;
-
-                        if (areColliding_SphereVsBox(
-                                particle.m_pos, radius, otherParticle.m_pos,
-                                vec2(extents))) {
-                            // Acquire specific collision information
-                            const auto& [hit, intPoint, normal] =
-                                rayBBoxIntersection(
-                                    particle.m_pos,
-                                    particle.m_velocity.normalize(),
-                                    otherParticle.m_pos, vec2(extents), true);
-
-                            // Retract movement to intersection point
-                            // (offset by radius of particle)
-                            particle.m_pos = intPoint + vec2(1.0F) * normal;
-
-                            // Reflect the velocity off of the surface
-                            particle.m_velocity =
-                                (particle.m_velocity -
-                                 vec2(2.0F) *
-                                     vec2(particle.m_velocity.dot(normal)) *
-                                     normal) *
-                                vec2(0.5F);
-                        }
-                    }
-                };
-
+            // Check collision of this particle versus the world
             m_gameWorld.updateSystem(
-                deltaTime, nestedRequirements, nestedFunction);
+                deltaTime,
+                { { ParticleComponent::Runtime_ID,
+                    RequirementsFlag::FLAG_REQUIRED },
+                  { BoundingBoxComponent::Runtime_ID,
+                    RequirementsFlag::FLAG_REQUIRED },
+                  { PhysicsComponent::Runtime_ID,
+                    RequirementsFlag::FLAG_REQUIRED } },
+                [&](const double& dt,
+                    const std::vector<std::vector<ecsBaseComponent*>>& ec) {
+                    particleVersusWorld(dt, ec);
+                });
         }
     }
 
+    void particleVersusWorld(
+        const double&,
+        const std::vector<std::vector<ecsBaseComponent*>>& entityComponents) {
+        auto& particle = m_particle->particle;
+        const auto& extents = m_bounds->extents;
+        const auto& physics = *m_physics;
+        for (auto& components : entityComponents) {
+            auto& otherParticle =
+                static_cast<ParticleComponent*>(components[0])->particle;
+            const auto& otherExtents =
+                static_cast<BoundingBoxComponent*>(components[1])->extents;
+            const auto& otherPhysics =
+                *static_cast<PhysicsComponent*>(components[2]);
+
+            // Avoid colliding against self
+            if (&otherParticle == &particle)
+                continue;
+
+            const auto AABBvsAABB = [&]() {
+                // Vector from A to B
+                const vec2 n = otherParticle.m_pos - particle.m_pos;
+
+                // Calculate overlap on x axis
+                const float x_overlap =
+                    extents.x() + otherExtents.x() - std::abs(n.x());
+
+                // SAT test on x axis
+                if (x_overlap > tolerance) {
+                    // Calculate overlap on y axis
+                    const float y_overlap =
+                        extents.y() + otherExtents.y() - std::abs(n.y());
+
+                    // SAT test on y axis
+                    if (y_overlap > tolerance) {
+                        // Find out which axis is axis of least penetration
+                        if (x_overlap > y_overlap) {
+                            // Point towards B knowing that n points from A to B
+                            if (n.x() < tolerance)
+                                return std::make_tuple(
+                                    true, vec2(-1, 0), x_overlap);
+                            else
+                                return std::make_tuple(
+                                    true, vec2(1, 0), x_overlap);
+                        } else {
+                            // Point toward B knowing that n points from A to B
+                            if (n.y() < tolerance)
+                                return std::make_tuple(
+                                    true, vec2(0, -1), y_overlap);
+                            else
+                                return std::make_tuple(
+                                    true, vec2(0, 1), y_overlap);
+                        }
+                    }
+                }
+                return std::make_tuple(false, vec2(0, 0), 0.0F);
+            };
+
+            // Ensure we hit
+            const auto& [hit, normal, penetrationDepth] = AABBvsAABB();
+            if (!hit)
+                continue;
+
+            /*// Do not resolve if depth is beneath tolerance
+            if (penetrationDepth < tolerance)
+                continue;*/
+
+            // Calculate relative velocity
+            const vec2 relativeVelocity =
+                otherParticle.m_velocity - particle.m_velocity;
+
+            // Calculate relative velocity in terms of the normal direction
+            const float velocityAlongNormal = relativeVelocity.dot(normal);
+
+            // Do not resolve if velocities are separating
+            if (-velocityAlongNormal < tolerance)
+                continue;
+
+            // Calculate restitution
+            const float e =
+                std::min(physics.restitution, otherPhysics.restitution);
+
+            // Calculate impulse scalar
+            const float j = -((1.0F + e) * velocityAlongNormal) /
+                            (physics.inv_mass + otherPhysics.inv_mass);
+
+            // Apply impulse
+            const vec2 impulse = vec2(j) * normal;
+            particle.m_velocity -= vec2(physics.inv_mass) * impulse;
+            otherParticle.m_velocity += vec2(otherPhysics.inv_mass) * impulse;
+
+            // Correct position
+            constexpr float percent = 0.8F;
+            constexpr float slop = 0.1F;
+            vec2 correction =
+                vec2(
+                    std::max(penetrationDepth - slop, 0.0F) /
+                    (physics.inv_mass + otherPhysics.inv_mass) * percent) *
+                normal;
+            particle.m_pos -= vec2(physics.inv_mass) * correction;
+            otherParticle.m_pos += vec2(otherPhysics.inv_mass) * correction;
+        }
+    };
+
     private:
     ecsWorld& m_gameWorld; ///< Reference to the engine's game world.
+    ParticleComponent* m_particle = nullptr;  ///< Particle component.
+    BoundingBoxComponent* m_bounds = nullptr; ///< Bounding component.
+    PhysicsComponent* m_physics = nullptr;    ///< Physics component.
 };
 
 #endif // COLLISIONSYSTEM_HPP

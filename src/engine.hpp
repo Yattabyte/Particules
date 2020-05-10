@@ -43,8 +43,8 @@ class Engine {
     const Window& m_window;            ///< OS level window.
     double m_accumulator = 0.0;        ///< Time left in the accumulator.
     ecsWorld m_gameWorld;              ///< The ECS world holding game state.
-    CollisionSystem m_collisionSystem; ///< System used to collide entities.
     GravitySystem m_gravitySystem;     ///< System used to apply gravity.
+    CollisionSystem m_collisionSystem; ///< System used to collide entities.
     RenderSystem m_renderSystem;       ///< System used to render the game.
 };
 

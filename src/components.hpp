@@ -16,16 +16,11 @@ struct ParticleComponent final : public ecsComponent<ParticleComponent> {
 };
 
 ///////////////////////////////////////////////////////////////////////////
-/// \class  MassComponent
-struct MassComponent final : public ecsComponent<MassComponent> {
-    float mass = 0.0F;
-};
-
-///////////////////////////////////////////////////////////////////////////
-/// \class  BoundingSphereComponent
-struct BoundingSphereComponent final
-    : public ecsComponent<BoundingSphereComponent> {
-    float radius = 1.0F;
+/// \class  PhysicsComponent
+struct PhysicsComponent final : public ecsComponent<PhysicsComponent> {
+    float mass = 1.0F;
+    float inv_mass = 1.0F;
+    float restitution = 0.5F;
 };
 
 ///////////////////////////////////////////////////////////////////////////

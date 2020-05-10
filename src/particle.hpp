@@ -18,6 +18,8 @@ struct GPU_Particle {
     vec2 m_pos = vec2(0.0F);
     vec2 m_velocity = vec2(0.0F);
     vec2 m_scale = vec2(1.0F);
+    vec2 padding;
+    vec4 m_color = vec4(1);
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -26,7 +28,6 @@ struct Game_Particle {
     vec2 m_pos = vec2(0.0F);
     vec2 m_velocity = vec2(0.0F);
     PARTICLE_TYPE m_type = PARTICLE_TYPE::CONCRETE;
-    float m_mass = 1.0F;
     float m_size = 1.0F;
 };
 

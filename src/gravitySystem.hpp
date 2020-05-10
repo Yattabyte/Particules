@@ -20,7 +20,9 @@ class GravitySystem final : public ecsSystem {
         addComponentType(
             ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
         addComponentType(
-            MassComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
+            PhysicsComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
+        addComponentType(
+            MoveableComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -34,15 +36,17 @@ class GravitySystem final : public ecsSystem {
         for (auto& components : entityComponents) {
             auto& particleComponent =
                 *static_cast<ParticleComponent*>(components[0]);
-            auto& massComponent = *static_cast<MassComponent*>(components[1]);
+            const auto& massComponent =
+                *static_cast<PhysicsComponent*>(components[1]);
 
             const float force = massComponent.mass * -9.81F;
             particleComponent.particle.m_velocity.y() +=
                 force * static_cast<float>(deltaTime);
 
+            constexpr float damping = 0.9999F;
             particleComponent.particle.m_pos +=
                 particleComponent.particle.m_velocity *
-                vec2(static_cast<float>(deltaTime));
+                vec2(static_cast<float>(deltaTime) * damping);
         }
     }
 };

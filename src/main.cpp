@@ -18,7 +18,7 @@ static void register_debug();
 //////////////////////////////////////////////////////////////////////
 
 int main() noexcept {
-    const Window window = init_backend(vec2(512));
+    const Window window = init_backend(vec2(500));
     Engine engine(window);
 
     // Main Loop
