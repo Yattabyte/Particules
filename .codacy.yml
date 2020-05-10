@@ -6,6 +6,9 @@ engines:
   flawfinder:
     enabled: true
 
+languages:
+  cpp:
+
 exclude_paths:
   - 'external/**'
   - 'deprecated/**'

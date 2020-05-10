@@ -1,0 +1,8 @@
+extraction:
+  cpp:
+    after_prepare:
+      - cmake --version
+      - cmake --build . 
+      
+path_classifiers:
+  src

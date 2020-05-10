@@ -8,8 +8,8 @@
 [![CodeDocs](https://codedocs.xyz/Yattabyte/Particules.svg)](https://codedocs.xyz/Yattabyte/Particules/)
 [![license](https://img.shields.io/github/license/Yattabyte/Particules?label=License&logo=github)](https://github.com/Yattabyte/Particules/blob/master/LICENSE)
 
-Hopefully a 2D particle physics sandbox game if I'm successfull  
+Hopefully a 2D particle physics sandbox game if I'm successfull.  
 
-Use Git submodules to acquire dependencies.
-Requires C++17 and CMake. Configured to build dependencies.
-Compiles on GCC 8/9, Clang 7/8/9, MSVC 14/19 (VS 2017/2019)
+Use Git submodules to acquire dependencies.  
+Requires C++17 and CMake. Configured to build dependencies.  
+Compiles on GCC 8/9, Clang 7/8/9, MSVC 14/19 (VS 2017/2019).  
