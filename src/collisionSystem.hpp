@@ -83,15 +83,27 @@ class CollisionSystem final : public ecsSystem {
                 // Vector from A to B
                 const vec2 n = otherParticle.m_pos - particle.m_pos;
 
+                const auto aBoxMax = particle.m_pos + extents;
+                const auto aBoxMin = particle.m_pos - extents;
+                const auto bBoxMax = otherParticle.m_pos + otherExtents;
+                const auto bBoxMin = otherParticle.m_pos - otherExtents;
+
+                // Calculate half extents along x axis for each object
+                const float a_extentX = (aBoxMax.x() - aBoxMin.x()) / 2.0F;
+                const float b_extentX = (bBoxMax.x() - bBoxMin.x()) / 2.0F;
+
                 // Calculate overlap on x axis
-                const float x_overlap =
-                    extents.x() + otherExtents.x() - std::abs(n.x());
+                const float x_overlap = a_extentX + b_extentX - std::abs(n.x());
 
                 // SAT test on x axis
                 if (x_overlap > tolerance) {
+                    // Calculate half extents along y axis for each object
+                    const float a_extentY = (aBoxMax.y() - aBoxMin.y()) / 2.0F;
+                    const float b_extentY = (bBoxMax.y() - bBoxMin.y()) / 2.0F;
+
                     // Calculate overlap on y axis
                     const float y_overlap =
-                        extents.y() + otherExtents.y() - std::abs(n.y());
+                        a_extentY + b_extentY - std::abs(n.y());
 
                     // SAT test on y axis
                     if (y_overlap > tolerance) {
@@ -123,9 +135,9 @@ class CollisionSystem final : public ecsSystem {
             if (!hit)
                 continue;
 
-            /*// Do not resolve if depth is beneath tolerance
+            // Do not resolve if depth is beneath tolerance
             if (penetrationDepth < tolerance)
-                continue;*/
+                continue;
 
             // Calculate relative velocity
             const vec2 relativeVelocity =

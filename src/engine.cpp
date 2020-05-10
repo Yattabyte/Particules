@@ -18,8 +18,9 @@ Engine::Engine(const Window& window)
     // Fill game world with sand
     for (auto x = 0; x < 64; ++x) {
         ParticleComponent particle;
-        particle.particle.m_pos = vec2{ randomFloats(generator) * 32.0F,
-                                        randomFloats(generator) * 32.0F };
+        particle.particle.m_pos =
+            vec2{ randomFloats(generator) * 32.0F,
+                  (randomFloats(generator) * 0.5F + 0.5F) * 32.0F };
         particle.particle.m_type = PARTICLE_TYPE::SAND;
         PhysicsComponent mass;
         mass.mass = (randomFloats(generator) * 0.5F + 0.5F) * 24.0F + 1.0F;

@@ -86,7 +86,7 @@ void RenderSystem::updateComponents(
     // Calculate viewing perspective and matrices
     const auto pMatrix = mat4::perspective(1.5708F, 1.0F, 0.01F, 10.0F);
     const auto vMatrix =
-        mat4::lookAt(vec3{ 0, 0, 75 }, vec3{ 0, 0, 0 }, vec3{ 0, 1, 0 });
+        mat4::lookAt(vec3{ 0, 0, 125 }, vec3{ 0, 0, 0 }, vec3{ 0, 1, 0 });
 
     // Flush buffers and set starting parameters
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
