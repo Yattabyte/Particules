@@ -108,7 +108,7 @@ class CollisionSystem final : public ecsSystem {
                     // SAT test on y axis
                     if (y_overlap > tolerance) {
                         // Find out which axis is axis of least penetration
-                        if (x_overlap > y_overlap) {
+                        if (x_overlap < y_overlap) {
                             // Point towards B knowing that n points from A to B
                             if (n.x() < tolerance)
                                 return std::make_tuple(
@@ -164,7 +164,7 @@ class CollisionSystem final : public ecsSystem {
             otherParticle.m_velocity += vec2(otherPhysics.inv_mass) * impulse;
 
             // Correct position
-            constexpr float percent = 0.8F;
+            constexpr float percent = 0.5F;
             constexpr float slop = 0.1F;
             vec2 correction =
                 vec2(
@@ -173,6 +173,7 @@ class CollisionSystem final : public ecsSystem {
                 normal;
             particle.m_pos -= vec2(physics.inv_mass) * correction;
             otherParticle.m_pos += vec2(otherPhysics.inv_mass) * correction;
+            return;
         }
     };
 

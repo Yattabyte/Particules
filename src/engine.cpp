@@ -16,7 +16,7 @@ Engine::Engine(const Window& window)
     std::mt19937 generator(0);
 
     // Fill game world with sand
-    for (auto x = 0; x < 64; ++x) {
+    for (auto x = 0; x < 125; ++x) {
         ParticleComponent particle;
         particle.particle.m_pos =
             vec2{ randomFloats(generator) * 32.0F,
@@ -82,7 +82,7 @@ void Engine::tick(const double& deltaTime) {
 void Engine::gameTick(const double& deltaTime) {
     constexpr double timeStep = 0.05;
     m_accumulator += deltaTime;
-    while (m_accumulator > timeStep) {
+    while (m_accumulator >= timeStep) {
         // Run Game Systems
         m_gameWorld.updateSystem(&m_gravitySystem, timeStep);
         m_gameWorld.updateSystem(&m_collisionSystem, timeStep);
