@@ -16,12 +16,14 @@ Engine::Engine(const Window& window)
     std::mt19937 generator(0);
 
     // Fill game world with sand
-    for (auto x = 0; x < 125; ++x) {
+    for (auto x = 0; x < 397; ++x) {
         ParticleComponent particle;
         particle.particle.m_pos =
             vec2{ randomFloats(generator) * 32.0F,
                   (randomFloats(generator) * 0.5F + 0.5F) * 32.0F };
         particle.particle.m_type = PARTICLE_TYPE::SAND;
+        particle.particle.m_velocity = vec2{ randomFloats(generator) * 15.0F,
+                                             randomFloats(generator) * 15.0F };
         PhysicsComponent mass;
         mass.mass = (randomFloats(generator) * 0.5F + 0.5F) * 24.0F + 1.0F;
         mass.inv_mass = 1.0F / mass.mass;

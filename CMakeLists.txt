@@ -2,7 +2,7 @@
 ### Particules ###
 ##################
 cmake_minimum_required(VERSION 3.9.2)
-project(Particules VERSION 0.1.3 DESCRIPTION "A falling-sand-like game using several of my own libraries, C++17, and OpenGL 4.5+")
+project(Particules VERSION 0.1.4 DESCRIPTION "A falling-sand-like game using several of my own libraries, C++17, and OpenGL 4.5+")
 include(ExternalProject)
 
 # Set mandatory requirements

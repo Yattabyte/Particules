@@ -156,12 +156,12 @@ class CollisionSystem final : public ecsSystem {
 
             // Calculate impulse scalar
             const float j = -((1.0F + e) * velocityAlongNormal) /
-                            (physics.inv_mass + otherPhysics.inv_mass);
+                            (physics.mass + otherPhysics.mass);
 
             // Apply impulse
             const vec2 impulse = vec2(j) * normal;
-            particle.m_velocity -= vec2(physics.inv_mass) * impulse;
-            otherParticle.m_velocity += vec2(otherPhysics.inv_mass) * impulse;
+            particle.m_velocity -= vec2(physics.mass) * impulse;
+            otherParticle.m_velocity += vec2(otherPhysics.mass) * impulse;
 
             // Correct position
             constexpr float percent = 0.5F;
@@ -169,11 +169,10 @@ class CollisionSystem final : public ecsSystem {
             vec2 correction =
                 vec2(
                     std::max(penetrationDepth - slop, 0.0F) /
-                    (physics.inv_mass + otherPhysics.inv_mass) * percent) *
+                    (physics.mass + otherPhysics.mass) * percent) *
                 normal;
-            particle.m_pos -= vec2(physics.inv_mass) * correction;
-            otherParticle.m_pos += vec2(otherPhysics.inv_mass) * correction;
-            return;
+            particle.m_pos -= vec2(physics.mass) * correction;
+            otherParticle.m_pos += vec2(otherPhysics.mass) * correction;
         }
     };
 
