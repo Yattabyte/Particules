@@ -3,7 +3,7 @@
 #define ENGINE_HPP
 
 #include "Utility/vec.hpp"
-#include "collisionSystem.hpp"
+#include "collisionSolver.hpp"
 #include "ecsWorld.hpp"
 #include "gravitySystem.hpp"
 #include "renderSystem.hpp"
@@ -44,7 +44,7 @@ class Engine {
     double m_accumulator = 0.0;        ///< Time left in the accumulator.
     ecsWorld m_gameWorld;              ///< The ECS world holding game state.
     GravitySystem m_gravitySystem;     ///< System used to apply gravity.
-    CollisionSystem m_collisionSystem; ///< System used to collide entities.
+    CollisionSolver m_collisionSolver; ///< System used to collide entities.
     RenderSystem m_renderSystem;       ///< System used to render the game.
 };
 

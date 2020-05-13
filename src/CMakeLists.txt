@@ -11,7 +11,7 @@ set(FILES
     particle.hpp
     collision.hpp
     components.hpp
-    collisionSystem.hpp
+    collisionSolver.hpp
     gravitySystem.hpp
     renderSystem.hpp
 
@@ -21,6 +21,7 @@ set(FILES
     engine.cpp
     particle.cpp
     collision.cpp
+    collisionSolver.cpp
     renderSystem.cpp
 )
 

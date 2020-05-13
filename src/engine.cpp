@@ -9,8 +9,7 @@
 /// Custom Constructor
 //////////////////////////////////////////////////////////////////////
 
-Engine::Engine(const Window& window)
-    : m_window(window), m_collisionSystem(m_gameWorld) {
+Engine::Engine(const Window& window) : m_window(window) {
     // Random number generation variables
     std::uniform_real_distribution<float> randomFloats(-1.0F, 1.0F);
     std::mt19937 generator(0);
@@ -87,7 +86,7 @@ void Engine::gameTick(const double& deltaTime) {
     while (m_accumulator >= timeStep) {
         // Run Game Systems
         m_gameWorld.updateSystem(&m_gravitySystem, timeStep);
-        m_gameWorld.updateSystem(&m_collisionSystem, timeStep);
+        m_collisionSolver.resolveCollisions(timeStep, m_gameWorld);
 
         m_accumulator -= timeStep;
     }
