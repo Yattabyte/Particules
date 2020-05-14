@@ -14,6 +14,7 @@ set(FILES
     collisionSolver.hpp
     gravitySystem.hpp
     renderSystem.hpp
+    entityCleanupSystem.hpp
 
     # Source files
     main.cpp

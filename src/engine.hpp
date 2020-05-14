@@ -5,6 +5,7 @@
 #include "Utility/vec.hpp"
 #include "collisionSolver.hpp"
 #include "ecsWorld.hpp"
+#include "entityCleanupSystem.hpp"
 #include "gravitySystem.hpp"
 #include "renderSystem.hpp"
 #include "window.hpp"
@@ -40,12 +41,13 @@ class Engine {
     /// \param  deltaTime   the amount of time since last frame.
     void renderTick(const double& deltaTime);
 
-    const Window& m_window;            ///< OS level window.
-    double m_accumulator = 0.0;        ///< Time left in the accumulator.
-    ecsWorld m_gameWorld;              ///< The ECS world holding game state.
-    GravitySystem m_gravitySystem;     ///< System used to apply gravity.
-    CollisionSolver m_collisionSolver; ///< System used to collide entities.
-    RenderSystem m_renderSystem;       ///< System used to render the game.
+    const Window& m_window;              ///< OS level window.
+    double m_accumulator = 0.0;          ///< Time left in the accumulator.
+    ecsWorld m_gameWorld;                ///< The ECS world holding game state.
+    GravitySystem m_gravitySystem;       ///< System used to apply gravity.
+    CollisionSolver m_collisionSolver;   ///< System used to collide entities.
+    RenderSystem m_renderSystem;         ///< System used to render the game.
+    EntityCleanupSystem m_cleanupSystem; ///< Cleans-up out of bounds.
 };
 
 #endif // ENGINE_HPP
