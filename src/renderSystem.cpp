@@ -21,7 +21,8 @@ constexpr auto const vertCode = R"END(
         const vec3 scale = vec3(particles[gl_InstanceID].scale, 1.0);
         const vec3 offset = vec3(particles[gl_InstanceID].pos, 0.0);
         gl_Position = pMatrix * vMatrix * vec4((vertex * scale) + offset,  1.0);
-        color = particles[gl_InstanceID].col;
+        const float colorMod = clamp(length(particles[gl_InstanceID].velocity) / 33.0F, 0.5F, 1.3F);
+        color = particles[gl_InstanceID].col * vec4(vec3(colorMod), 1.0f);
     }
 )END";
 
@@ -65,12 +66,12 @@ void RenderSystem::updateComponents(
     for (const auto& components : entityComponents) {
         // Convert game particles into GPU renderable particles
         const auto& particle =
-            dynamic_cast<ParticleComponent*>(components[0])->particle;
+            static_cast<ParticleComponent*>(components[0])->particle;
         GPU_Particle data{ particle.m_pos, particle.m_velocity,
                            vec2(particle.m_size), vec2{ 0.0 },
                            particle.m_type == PARTICLE_TYPE::SAND
-                               ? vec4(0.75F, 0.7F, 0.5F, 1.0F)
-                               : vec4(0.2F, 0.2F, 0.2F, 1.0F) };
+                               ? vec4(0.80F, 0.75F, 0.55F, 1.0F)
+                               : vec4(0.4F, 0.4F, 0.4F, 1.0F) };
 
         // For now, attempt to retrieve a scale based on whatever other
         // components are present
@@ -86,7 +87,7 @@ void RenderSystem::updateComponents(
     // Calculate viewing perspective and matrices
     const auto pMatrix = mat4::perspective(1.5708F, 1.0F, 0.01F, 10.0F);
     const auto vMatrix =
-        mat4::lookAt(vec3{ 0, 0, 125 }, vec3{ 0, 0, 0 }, vec3{ 0, 1, 0 });
+        mat4::lookAt(vec3{ 0, 0, 200 }, vec3{ 0, 0, 0 }, vec3{ 0, 1, 0 });
 
     // Flush buffers and set starting parameters
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

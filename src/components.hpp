@@ -30,7 +30,7 @@ struct BoundingBoxComponent final : public ecsComponent<BoundingBoxComponent> {
 };
 
 ///////////////////////////////////////////////////////////////////////////
-/// \class  MoveableComponent
-struct MoveableComponent final : public ecsComponent<MoveableComponent> {};
+/// \class  MovingComponent
+struct MovingComponent final : public ecsComponent<MovingComponent> {};
 
 #endif // COMPONENTS_HPP

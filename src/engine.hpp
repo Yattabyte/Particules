@@ -7,6 +7,7 @@
 #include "ecsWorld.hpp"
 #include "entityCleanupSystem.hpp"
 #include "gravitySystem.hpp"
+#include "movementDetectorSystem.hpp"
 #include "renderSystem.hpp"
 #include "window.hpp"
 
@@ -48,6 +49,7 @@ class Engine {
     CollisionSolver m_collisionSolver;   ///< System used to collide entities.
     RenderSystem m_renderSystem;         ///< System used to render the game.
     EntityCleanupSystem m_cleanupSystem; ///< Cleans-up out of bounds.
+    MovementDetectorSystem m_moveDetector; ///< Cleans-up out of bounds.
 };
 
 #endif // ENGINE_HPP

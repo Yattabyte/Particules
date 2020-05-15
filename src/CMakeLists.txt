@@ -15,6 +15,7 @@ set(FILES
     gravitySystem.hpp
     renderSystem.hpp
     entityCleanupSystem.hpp
+    movementDetectorSystem.hpp
 
     # Source files
     main.cpp
@@ -23,7 +24,10 @@ set(FILES
     particle.cpp
     collision.cpp
     collisionSolver.cpp
+    gravitySystem.cpp
     renderSystem.cpp
+    entityCleanupSystem.cpp
+    movementDetectorSystem.cpp
 )
 
 # Create Library using the supplied files

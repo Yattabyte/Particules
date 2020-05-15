@@ -1,22 +1,24 @@
 #pragma once
-#ifndef GRAVITYSYSTEM_HPP
-#define GRAVITYSYSTEM_HPP
+#ifndef MOVEMENTDETECTORSYSTEM_HPP
+#define MOVEMENTDETECTORSYSTEM_HPP
 
 #include "components.hpp"
 #include "ecsSystem.hpp"
+#include "ecsWorld.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
 using namespace mini;
 
 /////////////////////////////////////////////////////////////////////////
-/// \class  GravitySystem
-/// \brief  System used to apply gravity to entity components.
-class GravitySystem final : public ecsSystem {
+/// \class  MovementDetectorSystem
+/// \brief  System used to flag entities as moving or stationary.
+class MovementDetectorSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
-    /// \brief  Construct a gravity system.
-    GravitySystem();
+    /// \brief  Construct a movement detector system.
+    /// \param  gameWorld   reference to the engine's game world.
+    MovementDetectorSystem(ecsWorld& gameWorld);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
@@ -26,6 +28,9 @@ class GravitySystem final : public ecsSystem {
         const double& deltaTime,
         const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
         final;
+
+    private:
+    ecsWorld& m_gameWorld;
 };
 
-#endif // GRAVITYSYSTEM_HPP
+#endif // MOVEMENTDETECTORSYSTEM_HPP

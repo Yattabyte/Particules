@@ -4,14 +4,14 @@ void CollisionSolver::resolveCollisions(const double&, ecsWorld& world) {
     // Retrieve a list of all move-able physics objects
     auto movingEntities = world.getComponents<
         ParticleComponent*, BoundingBoxComponent*, PhysicsComponent*,
-        MoveableComponent*>({ { ParticleComponent::Runtime_ID,
-                                ecsSystem::RequirementsFlag::FLAG_REQUIRED },
-                              { BoundingBoxComponent::Runtime_ID,
-                                ecsSystem::RequirementsFlag::FLAG_REQUIRED },
-                              { PhysicsComponent::Runtime_ID,
-                                ecsSystem::RequirementsFlag::FLAG_REQUIRED },
-                              { MoveableComponent::Runtime_ID,
-                                ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
+        MovingComponent*>({ { ParticleComponent::Runtime_ID,
+                              ecsSystem::RequirementsFlag::FLAG_REQUIRED },
+                            { BoundingBoxComponent::Runtime_ID,
+                              ecsSystem::RequirementsFlag::FLAG_REQUIRED },
+                            { PhysicsComponent::Runtime_ID,
+                              ecsSystem::RequirementsFlag::FLAG_REQUIRED },
+                            { MovingComponent::Runtime_ID,
+                              ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
 
     // Retrieve a list of all interact-able physics objects
     auto physicsEntities = world.getComponents<
@@ -126,8 +126,8 @@ void CollisionSolver::resolveCollisions(const double&, ecsWorld& world) {
             particle2.m_velocity += vec2(physics2.mass) * impulse;
 
             // Correct position
-            constexpr float percent = 0.5F;
-            constexpr float slop = 0.1F;
+            constexpr float percent = 0.8F;
+            constexpr float slop = 0.01F;
             vec2 correction = vec2(
                                   std::max(penetrationDepth - slop, 0.0F) /
                                   (physics1.mass + physics2.mass) * percent) *

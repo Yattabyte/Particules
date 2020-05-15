@@ -4,6 +4,7 @@
 
 #include "components.hpp"
 #include "ecsSystem.hpp"
+#include "ecsWorld.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
@@ -16,12 +17,8 @@ class EntityCleanupSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a cleanup system.
-    EntityCleanupSystem(ecsWorld& gameWorld) : m_gameWorld(gameWorld) {
-        addComponentType(
-            ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
-        addComponentType(
-            BoundingBoxComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
-    }
+    /// \param  gameWorld   reference to the engine's game world.
+    EntityCleanupSystem(ecsWorld& gameWorld);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
@@ -30,26 +27,7 @@ class EntityCleanupSystem final : public ecsSystem {
     void updateComponents(
         const double&,
         const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
-        final {
-        std::vector<EntityHandle> entitiesToDelete;
-        for (auto& components : entityComponents) {
-            const auto& particleComponent =
-                *static_cast<ParticleComponent*>(components[0]);
-            const auto& boundingComponent =
-                *static_cast<BoundingBoxComponent*>(components[1]);
-            const auto& position = particleComponent.particle.m_pos;
-            const auto& extents = boundingComponent.extents;
-
-            if (position.x() - extents.x() > 250.0F ||
-                position.x() + extents.x() < -250.0F ||
-                position.y() - extents.y() > 250.0F ||
-                position.y() + extents.y() < -250.0F)
-                entitiesToDelete.emplace_back(particleComponent.m_entityHandle);
-        }
-
-        for (const auto& handle : entitiesToDelete)
-            m_gameWorld.removeEntity(handle);
-    }
+        final;
 
     private:
     ecsWorld& m_gameWorld;
