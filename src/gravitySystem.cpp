@@ -19,9 +19,9 @@ void GravitySystem::updateComponents(
         constexpr float damping = 0.9999F;
         const auto weightForce = vec2(0, massComponent.mass * -9.81F);
         const auto dampingForce =
-            particleComponent.particle.m_velocity * vec2(-damping);
+            particleComponent.particle.m_velocity * -damping;
 
-        const auto dt = vec2(static_cast<float>(deltaTime));
+        const auto dt = static_cast<float>(deltaTime);
         particleComponent.particle.m_velocity +=
             (dampingForce + weightForce) * dt;
         particleComponent.particle.m_pos +=

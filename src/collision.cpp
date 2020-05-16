@@ -67,9 +67,9 @@ std::tuple<bool, vec2, vec2, float> rayBBoxIntersection(
 
     if (tmax >= tmin) {
         const auto& projectAmount = projectBackwards ? tmin : tmax;
-        const vec2 intersectionPoint = rayPos + (rayDir * vec2(projectAmount));
+        const vec2 intersectionPoint = rayPos + (rayDir * projectAmount);
         const vec2 p = intersectionPoint - boxCenter;
-        const vec2 d = (boxMin - boxMax) * vec2(0.5);
+        const vec2 d = (boxMin - boxMax) * 0.5;
         constexpr float bias = 1.00001F;
         const vec2 normal =
             vec2(
@@ -81,5 +81,5 @@ std::tuple<bool, vec2, vec2, float> rayBBoxIntersection(
         return std::make_tuple(
             true, intersectionPoint, normal, std::abs(projectAmount));
     }
-    return std::make_tuple(false, vec2{ 0 }, vec2{ 0 }, 0.0F);
+    return std::make_tuple(false, vec2(0), vec2(0), 0.0F);
 }

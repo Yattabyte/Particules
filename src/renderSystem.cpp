@@ -68,7 +68,7 @@ void RenderSystem::updateComponents(
         const auto& particle =
             static_cast<ParticleComponent*>(components[0])->particle;
         GPU_Particle data{ particle.m_pos, particle.m_velocity,
-                           vec2(particle.m_size), vec2{ 0.0 },
+                           vec2(particle.m_size), vec2(0.0),
                            particle.m_type == PARTICLE_TYPE::SAND
                                ? vec4(0.80F, 0.75F, 0.55F, 1.0F)
                                : vec4(0.4F, 0.4F, 0.4F, 1.0F) };

@@ -6,8 +6,6 @@
 #include "components.hpp"
 #include "ecsWorld.hpp"
 
-constexpr float tolerance = 0.00001F;
-
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
 using namespace mini;

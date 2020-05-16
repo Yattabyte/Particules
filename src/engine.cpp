@@ -19,12 +19,12 @@ Engine::Engine(const Window& window)
     // Fill game world with sand
     for (auto x = 0; x < 2440; ++x) {
         ParticleComponent particle;
-        particle.particle.m_pos =
-            vec2{ randomFloats(generator) * 125.0F,
-                  (randomFloats(generator) * 0.5F + 0.5F) * 125.0F + 75.0F };
+        particle.particle.m_pos = vec2(
+            randomFloats(generator) * 125.0F,
+            (randomFloats(generator) * 0.5F + 0.5F) * 125.0F + 75.0F);
         particle.particle.m_type = PARTICLE_TYPE::SAND;
-        particle.particle.m_velocity = vec2{ randomFloats(generator) * 75.0F,
-                                             randomFloats(generator) * 25.0F };
+        particle.particle.m_velocity = vec2(
+            randomFloats(generator) * 75.0F, randomFloats(generator) * 25.0F);
         PhysicsComponent mass;
         mass.mass = (randomFloats(generator) * 0.5F + 0.5F) * 50.0F + 1.0F;
         mass.inv_mass = 1.0F / mass.mass;
@@ -41,7 +41,7 @@ Engine::Engine(const Window& window)
     // Add concrete particles to world
     {
         ParticleComponent particle;
-        particle.particle.m_pos = vec2{ 0, -100 };
+        particle.particle.m_pos = vec2(0, -100);
         particle.particle.m_type = PARTICLE_TYPE::CONCRETE;
         BoundingBoxComponent bBox;
         bBox.extents = vec2(15.0F);
@@ -55,63 +55,63 @@ Engine::Engine(const Window& window)
 
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
         bBox.extents = vec2(30.0, 5.0F);
-        particle.particle.m_pos = vec2{ -50, -150 };
+        particle.particle.m_pos = vec2(-50, -150);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);
 
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
         bBox.extents = vec2(2.5F, 40.0F);
-        particle.particle.m_pos = vec2{ 15, -185 };
+        particle.particle.m_pos = vec2(15, -185);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);
 
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
         bBox.extents = vec2(5.0F, 30.0F);
-        particle.particle.m_pos = vec2{ 20, -195 };
+        particle.particle.m_pos = vec2(20, -195);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);
 
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
         bBox.extents = vec2(5.0F, 30.0F);
-        particle.particle.m_pos = vec2{ 30, -185 };
+        particle.particle.m_pos = vec2(30, -185);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);
 
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
         bBox.extents = vec2(5.0F, 30.0F);
-        particle.particle.m_pos = vec2{ 40, -175 };
+        particle.particle.m_pos = vec2(40, -175);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);
 
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
         bBox.extents = vec2(5.0F, 30.0F);
-        particle.particle.m_pos = vec2{ 50, -175 };
+        particle.particle.m_pos = vec2(50, -175);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);
 
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
         bBox.extents = vec2(5.0F, 30.0F);
-        particle.particle.m_pos = vec2{ 60, -185 };
+        particle.particle.m_pos = vec2(60, -185);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
 
         bBox.extents = vec2(5.0F, 30.0F);
-        particle.particle.m_pos = vec2{ 70, -195 };
+        particle.particle.m_pos = vec2(70, -195);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);
 
         entityHandle = m_gameWorld.makeEntity(nullptr, 0);
         bBox.extents = vec2(2.5F, 40.0F);
-        particle.particle.m_pos = vec2{ 75, -185 };
+        particle.particle.m_pos = vec2(75, -185);
         m_gameWorld.makeComponent(entityHandle, &particle);
         m_gameWorld.makeComponent(entityHandle, &bBox);
         m_gameWorld.makeComponent(entityHandle, &mass);

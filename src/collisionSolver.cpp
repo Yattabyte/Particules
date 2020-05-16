@@ -1,5 +1,7 @@
 #include "collisionSolver.hpp"
 
+constexpr float tolerance = 0.0001F;
+
 void CollisionSolver::resolveCollisions(const double&, ecsWorld& world) {
     // Retrieve a list of all move-able physics objects
     auto movingEntities = world.getComponents<
@@ -89,7 +91,7 @@ void CollisionSolver::resolveCollisions(const double&, ecsWorld& world) {
                         }
                     }
                 }
-                return std::make_tuple(false, vec2(0, 0), 0.0F);
+                return std::make_tuple(false, vec2(0), 0.0F);
             };
 
             // Ensure we hit
@@ -121,19 +123,17 @@ void CollisionSolver::resolveCollisions(const double&, ecsWorld& world) {
                             (physics1.mass + physics2.mass);
 
             // Apply impulse
-            const vec2 impulse = vec2(j) * normal;
-            particle1.m_velocity -= vec2(physics1.mass) * impulse;
-            particle2.m_velocity += vec2(physics2.mass) * impulse;
+            const vec2 impulse = normal * j;
+            particle1.m_velocity -= impulse * physics1.mass;
+            particle2.m_velocity += impulse * physics2.mass;
 
             // Correct position
             constexpr float percent = 0.8F;
             constexpr float slop = 0.01F;
-            vec2 correction = vec2(
-                                  std::max(penetrationDepth - slop, 0.0F) /
-                                  (physics1.mass + physics2.mass) * percent) *
-                              normal;
-            particle1.m_pos -= vec2(physics1.mass) * correction;
-            particle2.m_pos += vec2(physics2.mass) * correction;
+            vec2 correction = normal * std::max(penetrationDepth - slop, 0.0F) /
+                              (physics1.mass + physics2.mass) * percent;
+            particle1.m_pos -= correction * physics1.mass;
+            particle2.m_pos += correction * physics2.mass;
         }
     }
 }
