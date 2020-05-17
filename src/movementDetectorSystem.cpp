@@ -1,18 +1,26 @@
 #include "movementDetectorSystem.hpp"
 
+//////////////////////////////////////////////////////////////////////
+/// Custom Constructor
+//////////////////////////////////////////////////////////////////////
+
 MovementDetectorSystem::MovementDetectorSystem(ecsWorld& gameWorld)
     : m_gameWorld(gameWorld) {
     addComponentType(
         ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
 }
 
+//////////////////////////////////////////////////////////////////////
+/// updateComponents
+//////////////////////////////////////////////////////////////////////
+
 void MovementDetectorSystem::updateComponents(
-    const double&,
+    const double& /*deltaTime*/,
     const std::vector<std::vector<ecsBaseComponent*>>& entityComponents) {
     for (auto& componentSet : entityComponents) {
-        auto& entityHandle = componentSet[0]->m_entityHandle;
+        const auto& entityHandle = componentSet.front()->m_entityHandle;
         auto& particle =
-            static_cast<ParticleComponent*>(componentSet[0])->particle;
+            static_cast<ParticleComponent*>(componentSet.front())->particle;
 
         const auto velocityLength = std::sqrt(
             (particle.m_velocity.x() * particle.m_velocity.x()) +

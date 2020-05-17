@@ -1,5 +1,9 @@
 #include "entityCleanupSystem.hpp"
 
+//////////////////////////////////////////////////////////////////////
+/// Custom Constructor
+//////////////////////////////////////////////////////////////////////
+
 EntityCleanupSystem::EntityCleanupSystem(ecsWorld& gameWorld)
     : m_gameWorld(gameWorld) {
     addComponentType(
@@ -8,8 +12,12 @@ EntityCleanupSystem::EntityCleanupSystem(ecsWorld& gameWorld)
         BoundingBoxComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
 }
 
+//////////////////////////////////////////////////////////////////////
+/// updateComponents
+//////////////////////////////////////////////////////////////////////
+
 void EntityCleanupSystem::updateComponents(
-    const double&,
+    const double& /*deltaTime*/,
     const std::vector<std::vector<ecsBaseComponent*>>& entityComponents) {
     std::vector<EntityHandle> entitiesToDelete;
     for (auto& components : entityComponents) {

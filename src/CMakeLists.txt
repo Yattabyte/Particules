@@ -9,13 +9,16 @@ set(FILES
     window.hpp
     engine.hpp
     particle.hpp
-    collision.hpp
     components.hpp
-    collisionSolver.hpp
+    collision.hpp
+    collisionFinderSystem.hpp
+    collisionResolverSystem.hpp
+    collisionCleanupSystem.hpp
     gravitySystem.hpp
     renderSystem.hpp
     entityCleanupSystem.hpp
     movementDetectorSystem.hpp
+    quadTree.hpp
 
     # Source files
     main.cpp
@@ -23,7 +26,9 @@ set(FILES
     engine.cpp
     particle.cpp
     collision.cpp
-    collisionSolver.cpp
+    collisionFinderSystem.cpp
+    collisionResolverSystem.cpp
+    collisionCleanupSystem.cpp
     gravitySystem.cpp
     renderSystem.cpp
     entityCleanupSystem.cpp

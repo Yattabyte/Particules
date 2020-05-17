@@ -18,7 +18,7 @@ class EntityCleanupSystem final : public ecsSystem {
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a cleanup system.
     /// \param  gameWorld   reference to the engine's game world.
-    EntityCleanupSystem(ecsWorld& gameWorld);
+    explicit EntityCleanupSystem(ecsWorld& gameWorld);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.

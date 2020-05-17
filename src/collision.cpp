@@ -22,6 +22,10 @@ bool areColliding_SphereVsBox(
         sphereTop > boxBottom && sphereBottom < boxTop);
 }
 
+//////////////////////////////////////////////////////////////////////
+/// areColliding_BoxVsBox
+//////////////////////////////////////////////////////////////////////
+
 bool areColliding_BoxVsBox(
     const vec2& posA, const vec2& sclA, const vec2& posB,
     const vec2& sclB) noexcept {

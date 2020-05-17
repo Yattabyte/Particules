@@ -3,7 +3,7 @@
 #define ENGINE_HPP
 
 #include "Utility/vec.hpp"
-#include "collisionSolver.hpp"
+#include "collisionCleanupSystem.hpp"
 #include "ecsWorld.hpp"
 #include "entityCleanupSystem.hpp"
 #include "gravitySystem.hpp"
@@ -23,9 +23,22 @@ class Engine {
     /////////////////////////////////////////////////////////////////////////
     /// \brief  Destroy the engine.
     ~Engine() = default;
+    //////////////////////////////////////////////////////////////////////
+    /// \brief  Deleted copy constructor.
+    Engine(const Engine& o) = delete;
+    //////////////////////////////////////////////////////////////////////
+    /// \brief  Default move constructor.
+    Engine(Engine&& o) noexcept = default;
     /////////////////////////////////////////////////////////////////////////
     /// \brief  Construct an engine object using a specific window.
     explicit Engine(const Window& window);
+
+    //////////////////////////////////////////////////////////////////////
+    /// \brief  Deleted copy-assignment operator.
+    Engine& operator=(const Engine&) = delete;
+    //////////////////////////////////////////////////////////////////////
+    /// \brief  Default move-assignment operator.
+    Engine& operator=(Engine&&) noexcept = default;
 
     /////////////////////////////////////////////////////////////////////////
     /// \brief  Tick the engine state. To be called externally by main loop.
@@ -42,14 +55,15 @@ class Engine {
     /// \param  deltaTime   the amount of time since last frame.
     void renderTick(const double& deltaTime);
 
-    const Window& m_window;              ///< OS level window.
-    double m_accumulator = 0.0;          ///< Time left in the accumulator.
-    ecsWorld m_gameWorld;                ///< The ECS world holding game state.
-    GravitySystem m_gravitySystem;       ///< System used to apply gravity.
-    CollisionSolver m_collisionSolver;   ///< System used to collide entities.
-    RenderSystem m_renderSystem;         ///< System used to render the game.
-    EntityCleanupSystem m_cleanupSystem; ///< Cleans-up out of bounds.
+    const Window& m_window;        ///< OS level window.
+    double m_accumulator = 0.0;    ///< Time left in the accumulator.
+    ecsWorld m_gameWorld;          ///< The ECS world holding game state.
+    GravitySystem m_gravitySystem; ///< System used to apply gravity.
+    RenderSystem m_renderSystem;   ///< System used to render the game.
     MovementDetectorSystem m_moveDetector; ///< Cleans-up out of bounds.
+    EntityCleanupSystem m_cleanupSystem;   ///< Cleans-up out of bounds.
+    CollisionCleanupSystem
+        m_collisionCleanup; ///< System used to cleanup collision manifolds.
 };
 
 #endif // ENGINE_HPP

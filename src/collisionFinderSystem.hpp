@@ -1,6 +1,6 @@
 #pragma once
-#ifndef COLLISIONSYSTEM_HPP
-#define COLLISIONSYSTEM_HPP
+#ifndef COLLISIONFINDERSYSTEM_HPP
+#define COLLISIONFINDERSYSTEM_HPP
 
 #include "collision.hpp"
 #include "components.hpp"
@@ -11,16 +11,16 @@
 using namespace mini;
 
 ///////////////////////////////////////////////////////////////////////////
-/// \class  CollisionSolver
-/// \brief  Class is used to solve collisions for physics entities.
+/// \class  CollisionFinderSystem
+/// \brief  Class is used to find collision instances.
 ///         A meta system of sorts.
-class CollisionSolver {
+class CollisionFinderSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
-    /// \brief  Resolve collisions between every entity.
+    /// \brief  Find collisions between every entity.
     /// \param  deltaTime   the amount of time since last frame.
     /// \param  world       the game world to resolve for.
-    void resolveCollisions(const double&, ecsWorld& world);
+    static void resolveCollisions(const double&, ecsWorld& world);
 };
 
-#endif // COLLISIONSYSTEM_HPP
+#endif // COLLISIONFINDERSYSTEM_HPP

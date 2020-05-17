@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MOVEMENTDETECTORSYSTEM_HPP
-#define MOVEMENTDETECTORSYSTEM_HPP
+#ifndef COLLISIONCLEANUPSYSTEM_HPP
+#define COLLISIONCLEANUPSYSTEM_HPP
 
 #include "components.hpp"
 #include "ecsSystem.hpp"
@@ -11,21 +11,21 @@
 using namespace mini;
 
 /////////////////////////////////////////////////////////////////////////
-/// \class  MovementDetectorSystem
-/// \brief  System used to flag entities as moving or stationary.
-class MovementDetectorSystem final : public ecsSystem {
+/// \class  CollisionCleanupSystem
+/// \brief  System used to delete un-processed collision manifolds.
+class CollisionCleanupSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
-    /// \brief  Construct a movement detector system.
+    /// \brief  Construct a cleanup system.
     /// \param  gameWorld   reference to the engine's game world.
-    explicit MovementDetectorSystem(ecsWorld& gameWorld);
+    explicit CollisionCleanupSystem(ecsWorld& gameWorld);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
     /// \param	deltaTime	    the amount of time passed since last update.
     /// \param	components	    the components to update.
     void updateComponents(
-        const double& deltaTime,
+        const double&,
         const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
         final;
 
@@ -33,4 +33,4 @@ class MovementDetectorSystem final : public ecsSystem {
     ecsWorld& m_gameWorld;
 };
 
-#endif // MOVEMENTDETECTORSYSTEM_HPP
+#endif // COLLISIONCLEANUPSYSTEM_HPP
