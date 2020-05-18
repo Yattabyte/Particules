@@ -22,13 +22,4 @@ struct GPU_Particle {
     vec4 m_color = vec4(1);
 };
 
-/////////////////////////////////////////////////////////////////////////
-/// \class Game_Particle
-struct Game_Particle {
-    vec2 m_pos = vec2(0.0F);
-    vec2 m_velocity = vec2(0.0F);
-    PARTICLE_TYPE m_type = PARTICLE_TYPE::CONCRETE;
-    float m_size = 1.0F;
-};
-
 #endif // PARTICLE_HPP

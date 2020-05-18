@@ -14,21 +14,20 @@ using namespace mini;
 ///////////////////////////////////////////////////////////////////////////
 /// \class  ParticleComponent
 struct ParticleComponent final : public ecsComponent<ParticleComponent> {
-    Game_Particle particle;
+    vec2 m_pos = vec2(0.0F);
+    vec2 m_dimensions = vec2(1.0F);
+    PARTICLE_TYPE m_type = PARTICLE_TYPE::CONCRETE;
+    vec3 padding;
 };
 
 ///////////////////////////////////////////////////////////////////////////
 /// \class  PhysicsComponent
 struct PhysicsComponent final : public ecsComponent<PhysicsComponent> {
+    vec2 m_velocity = vec2(0.0F);
     float mass = 1.0F;
     float inv_mass = 1.0F;
     float restitution = 0.5F;
-};
-
-///////////////////////////////////////////////////////////////////////////
-/// \class  BoundingBoxComponent
-struct BoundingBoxComponent final : public ecsComponent<BoundingBoxComponent> {
-    vec2 extents;
+    vec3 padding;
 };
 
 ///////////////////////////////////////////////////////////////////////////

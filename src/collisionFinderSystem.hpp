@@ -20,7 +20,7 @@ class CollisionFinderSystem {
     /// \brief  Find collisions between every entity.
     /// \param  deltaTime   the amount of time since last frame.
     /// \param  world       the game world to resolve for.
-    static void resolveCollisions(const double&, ecsWorld& world);
+    static void findCollisions(const double&, ecsWorld& world);
 };
 
 #endif // COLLISIONFINDERSYSTEM_HPP

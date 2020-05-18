@@ -19,23 +19,20 @@ void CollisionResolverSystem::resolveCollisions(
     // Check if each move-able entity is colliding
     // against every other physics entity
     for (auto& entity1 : collidingEntities) {
-        auto& particle1 = std::get<0>(entity1)->particle;
-        const auto& physics1 = *std::get<1>(entity1);
+        auto& particle1 = *std::get<0>(entity1);
+        auto& physics1 = *std::get<1>(entity1);
 
         for (const auto& manifold : std::get<2>(entity1)->collisions) {
             auto& [otherHandle, normal, depth] = manifold;
             auto& particle2 =
-                static_cast<ParticleComponent*>(
-                    world.getComponent(
-                        manifold.otherEntity, ParticleComponent::Runtime_ID))
-                    ->particle;
-            const auto& physics2 =
-                *static_cast<PhysicsComponent*>(world.getComponent(
-                    manifold.otherEntity, PhysicsComponent::Runtime_ID));
+                *static_cast<ParticleComponent*>(world.getComponent(
+                    manifold.otherEntity, ParticleComponent::Runtime_ID));
+            auto& physics2 = *static_cast<PhysicsComponent*>(world.getComponent(
+                manifold.otherEntity, PhysicsComponent::Runtime_ID));
 
             // Calculate relative velocity
             const vec2 relativeVelocity =
-                particle2.m_velocity - particle1.m_velocity;
+                physics2.m_velocity - physics1.m_velocity;
 
             // Calculate relative velocity in terms of the normal direction
             const float velocityAlongNormal = relativeVelocity.dot(normal);
@@ -57,8 +54,8 @@ void CollisionResolverSystem::resolveCollisions(
 
             // Apply impulse
             const vec2 impulse = normal * j;
-            particle1.m_velocity -= impulse * physics1.mass;
-            particle2.m_velocity += impulse * physics2.mass;
+            physics1.m_velocity -= impulse * physics1.mass;
+            physics2.m_velocity += impulse * physics2.mass;
 
             // Correct position
             constexpr float percent = 0.8F;

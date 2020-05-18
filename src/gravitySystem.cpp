@@ -21,18 +21,14 @@ void GravitySystem::updateComponents(
     for (auto& components : entityComponents) {
         auto& particleComponent =
             *static_cast<ParticleComponent*>(components[0]);
-        const auto& massComponent =
-            *static_cast<PhysicsComponent*>(components[1]);
+        auto& physicsComponent = *static_cast<PhysicsComponent*>(components[1]);
 
         constexpr float damping = 0.9999F;
-        const auto weightForce = vec2(0, massComponent.mass * -9.81F);
-        const auto dampingForce =
-            particleComponent.particle.m_velocity * -damping;
+        const auto weightForce = vec2(0, physicsComponent.mass * -9.81F);
+        const auto dampingForce = physicsComponent.m_velocity * -damping;
 
         const auto dt = static_cast<float>(deltaTime);
-        particleComponent.particle.m_velocity +=
-            (dampingForce + weightForce) * dt;
-        particleComponent.particle.m_pos +=
-            particleComponent.particle.m_velocity * dt;
+        particleComponent.m_pos += physicsComponent.m_velocity * dt;
+        physicsComponent.m_velocity += (dampingForce + weightForce) * dt;
     }
 }

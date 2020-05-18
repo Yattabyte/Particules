@@ -4,50 +4,42 @@
 constexpr float tolerance = 0.0001F;
 
 //////////////////////////////////////////////////////////////////////
-/// resolveCollisions
+/// findCollisions
 //////////////////////////////////////////////////////////////////////
 
-void CollisionFinderSystem::resolveCollisions(
+void CollisionFinderSystem::findCollisions(
     const double& /*deltaTime*/, ecsWorld& world) {
     // Retrieve a list of all physics objects
     // then insert them into a quad-tree
-    const auto physicsEntities =
-        world.getComponents<ParticleComponent*, BoundingBoxComponent*>(
-            { { ParticleComponent::Runtime_ID,
-                ecsSystem::RequirementsFlag::FLAG_REQUIRED },
-              { BoundingBoxComponent::Runtime_ID,
-                ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
-    QuadTree<std::tuple<ParticleComponent*, BoundingBoxComponent*>> tree(
-        vec2(0), vec2(250.0F), 0);
+    const auto physicsEntities = world.getComponents<ParticleComponent*>(
+        { { ParticleComponent::Runtime_ID,
+            ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
+    QuadTree<ParticleComponent*> tree(vec2(0), vec2(250.0F), 0);
     for (const auto& entity2 : physicsEntities) {
-        const auto particleComponent = std::get<0>(entity2);
-        const auto boundingComponent = std::get<1>(entity2);
+        const auto& particleComponent = std::get<0>(entity2);
         tree.insert(
-            { particleComponent, boundingComponent },
-            particleComponent->particle.m_pos, boundingComponent->extents);
+            particleComponent, particleComponent->m_pos,
+            particleComponent->m_dimensions);
     }
 
     // Next, for only the moving physics objects
     // check which ones are colliding and generate
     // collision manifolds for each of them
-    const auto movingEntities = world.getComponents<
-        ParticleComponent*, BoundingBoxComponent*, MovingComponent*>(
-        { { ParticleComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::FLAG_REQUIRED },
-          { BoundingBoxComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::FLAG_REQUIRED },
-          { MovingComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
+    const auto movingEntities =
+        world.getComponents<ParticleComponent*, MovingComponent*>(
+            { { ParticleComponent::Runtime_ID,
+                ecsSystem::RequirementsFlag::FLAG_REQUIRED },
+              { MovingComponent::Runtime_ID,
+                ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
     for (auto& entity1 : movingEntities) {
         const auto& entityHandle1 = std::get<0>(entity1)->m_entityHandle;
-        auto& particle1 = std::get<0>(entity1)->particle;
-        auto& extents1 = std::get<1>(entity1)->extents;
-        const auto collidingObjects = tree.search(particle1.m_pos, extents1);
+        auto& particle1 = *std::get<0>(entity1);
+        const auto collidingObjects =
+            tree.search(particle1.m_pos, particle1.m_dimensions);
 
         for (auto& entity2 : collidingObjects) {
-            const auto& entityHandle2 = std::get<0>(entity2)->m_entityHandle;
-            auto& particle2 = std::get<0>(entity2)->particle;
-            auto& extents2 = std::get<1>(entity2)->extents;
+            const auto& entityHandle2 = entity2->m_entityHandle;
+            auto& particle2 = *entity2;
 
             // Avoid colliding against self
             if (&particle1 == &particle2)
@@ -58,10 +50,10 @@ void CollisionFinderSystem::resolveCollisions(
                 // Vector from A to B
                 const vec2 n = particle2.m_pos - particle1.m_pos;
 
-                const auto aBoxMax = particle1.m_pos + extents1;
-                const auto aBoxMin = particle1.m_pos - extents1;
-                const auto bBoxMax = particle2.m_pos + extents2;
-                const auto bBoxMin = particle2.m_pos - extents2;
+                const auto aBoxMax = particle1.m_pos + particle1.m_dimensions;
+                const auto aBoxMin = particle1.m_pos - particle1.m_dimensions;
+                const auto bBoxMax = particle2.m_pos + particle2.m_dimensions;
+                const auto bBoxMin = particle2.m_pos - particle2.m_dimensions;
 
                 // Calculate half extents along x axis for each object
                 const float a_extentX = (aBoxMax.x() - aBoxMin.x()) / 2.0F;
