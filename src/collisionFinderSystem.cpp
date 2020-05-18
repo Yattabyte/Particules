@@ -13,7 +13,7 @@ void CollisionFinderSystem::findCollisions(
     // then insert them into a quad-tree
     const auto physicsEntities = world.getComponents<ParticleComponent*>(
         { { ParticleComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
+            ecsSystem::RequirementsFlag::REQUIRED } });
     QuadTree<ParticleComponent*> tree(vec2(0), vec2(250.0F), 0);
     for (const auto& entity2 : physicsEntities) {
         const auto& particleComponent = std::get<0>(entity2);
@@ -28,10 +28,10 @@ void CollisionFinderSystem::findCollisions(
     const auto movingEntities =
         world.getComponents<ParticleComponent*, MovingComponent*>(
             { { ParticleComponent::Runtime_ID,
-                ecsSystem::RequirementsFlag::FLAG_REQUIRED },
+                ecsSystem::RequirementsFlag::REQUIRED },
               { MovingComponent::Runtime_ID,
-                ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
-    for (auto& entity1 : movingEntities) {
+                ecsSystem::RequirementsFlag::REQUIRED } });
+    for (const auto& entity1 : movingEntities) {
         const auto& entityHandle1 = std::get<0>(entity1)->m_entityHandle;
         auto& particle1 = *std::get<0>(entity1);
         const auto collidingObjects =
@@ -80,16 +80,15 @@ void CollisionFinderSystem::findCollisions(
                             // to B
                             if (n.x() < tolerance)
                                 return { true, vec2(-1, 0), x_overlap };
-                            else
-                                return { true, vec2(1, 0), x_overlap };
-                        } else {
-                            // Point toward B knowing that n points from A
-                            // to B
-                            if (n.y() < tolerance)
-                                return { true, vec2(0, -1), y_overlap };
-                            else
-                                return { true, vec2(0, 1), y_overlap };
+
+                            return { true, vec2(1, 0), x_overlap };
                         }
+                        // Point toward B knowing that n points from A
+                        // to B
+                        if (n.y() < tolerance)
+                            return { true, vec2(0, -1), y_overlap };
+
+                        return { true, vec2(0, 1), y_overlap };
                     }
                 }
                 return { false, vec2(0), 0.0F };
@@ -99,7 +98,8 @@ void CollisionFinderSystem::findCollisions(
             const auto& [hit, normal, penetrationDepth] = AABBvsAABB();
             if (hit) {
                 static const CollisionManifoldComponent tmpComponent;
-                world.makeComponent(entityHandle1, &tmpComponent);
+                [[maybe_unused]] const auto componentHandle =
+                    world.makeComponent(entityHandle1, &tmpComponent);
                 auto manifoldComponent =
                     static_cast<CollisionManifoldComponent*>(world.getComponent(
                         entityHandle1, CollisionManifoldComponent::Runtime_ID));

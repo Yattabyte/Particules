@@ -7,8 +7,7 @@
 CollisionCleanupSystem::CollisionCleanupSystem(ecsWorld& gameWorld)
     : m_gameWorld(gameWorld) {
     addComponentType(
-        CollisionManifoldComponent::Runtime_ID,
-        RequirementsFlag::FLAG_REQUIRED);
+        CollisionManifoldComponent::Runtime_ID, RequirementsFlag::REQUIRED);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -18,7 +17,7 @@ CollisionCleanupSystem::CollisionCleanupSystem(ecsWorld& gameWorld)
 void CollisionCleanupSystem::updateComponents(
     const double& /*deltaTime*/,
     const std::vector<std::vector<ecsBaseComponent*>>& entityComponents) {
-    for (auto& components : entityComponents)
+    for (const auto& components : entityComponents)
         static_cast<CollisionManifoldComponent*>(components.front())
             ->collisions.clear();
 }

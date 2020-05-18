@@ -45,10 +45,8 @@ RenderSystem::RenderSystem()
     : m_shader(vertCode, fragCode), m_model({ vec3(-1, -1, 0), vec3(1, -1, 0),
                                               vec3(1, 1, 0), vec3(-1, 1, 0) }),
       m_draw(4, 0, 0, GL_DYNAMIC_STORAGE_BIT) {
-    addComponentType(
-        ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
-    addComponentType(
-        PhysicsComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
+    addComponentType(ParticleComponent::Runtime_ID, RequirementsFlag::REQUIRED);
+    addComponentType(PhysicsComponent::Runtime_ID, RequirementsFlag::REQUIRED);
 
     // Calculate viewing perspective and matrices
     const auto pMatrix = mat4::perspective(1.5708F, 1.0F, 0.01F, 10.0F);

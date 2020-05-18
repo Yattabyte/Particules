@@ -10,11 +10,11 @@ void CollisionResolverSystem::resolveCollisions(
     auto collidingEntities = world.getComponents<
         ParticleComponent*, PhysicsComponent*, CollisionManifoldComponent*>(
         { { ParticleComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::FLAG_REQUIRED },
+            ecsSystem::RequirementsFlag::REQUIRED },
           { PhysicsComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::FLAG_REQUIRED },
+            ecsSystem::RequirementsFlag::REQUIRED },
           { CollisionManifoldComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::FLAG_REQUIRED } });
+            ecsSystem::RequirementsFlag::REQUIRED } });
 
     // Check if each move-able entity is colliding
     // against every other physics entity
@@ -23,7 +23,7 @@ void CollisionResolverSystem::resolveCollisions(
         auto& physics1 = *std::get<1>(entity1);
 
         for (const auto& manifold : std::get<2>(entity1)->collisions) {
-            auto& [otherHandle, normal, depth] = manifold;
+            const auto& [otherHandle, normal, depth] = manifold;
             auto& particle2 =
                 *static_cast<ParticleComponent*>(world.getComponent(
                     manifold.otherEntity, ParticleComponent::Runtime_ID));

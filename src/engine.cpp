@@ -19,7 +19,7 @@ Engine::Engine(const Window& window)
     std::mt19937 generator(0);
 
     // Fill game world with sand
-    for (auto x = 0; x < 4990; ++x) {
+    for (auto x = 0; x < 240; ++x) {
         ParticleComponent particle;
         particle.m_pos = vec2(
             randomFloats(generator) * 125.0F,
@@ -124,12 +124,12 @@ void Engine::gameTick(const double& deltaTime) {
     m_accumulator += deltaTime;
     while (m_accumulator >= timeStep) {
         // Run Game Systems
-        m_gameWorld.updateSystem(&m_moveDetector, timeStep);
-        m_gameWorld.updateSystem(&m_gravitySystem, timeStep);
+        m_gameWorld.updateSystem(m_moveDetector, timeStep);
+        m_gameWorld.updateSystem(m_gravitySystem, timeStep);
         CollisionFinderSystem::findCollisions(timeStep, m_gameWorld);
         CollisionResolverSystem::resolveCollisions(timeStep, m_gameWorld);
-        m_gameWorld.updateSystem(&m_cleanupSystem, timeStep);
-        m_gameWorld.updateSystem(&m_collisionCleanup, timeStep);
+        m_gameWorld.updateSystem(m_cleanupSystem, timeStep);
+        m_gameWorld.updateSystem(m_collisionCleanup, timeStep);
         m_accumulator -= timeStep;
     }
 }
@@ -139,5 +139,5 @@ void Engine::gameTick(const double& deltaTime) {
 //////////////////////////////////////////////////////////////////////
 
 void Engine::renderTick(const double& deltaTime) {
-    m_gameWorld.updateSystem(&m_renderSystem, deltaTime);
+    m_gameWorld.updateSystem(m_renderSystem, deltaTime);
 }

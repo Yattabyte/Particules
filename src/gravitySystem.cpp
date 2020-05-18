@@ -5,10 +5,8 @@
 //////////////////////////////////////////////////////////////////////
 
 GravitySystem::GravitySystem() {
-    addComponentType(
-        ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
-    addComponentType(
-        PhysicsComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
+    addComponentType(ParticleComponent::Runtime_ID, RequirementsFlag::REQUIRED);
+    addComponentType(PhysicsComponent::Runtime_ID, RequirementsFlag::REQUIRED);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -18,7 +16,7 @@ GravitySystem::GravitySystem() {
 void GravitySystem::updateComponents(
     const double& deltaTime,
     const std::vector<std::vector<ecsBaseComponent*>>& entityComponents) {
-    for (auto& components : entityComponents) {
+    for (const auto& components : entityComponents) {
         auto& particleComponent =
             *static_cast<ParticleComponent*>(components[0]);
         auto& physicsComponent = *static_cast<PhysicsComponent*>(components[1]);

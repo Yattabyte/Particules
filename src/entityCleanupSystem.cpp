@@ -6,8 +6,7 @@
 
 EntityCleanupSystem::EntityCleanupSystem(ecsWorld& gameWorld)
     : m_gameWorld(gameWorld) {
-    addComponentType(
-        ParticleComponent::Runtime_ID, RequirementsFlag::FLAG_REQUIRED);
+    addComponentType(ParticleComponent::Runtime_ID, RequirementsFlag::REQUIRED);
 }
 
 //////////////////////////////////////////////////////////////////////
