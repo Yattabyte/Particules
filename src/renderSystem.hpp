@@ -36,7 +36,6 @@ class RenderSystem final : public ecsSystem {
     Model m_model;                        ///< A model for particles
     IndirectDraw m_draw;                  ///< An indirect draw call GL object
     glDynamicMultiBuffer<3> m_dataBuffer; ///< GPU data container
-    std::vector<GPU_Particle> m_scratchBuf; ///< Scratch buffer for memory ops.
 };
 
 #endif // RENDERSYSTEM_HPP

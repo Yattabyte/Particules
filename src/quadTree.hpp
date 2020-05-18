@@ -5,7 +5,6 @@
 #include "Utility/vec.hpp"
 #include <array>
 #include <memory>
-#include <set>
 #include <tuple>
 #include <vector>
 
@@ -59,7 +58,7 @@ template <typename T> class QuadTree {
             m_objects.emplace_back(obj, pos, scale);
 
             // Check if we should split
-            if (m_objects.size() > 12 && m_level < 6 && !hasSubtree())
+            if (m_objects.size() > 10 && m_level < 5 && !hasSubtree())
                 split();
         }
     }
@@ -83,7 +82,9 @@ template <typename T> class QuadTree {
             for (const auto& index : getChildIndex(pos, scale)) {
                 auto newObjs = m_children[index]->search(pos, scale);
                 overlappingObjects.insert(
-                    overlappingObjects.end(), newObjs.begin(), newObjs.end());
+                    overlappingObjects.end(),
+                    std::make_move_iterator(newObjs.begin()),
+                    std::make_move_iterator(newObjs.end()));
             }
         }
         return overlappingObjects;
@@ -116,13 +117,14 @@ template <typename T> class QuadTree {
                 m_children[index]->insert(objT, objPos, objScale);
         }
         m_objects.clear();
+        m_objects.shrink_to_fit();
     }
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Find all children that could contain the input bounds.
     /// \param  pos     the position of the bounds.
     /// \param  scale   the scale of the bounds.
     /// \return a set of all applicable children containing the supplied bounds.
-    [[nodiscard]] std::set<int>
+    [[nodiscard]] std::vector<int>
     getChildIndex(const vec2& pos, const vec2& scale) const {
         constexpr auto BoxVsBox = [](const vec2& posA, const vec2& sclA,
                                      const vec2& posB,
@@ -134,18 +136,19 @@ template <typename T> class QuadTree {
             return x && y;
         };
 
-        std::set<int> indices;
-        for (int index = 0; index < 4; ++index)
+        std::vector<int> indices;
+        indices.reserve(4);
+        for (auto index = 0; index < 4; ++index)
             if (BoxVsBox(
                     m_children[index]->m_pos, m_children[index]->m_scale, pos,
                     scale))
-                indices.emplace(index);
+                indices.emplace_back(index);
         return indices;
     }
 
     ///////////////////////////////////////////////////////////////////////////
     /// Private Members
-    std::array<std::shared_ptr<QuadTree<T>>, 4> m_children; ///< Children trees.
+    std::array<std::shared_ptr<QuadTree<T>>, 4> m_children; ///< Child trees.
     std::vector<std::tuple<T, vec2, vec2>>
         m_objects;                   ///< Objects owned by this tree.
     vec2 m_pos;                      ///< Position of this tree.

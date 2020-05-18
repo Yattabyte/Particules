@@ -38,6 +38,8 @@ Window::Window(const int& width, const int& height) noexcept
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
     m_window = glfwCreateWindow(width, height, "Window", nullptr, nullptr);
+    glfwMakeContextCurrent(m_window);
+    glfwSwapInterval(0);
 }
 
 //////////////////////////////////////////////////////////////////////

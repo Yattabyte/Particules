@@ -20,10 +20,7 @@ void MovementDetectorSystem::updateComponents(
         const auto& entityHandle = componentSet.front()->m_entityHandle;
         auto& physics = *static_cast<PhysicsComponent*>(componentSet.front());
 
-        const auto velocityLength = std::sqrt(
-            (physics.m_velocity.x() * physics.m_velocity.x()) +
-            (physics.m_velocity.y() * physics.m_velocity.y()));
-        if (std::abs(velocityLength) > 0.0001F) {
+        if (physics.m_velocity.length() >= 0.0001F) {
             static const MovingComponent movingComponent;
             m_gameWorld.makeComponent(entityHandle, &movingComponent);
         } else {

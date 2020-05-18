@@ -1,4 +1,5 @@
 #include "entityCleanupSystem.hpp"
+#include "collision.hpp"
 
 //////////////////////////////////////////////////////////////////////
 /// Custom Constructor
@@ -23,13 +24,12 @@ void EntityCleanupSystem::updateComponents(
         const auto& position = particleComponent.m_pos;
         const auto& extents = particleComponent.m_dimensions;
 
-        if (position.x() - extents.x() > 250.0F ||
-            position.x() + extents.x() < -250.0F ||
-            position.y() - extents.y() > 250.0F ||
-            position.y() + extents.y() < -250.0F)
+        // Find entities that fall outside the screen's bounds
+        if (!areColliding_BoxVsBox(position, extents, vec2(0), vec2(250)))
             entitiesToDelete.emplace_back(particleComponent.m_entityHandle);
     }
 
+    // Remove all out-of-bounds entities
     for (const auto& handle : entitiesToDelete)
         m_gameWorld.removeEntity(handle);
 }

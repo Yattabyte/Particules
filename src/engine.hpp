@@ -55,15 +55,15 @@ class Engine {
     /// \param  deltaTime   the amount of time since last frame.
     void renderTick(const double& deltaTime);
 
-    const Window& m_window;        ///< OS level window.
-    double m_accumulator = 0.0;    ///< Time left in the accumulator.
-    ecsWorld m_gameWorld;          ///< The ECS world holding game state.
-    GravitySystem m_gravitySystem; ///< System used to apply gravity.
-    RenderSystem m_renderSystem;   ///< System used to render the game.
+    const Window& m_window;     ///< OS level window.
+    double m_accumulator = 0.0; ///< Time left in the accumulator.
+    ecsWorld m_gameWorld;       ///< The ECS world holding game state.
     MovementDetectorSystem m_moveDetector; ///< Cleans-up out of bounds.
+    GravitySystem m_gravitySystem;         ///< System used to apply gravity.
     EntityCleanupSystem m_cleanupSystem;   ///< Cleans-up out of bounds.
     CollisionCleanupSystem
         m_collisionCleanup; ///< System used to cleanup collision manifolds.
+    RenderSystem m_renderSystem; ///< System used to render the game.
 };
 
 #endif // ENGINE_HPP

@@ -35,19 +35,19 @@ class Window {
     //////////////////////////////////////////////////////////////////////
     /// \brief  Check whether or not this window exists and is valid.
     /// \return true if window exists, false otherwise.
-    bool exists() const noexcept { return m_window != nullptr; }
+    [[nodiscard]] bool exists() const noexcept { return m_window != nullptr; }
     //////////////////////////////////////////////////////////////////////
     /// \brief  Retrieve the underlying window object pointer.
     /// \return the GLFWwindow pointer.
-    GLFWwindow* pointer() const noexcept { return m_window; }
+    [[nodiscard]] GLFWwindow* pointer() const noexcept { return m_window; }
     //////////////////////////////////////////////////////////////////////
     /// \brief  Retrieve the window's width.
     /// \return the width of the window.
-    int getWidth() const noexcept { return m_width; }
+    [[nodiscard]] int getWidth() const noexcept { return m_width; }
     //////////////////////////////////////////////////////////////////////
     /// \brief  Retrieve the window's height.
     /// \return the height of the window.
-    int getHeight() const noexcept { return m_height; }
+    [[nodiscard]] int getHeight() const noexcept { return m_height; }
 
     private:
     int m_width = 1;                ///< The window width.

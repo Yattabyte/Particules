@@ -37,9 +37,6 @@ void CollisionResolverSystem::resolveCollisions(
             // Calculate relative velocity in terms of the normal direction
             const float velocityAlongNormal = relativeVelocity.dot(normal);
 
-            if (depth < 0.0001F)
-                continue;
-
             // Do not resolve if velocities are separating
             if (-velocityAlongNormal < 0.0001F)
                 continue;

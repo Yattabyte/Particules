@@ -6,7 +6,7 @@ constexpr auto const vertCode = R"END(
         vec2 pos;
         vec2 velocity;
         vec2 scale;
-        vec4 col;
+        int type;
     };
 
     layout (location = 0) in vec3 vertex;
@@ -22,7 +22,8 @@ constexpr auto const vertCode = R"END(
         const vec3 offset = vec3(particles[gl_InstanceID].pos, 0.0);
         gl_Position = pMatrix * vMatrix * vec4((vertex * scale) + offset,  1.0);
         const float colorMod = clamp(length(particles[gl_InstanceID].velocity) / 66.66F, 0.0F, 1.F);
-        color = mix(particles[gl_InstanceID].col, vec4(1), colorMod);
+        const vec3 colors[2] = vec3[](vec3(0.4F, 0.4F, 0.4F), vec3(0.80F, 0.75F, 0.55F));
+        color = vec4(mix(colors[particles[gl_InstanceID].type], vec3(1), colorMod), 1.0F);
     }
 )END";
 
@@ -73,10 +74,8 @@ void RenderSystem::updateComponents(
         const auto& particle = *static_cast<ParticleComponent*>(components[0]);
         const auto& physics = *static_cast<PhysicsComponent*>(components[1]);
         const GPU_Particle data{ particle.m_pos, physics.m_velocity,
-                                 particle.m_dimensions, vec2(0.0),
-                                 particle.m_type == PARTICLE_TYPE::SAND
-                                     ? vec4(0.80F, 0.75F, 0.55F, 1.0F)
-                                     : vec4(0.4F, 0.4F, 0.4F, 1.0F) };
+                                 particle.m_dimensions,
+                                 static_cast<int>(particle.m_type) };
 
         m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);
         offset += sizeof(GPU_Particle);

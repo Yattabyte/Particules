@@ -19,7 +19,7 @@ Engine::Engine(const Window& window)
     std::mt19937 generator(0);
 
     // Fill game world with sand
-    for (auto x = 0; x < 240; ++x) {
+    for (auto x = 0; x < 5990; ++x) {
         ParticleComponent particle;
         particle.m_pos = vec2(
             randomFloats(generator) * 125.0F,
@@ -110,9 +110,16 @@ Engine::Engine(const Window& window)
 /// tick
 //////////////////////////////////////////////////////////////////////
 
+#include <iostream>
+#include <string>
+
 void Engine::tick(const double& deltaTime) {
+    const auto start = glfwGetTime();
     gameTick(deltaTime);
     renderTick(deltaTime);
+    const auto end = glfwGetTime();
+
+    std::cout << std::to_string(end - start) << std::endl;
 }
 
 //////////////////////////////////////////////////////////////////////

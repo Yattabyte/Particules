@@ -18,8 +18,8 @@ struct GPU_Particle {
     vec2 m_pos = vec2(0.0F);
     vec2 m_velocity = vec2(0.0F);
     vec2 m_scale = vec2(1.0F);
-    vec2 padding;
-    vec4 m_color = vec4(1);
+    int m_type = 0;
+    float padding;
 };
 
 #endif // PARTICLE_HPP
