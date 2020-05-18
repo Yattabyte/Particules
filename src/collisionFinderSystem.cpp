@@ -1,5 +1,4 @@
 #include "collisionFinderSystem.hpp"
-#include "quadTree.hpp"
 
 constexpr float tolerance = 0.0001F;
 
@@ -7,17 +6,20 @@ constexpr float tolerance = 0.0001F;
 /// findCollisions
 //////////////////////////////////////////////////////////////////////
 
+CollisionFinderSystem::CollisionFinderSystem()
+    : m_quadTree(vec2(0), vec2(250.0F), 0) {}
+
 void CollisionFinderSystem::findCollisions(
     const double& /*deltaTime*/, ecsWorld& world) {
     // Retrieve a list of all physics objects
     // then insert them into a quad-tree
+    m_quadTree.clear();
     const auto physicsEntities = world.getComponents<ParticleComponent*>(
         { { ParticleComponent::Runtime_ID,
             ecsSystem::RequirementsFlag::REQUIRED } });
-    QuadTree<const ParticleComponent*> tree(vec2(0), vec2(250.0F), 0);
     for (const auto& entity2 : physicsEntities) {
         const auto& particleComponent = std::get<0>(entity2);
-        tree.insert(
+        m_quadTree.insert(
             particleComponent, particleComponent->m_pos,
             particleComponent->m_dimensions);
     }
@@ -35,7 +37,7 @@ void CollisionFinderSystem::findCollisions(
         const auto& entityHandle1 = std::get<0>(entity1)->m_entityHandle;
         const auto& particle1 = *std::get<0>(entity1);
         const auto collidingObjects =
-            tree.search(particle1.m_pos, particle1.m_dimensions);
+            m_quadTree.search(particle1.m_pos, particle1.m_dimensions);
 
         for (auto& entity2 : collidingObjects) {
             const auto& entityHandle2 = entity2->m_entityHandle;

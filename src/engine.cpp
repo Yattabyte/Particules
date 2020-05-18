@@ -1,8 +1,6 @@
 #include "engine.hpp"
 #include "GLFW/glfw3.h"
 #include "collision.hpp"
-#include "collisionFinderSystem.hpp"
-#include "collisionResolverSystem.hpp"
 #include "components.hpp"
 #include <algorithm>
 #include <random>
@@ -133,8 +131,8 @@ void Engine::gameTick(const double& deltaTime) {
         // Run Game Systems
         m_gameWorld.updateSystem(m_moveDetector, timeStep);
         m_gameWorld.updateSystem(m_gravitySystem, timeStep);
-        CollisionFinderSystem::findCollisions(timeStep, m_gameWorld);
-        CollisionResolverSystem::resolveCollisions(timeStep, m_gameWorld);
+        m_colFinder.findCollisions(timeStep, m_gameWorld);
+        m_colResolver.resolveCollisions(timeStep, m_gameWorld);
         m_gameWorld.updateSystem(m_cleanupSystem, timeStep);
         m_gameWorld.updateSystem(m_collisionCleanup, timeStep);
         m_accumulator -= timeStep;

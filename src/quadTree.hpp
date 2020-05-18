@@ -27,6 +27,9 @@ template <typename T> class QuadTree {
     //////////////////////////////////////////////////////////////////////
     /// \brief  Default move constructor.
     QuadTree(QuadTree&& o) noexcept = default;
+    //////////////////////////////////////////////////////////////////////
+    /// \brief  Default constructor.
+    QuadTree() noexcept = default;
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Custom Constructor
     /// \param  pos     the position of this tree in 2D space.
@@ -62,6 +65,13 @@ template <typename T> class QuadTree {
                 split();
         }
     }
+    void clear() {
+        m_hasChildren = false;
+        m_objects.clear();
+        for (auto& childNode : m_children)
+            if (childNode)
+                childNode->clear();
+    }
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Search this tree for all objects within a particular bounds.
     /// \param  pos     the position of the bounds.
@@ -94,22 +104,25 @@ template <typename T> class QuadTree {
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Check if this tree has children nodes.
     /// \return true if this tree has children nodes, false otherwise.
-    [[nodiscard]] bool hasSubtree() const noexcept {
-        return m_children[0] != nullptr;
-    }
+    [[nodiscard]] bool hasSubtree() const noexcept { return m_hasChildren; }
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Split this tree into subtrees, migrating its children.
     void split() {
-        // Create 4 child nodes
+        // Create 4 child nodes once
+        if (!m_children[0])
+            std::generate(m_children.begin(), m_children.end(), [] {
+                return std::make_shared<QuadTree<T>>();
+            });
+
+        // Populate child nodes
         const vec2 childScale = m_scale / 2.0F;
-        m_children[0] = std::make_shared<QuadTree<T>>(
-            m_pos + (vec2(1, 1) * childScale), childScale, m_level + 1, this);
-        m_children[1] = std::make_shared<QuadTree<T>>(
-            m_pos + (vec2(1, -1) * childScale), childScale, m_level + 1, this);
-        m_children[2] = std::make_shared<QuadTree<T>>(
-            m_pos + (vec2(-1, -1) * childScale), childScale, m_level + 1, this);
-        m_children[3] = std::make_shared<QuadTree<T>>(
-            m_pos + (vec2(-1, 1) * childScale), childScale, m_level + 1, this);
+        constexpr vec2 childDir[4] = { vec2(1), vec2(1, -1), vec2(-1),
+                                       vec2(-1, 1) };
+        for (auto x = 0; x < 4; ++x) {
+            *m_children[x] = QuadTree(
+                m_pos + (childDir[x] * childScale), childScale, m_level + 1,
+                this);
+        }
 
         // Migrate objects into child nodes
         for (const auto& [objT, objPos, objScale] : m_objects) {
@@ -117,7 +130,7 @@ template <typename T> class QuadTree {
                 m_children[index]->insert(objT, objPos, objScale);
         }
         m_objects.clear();
-        m_objects.shrink_to_fit();
+        m_hasChildren = true;
     }
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Find all children that could contain the input bounds.
@@ -154,6 +167,7 @@ template <typename T> class QuadTree {
     vec2 m_pos;                      ///< Position of this tree.
     vec2 m_scale;                    ///< Scale of this tree.
     int m_level = 0;                 ///< Level of this tree.
+    bool m_hasChildren = false;      ///< Indicates if this tree split.
     QuadTree<T>* m_parent = nullptr; ///< Parent tree in hierarchy.
 };
 

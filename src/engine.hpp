@@ -4,6 +4,8 @@
 
 #include "Utility/vec.hpp"
 #include "collisionCleanupSystem.hpp"
+#include "collisionFinderSystem.hpp"
+#include "collisionResolverSystem.hpp"
 #include "ecsWorld.hpp"
 #include "entityCleanupSystem.hpp"
 #include "gravitySystem.hpp"
@@ -60,6 +62,8 @@ class Engine {
     ecsWorld m_gameWorld;       ///< The ECS world holding game state.
     MovementDetectorSystem m_moveDetector; ///< Cleans-up out of bounds.
     GravitySystem m_gravitySystem;         ///< System used to apply gravity.
+    CollisionFinderSystem m_colFinder;     ///< Find collision events.
+    CollisionResolverSystem m_colResolver; ///< Resolve collision events.
     EntityCleanupSystem m_cleanupSystem;   ///< Cleans-up out of bounds.
     CollisionCleanupSystem
         m_collisionCleanup; ///< System used to cleanup collision manifolds.

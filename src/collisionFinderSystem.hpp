@@ -5,6 +5,7 @@
 #include "collision.hpp"
 #include "components.hpp"
 #include "ecsWorld.hpp"
+#include "quadTree.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
@@ -17,10 +18,16 @@ using namespace mini;
 class CollisionFinderSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Construct a collision finder system.
+    CollisionFinderSystem();
+    ///////////////////////////////////////////////////////////////////////////
     /// \brief  Find collisions between every entity.
     /// \param  deltaTime   the amount of time since last frame.
     /// \param  world       the game world to resolve for.
-    static void findCollisions(const double&, ecsWorld& world);
+    void findCollisions(const double&, ecsWorld& world);
+
+    private:
+    QuadTree<const ParticleComponent*> m_quadTree; ///< Partitions world.
 };
 
 #endif // COLLISIONFINDERSYSTEM_HPP
