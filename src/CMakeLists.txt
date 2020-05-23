@@ -18,6 +18,7 @@ set(FILES
     renderSystem.hpp
     entityCleanupSystem.hpp
     movementDetectorSystem.hpp
+    ignitionSystem.hpp
     quadTree.hpp
 
     # Source files
@@ -33,6 +34,7 @@ set(FILES
     renderSystem.cpp
     entityCleanupSystem.cpp
     movementDetectorSystem.cpp
+    ignitionSystem.cpp
 )
 
 # Create Library using the supplied files

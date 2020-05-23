@@ -39,6 +39,11 @@ void CollisionFinderSystem::findCollisions(
         const auto collidingObjects =
             m_quadTree.search(particle1.m_pos, particle1.m_dimensions);
 
+        // Only search for the entity pointer if there are potential collisions
+        if (collidingObjects.empty())
+            continue;
+        auto entity1Pointer = world.getEntity(entityHandle1);
+
         for (auto& entity2 : collidingObjects) {
             const auto& entityHandle2 = entity2->m_entityHandle;
             const auto& particle2 = *entity2;
@@ -87,15 +92,15 @@ void CollisionFinderSystem::findCollisions(
             // If we hit, store the collision properties in a manifold
             const auto& [hit, normal, penetrationDepth] = AABBvsAABB();
             if (hit && std::abs(penetrationDepth) >= 0.0001F) {
-                static const CollisionManifoldComponent tmpComponent;
-                [[maybe_unused]] const auto componentHandle =
-                    world.makeComponent(entityHandle1, &tmpComponent);
+                world.makeComponent<CollisionManifoldComponent>(entityHandle1);
                 auto manifoldComponent =
-                    static_cast<CollisionManifoldComponent*>(world.getComponent(
-                        entityHandle1, CollisionManifoldComponent::Runtime_ID));
+                    static_cast<CollisionManifoldComponent*>(
+                        world.getComponent<CollisionManifoldComponent>(
+                            *entity1Pointer));
                 manifoldComponent->collisions.emplace_back(
                     CollisionManifoldComponent::CollisionManifold{
-                        entityHandle2, normal, penetrationDepth });
+                        world.getEntity(entityHandle2), normal,
+                        penetrationDepth });
             }
         }
     }

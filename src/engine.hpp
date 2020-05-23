@@ -9,6 +9,7 @@
 #include "ecsWorld.hpp"
 #include "entityCleanupSystem.hpp"
 #include "gravitySystem.hpp"
+#include "ignitionSystem.hpp"
 #include "movementDetectorSystem.hpp"
 #include "renderSystem.hpp"
 #include "window.hpp"
@@ -64,6 +65,7 @@ class Engine {
     GravitySystem m_gravitySystem;         ///< System used to apply gravity.
     CollisionFinderSystem m_colFinder;     ///< Find collision events.
     CollisionResolverSystem m_colResolver; ///< Resolve collision events.
+    IgnitionSystem m_igniter;              ///< Ignites flammable particles.
     EntityCleanupSystem m_cleanupSystem;   ///< Cleans-up out of bounds.
     CollisionCleanupSystem
         m_collisionCleanup; ///< System used to cleanup collision manifolds.

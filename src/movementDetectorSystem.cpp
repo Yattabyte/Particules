@@ -21,12 +21,10 @@ void MovementDetectorSystem::updateComponents(
         auto& physics = *static_cast<PhysicsComponent*>(componentSet.front());
 
         if (physics.m_velocity.length() >= 0.0001F) {
-            static const MovingComponent movingComponent;
-            m_gameWorld.makeComponent(entityHandle, &movingComponent);
+            m_gameWorld.makeComponent<MovingComponent>(entityHandle);
         } else {
             physics.m_velocity = vec2(0.0F);
-            m_gameWorld.removeEntityComponent(
-                entityHandle, MovingComponent::Runtime_ID);
+            m_gameWorld.removeComponent<MovingComponent>(entityHandle);
         }
     }
 }

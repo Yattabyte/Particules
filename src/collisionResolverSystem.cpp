@@ -24,11 +24,8 @@ void CollisionResolverSystem::resolveCollisions(
 
         for (const auto& manifold : std::get<2>(entity1)->collisions) {
             const auto& [otherHandle, normal, depth] = manifold;
-            auto& particle2 =
-                *static_cast<ParticleComponent*>(world.getComponent(
-                    manifold.otherEntity, ParticleComponent::Runtime_ID));
-            auto& physics2 = *static_cast<PhysicsComponent*>(world.getComponent(
-                manifold.otherEntity, PhysicsComponent::Runtime_ID));
+            auto& physics2 = *static_cast<PhysicsComponent*>(
+                world.getComponent<PhysicsComponent>(*manifold.otherEntity));
 
             // Calculate relative velocity
             const vec2 relativeVelocity =
@@ -55,6 +52,8 @@ void CollisionResolverSystem::resolveCollisions(
             physics2.m_velocity += impulse * physics2.mass;
 
             // Correct position
+            auto& particle2 = *static_cast<ParticleComponent*>(
+                world.getComponent<ParticleComponent>(*manifold.otherEntity));
             constexpr float percent = 0.8F;
             constexpr float slop = 0.01F;
             const vec2 correction = normal * std::max(depth - slop, 0.0F) /

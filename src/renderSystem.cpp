@@ -3,10 +3,10 @@
 constexpr auto const vertCode = R"END(
     #version 430
     struct Particle {
+        vec3 color;
         vec2 pos;
         vec2 velocity;
         vec2 scale;
-        int type;
     };
 
     layout (location = 0) in vec3 vertex;
@@ -21,9 +21,9 @@ constexpr auto const vertCode = R"END(
         const vec3 scale = vec3(particles[gl_InstanceID].scale, 1.0);
         const vec3 offset = vec3(particles[gl_InstanceID].pos, 0.0);
         gl_Position = pMatrix * vMatrix * vec4((vertex * scale) + offset,  1.0);
-        const float colorMod = clamp(length(particles[gl_InstanceID].velocity) / 66.66F, 0.0F, 1.F);
-        const vec3 colors[2] = vec3[](vec3(0.4F, 0.4F, 0.4F), vec3(0.80F, 0.75F, 0.55F));
-        color = vec4(mix(colors[particles[gl_InstanceID].type], vec3(1), colorMod), 1.0F);
+        //const float colorMod = clamp(length(particles[gl_InstanceID].velocity) / 66.66F, 0.0F, 1.F);
+        //color = vec4(mix(particles[gl_InstanceID].color, vec3(1), colorMod), 1.0F);
+        color = vec4(particles[gl_InstanceID].color, 1.0F);
     }
 )END";
 
@@ -73,10 +73,8 @@ void RenderSystem::updateComponents(
         // Convert game particles into GPU renderable particles
         const auto& particle = *static_cast<ParticleComponent*>(components[0]);
         const auto& physics = *static_cast<PhysicsComponent*>(components[1]);
-        const GPU_Particle data{ particle.m_pos, physics.m_velocity,
-                                 particle.m_dimensions,
-                                 static_cast<int>(particle.m_type) };
-
+        const GPU_Particle data{ particle.m_color, 0.0f, particle.m_pos,
+                                 physics.m_velocity, particle.m_dimensions };
         m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);
         offset += sizeof(GPU_Particle);
     }
