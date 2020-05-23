@@ -8,6 +8,7 @@ set(FILES
     # Header files
     window.hpp
     engine.hpp
+    quadTree.hpp
     particle.hpp
     components.hpp
     collision.hpp
@@ -19,13 +20,12 @@ set(FILES
     entityCleanupSystem.hpp
     movementDetectorSystem.hpp
     ignitionSystem.hpp
-    quadTree.hpp
+    burningSystem.hpp
 
     # Source files
     main.cpp
     window.cpp
     engine.cpp
-    particle.cpp
     collision.cpp
     collisionFinderSystem.cpp
     collisionResolverSystem.cpp
@@ -35,6 +35,7 @@ set(FILES
     entityCleanupSystem.cpp
     movementDetectorSystem.cpp
     ignitionSystem.cpp
+    burningSystem.cpp
 )
 
 # Create Library using the supplied files

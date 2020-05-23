@@ -24,8 +24,12 @@ void EntityCleanupSystem::updateComponents(
         const auto& position = particleComponent.m_pos;
         const auto& extents = particleComponent.m_dimensions;
 
-        // Find entities that fall outside the screen's bounds
+        // Find entities that are out-of-bounds
         if (!areColliding_BoxVsBox(position, extents, vec2(0), vec2(250)))
+            entitiesToDelete.emplace_back(particleComponent.m_entityHandle);
+
+        // Find entities that are out-of-health
+        else if (particleComponent.m_health < 0.0001F)
             entitiesToDelete.emplace_back(particleComponent.m_entityHandle);
     }
 

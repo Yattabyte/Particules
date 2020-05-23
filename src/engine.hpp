@@ -3,6 +3,7 @@
 #define ENGINE_HPP
 
 #include "Utility/vec.hpp"
+#include "burningSystem.hpp"
 #include "collisionCleanupSystem.hpp"
 #include "collisionFinderSystem.hpp"
 #include "collisionResolverSystem.hpp"
@@ -31,7 +32,7 @@ class Engine {
     Engine(const Engine& o) = delete;
     //////////////////////////////////////////////////////////////////////
     /// \brief  Default move constructor.
-    Engine(Engine&& o) noexcept = default;
+    Engine(Engine&& o) noexcept = delete;
     /////////////////////////////////////////////////////////////////////////
     /// \brief  Construct an engine object using a specific window.
     explicit Engine(const Window& window);
@@ -41,7 +42,7 @@ class Engine {
     Engine& operator=(const Engine&) = delete;
     //////////////////////////////////////////////////////////////////////
     /// \brief  Default move-assignment operator.
-    Engine& operator=(Engine&&) noexcept = default;
+    Engine& operator=(Engine&&) noexcept = delete;
 
     /////////////////////////////////////////////////////////////////////////
     /// \brief  Tick the engine state. To be called externally by main loop.
@@ -66,6 +67,7 @@ class Engine {
     CollisionFinderSystem m_colFinder;     ///< Find collision events.
     CollisionResolverSystem m_colResolver; ///< Resolve collision events.
     IgnitionSystem m_igniter;              ///< Ignites flammable particles.
+    BurningSystem m_burner;                ///< Burns on fire components.
     EntityCleanupSystem m_cleanupSystem;   ///< Cleans-up out of bounds.
     CollisionCleanupSystem
         m_collisionCleanup; ///< System used to cleanup collision manifolds.

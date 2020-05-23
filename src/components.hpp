@@ -17,8 +17,8 @@ using namespace mini;
 struct ParticleComponent final : public ecsComponent<ParticleComponent> {
     vec2 m_pos = vec2(0.0F);
     vec2 m_dimensions = vec2(1.0F);
-    vec3 m_color = vec3(1.0f);
-    float padding;
+    vec3 m_color = vec3(1.0F);
+    float m_health = 1.0F;
 };
 
 ///////////////////////////////////////////////////////////////////////////

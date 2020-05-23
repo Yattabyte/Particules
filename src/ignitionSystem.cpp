@@ -1,10 +1,18 @@
 #include "ignitionSystem.hpp"
 
+//////////////////////////////////////////////////////////////////////
+/// Custom Constructor
+//////////////////////////////////////////////////////////////////////
+
 IgnitionSystem::IgnitionSystem(ecsWorld& gameWorld) : m_gameWorld(gameWorld) {
     addComponentType(
         CollisionManifoldComponent::Runtime_ID, RequirementsFlag::REQUIRED);
     addComponentType(OnFireComponent::Runtime_ID, RequirementsFlag::REQUIRED);
 }
+
+//////////////////////////////////////////////////////////////////////
+/// updateComponents
+//////////////////////////////////////////////////////////////////////
 
 void IgnitionSystem::updateComponents(
     const double& /*deltaTime*/,

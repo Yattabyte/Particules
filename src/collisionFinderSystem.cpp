@@ -3,11 +3,8 @@
 constexpr float tolerance = 0.0001F;
 
 //////////////////////////////////////////////////////////////////////
-/// findCollisions
+/// updateComponents
 //////////////////////////////////////////////////////////////////////
-
-CollisionFinderSystem::CollisionFinderSystem()
-    : m_quadTree(vec2(0), vec2(250.0F), 0) {}
 
 void CollisionFinderSystem::findCollisions(
     const double& /*deltaTime*/, ecsWorld& world) {

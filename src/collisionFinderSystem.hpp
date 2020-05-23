@@ -19,7 +19,7 @@ class CollisionFinderSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a collision finder system.
-    CollisionFinderSystem();
+    CollisionFinderSystem() : m_quadTree(vec2(0), vec2(250.0F), 0) {}
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Find collisions between every entity.
     /// \param  deltaTime   the amount of time since last frame.

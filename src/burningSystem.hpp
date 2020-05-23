@@ -1,6 +1,6 @@
 #pragma once
-#ifndef ENTITYCLEANUPSYSTEM_HPP
-#define ENTITYCLEANUPSYSTEM_HPP
+#ifndef BURNINGSYSTEM_HPP
+#define BURNINGSYSTEM_HPP
 
 #include "components.hpp"
 #include "ecsSystem.hpp"
@@ -11,14 +11,13 @@
 using namespace mini;
 
 /////////////////////////////////////////////////////////////////////////
-/// \class  EntityCleanupSystem
-/// \brief  System used to delete out-of-bounds or dead entities;
-class EntityCleanupSystem final : public ecsSystem {
+/// \class  BurningSystem
+/// \brief  System used to lower the health of burning entities.
+class BurningSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a cleanup system.
-    /// \param  gameWorld   reference to the engine's game world.
-    explicit EntityCleanupSystem(ecsWorld& gameWorld);
+    explicit BurningSystem();
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
@@ -28,9 +27,6 @@ class EntityCleanupSystem final : public ecsSystem {
         const double&,
         const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
         final;
-
-    private:
-    ecsWorld& m_gameWorld;
 };
 
-#endif // ENTITYCLEANUPSYSTEM_HPP
+#endif // BURNINGSYSTEM_HPP

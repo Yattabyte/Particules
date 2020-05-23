@@ -24,12 +24,13 @@ Engine::Engine(const Window& window)
             (randomFloats(generator) * 0.5F + 0.5F) * 100.0F + -100.0F);
         particle.m_dimensions = vec2(1.0F);
         particle.m_color = COLOR_SAND;
+        particle.m_health = 3.0F;
         PhysicsComponent physics;
         FlammableComponent flammable;
         physics.m_velocity = vec2(
             randomFloats(generator) * 75.0F,
             (randomFloats(generator) * 0.5F + 0.5F) * 12.5F);
-        physics.mass = (randomFloats(generator) * 0.5F + 0.5F) * 19.0F + 1.0F;
+        physics.mass = (randomFloats(generator) * 0.5F + 0.5F) * 18.0F + 2.0F;
         physics.inv_mass = 1.0F / physics.mass;
         const auto entityHandle = m_gameWorld.makeEntity();
         m_gameWorld.makeComponent(entityHandle, &particle);
@@ -71,6 +72,7 @@ Engine::Engine(const Window& window)
         particle.m_pos = vec2(0, 250);
         particle.m_dimensions = vec2(1);
         particle.m_color = COLOR_FIRE;
+        particle.m_health = 5.0F;
         mass.mass = 50.0F;
         OnFireComponent fire;
         m_gameWorld.makeComponent(entityHandle, &particle);
@@ -109,6 +111,7 @@ void Engine::gameTick(const double& deltaTime) {
         m_colFinder.findCollisions(timeStep, m_gameWorld);
         m_colResolver.resolveCollisions(timeStep, m_gameWorld);
         m_gameWorld.updateSystem(m_igniter, timeStep);
+        m_gameWorld.updateSystem(m_burner, timeStep);
         m_gameWorld.updateSystem(m_cleanupSystem, timeStep);
         m_gameWorld.updateSystem(m_collisionCleanup, timeStep);
         m_accumulator -= timeStep;
