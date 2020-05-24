@@ -4,8 +4,8 @@ constexpr auto const vertCode = R"END(
     #version 430
     struct Particle {
         vec3 color;
+        int onFire;
         vec2 pos;
-        vec2 velocity;
         vec2 scale;
     };
 
@@ -21,9 +21,7 @@ constexpr auto const vertCode = R"END(
         const vec3 scale = vec3(particles[gl_InstanceID].scale, 1.0);
         const vec3 offset = vec3(particles[gl_InstanceID].pos, 0.0);
         gl_Position = pMatrix * vMatrix * vec4((vertex * scale) + offset,  1.0);
-        //const float colorMod = clamp(length(particles[gl_InstanceID].velocity) / 66.66F, 0.0F, 1.F);
-        //color = vec4(mix(particles[gl_InstanceID].color, vec3(1), colorMod), 1.0F);
-        color = vec4(particles[gl_InstanceID].color, 1.0F);
+        color = vec4(mix(particles[gl_InstanceID].color, vec3(1, 0.2F, 0), particles[gl_InstanceID].onFire * 0.75), 1.0F);
     }
 )END";
 
@@ -47,7 +45,7 @@ RenderSystem::RenderSystem()
                                               vec3(1, 1, 0), vec3(-1, 1, 0) }),
       m_draw(4, 0, 0, GL_DYNAMIC_STORAGE_BIT) {
     addComponentType(ParticleComponent::Runtime_ID, RequirementsFlag::REQUIRED);
-    addComponentType(PhysicsComponent::Runtime_ID, RequirementsFlag::REQUIRED);
+    addComponentType(OnFireComponent::Runtime_ID, RequirementsFlag::OPTIONAL);
 
     // Calculate viewing perspective and matrices
     const auto pMatrix = mat4::perspective(1.5708F, 1.0F, 0.01F, 10.0F);
@@ -72,9 +70,9 @@ void RenderSystem::updateComponents(
     for (const auto& components : entityComponents) {
         // Convert game particles into GPU renderable particles
         const auto& particle = *static_cast<ParticleComponent*>(components[0]);
-        const auto& physics = *static_cast<PhysicsComponent*>(components[1]);
-        const GPU_Particle data{ particle.m_color, 0.0f, particle.m_pos,
-                                 physics.m_velocity, particle.m_dimensions };
+        const GPU_Particle data{ particle.m_color,
+                                 components[1] != nullptr ? 1 : 0,
+                                 particle.m_pos, particle.m_dimensions };
         m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);
         offset += sizeof(GPU_Particle);
     }

@@ -21,6 +21,10 @@ void GravitySystem::updateComponents(
             *static_cast<ParticleComponent*>(components[0]);
         auto& physicsComponent = *static_cast<PhysicsComponent*>(components[1]);
 
+        // Only apply forces to particles with mass
+        if (physicsComponent.mass < 0.0001F)
+            continue;
+
         constexpr float damping = 0.9999F;
         const auto weightForce = vec2(0, physicsComponent.mass * -9.81F);
         const auto dampingForce = physicsComponent.m_velocity * -damping;

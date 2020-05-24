@@ -15,7 +15,7 @@ void CollisionFinderSystem::findCollisions(
         { { ParticleComponent::Runtime_ID,
             ecsSystem::RequirementsFlag::REQUIRED } });
     for (const auto& entity2 : physicsEntities) {
-        const auto& particleComponent = std::get<0>(entity2);
+        auto& particleComponent = std::get<0>(entity2);
         m_quadTree.insert(
             particleComponent, particleComponent->m_pos,
             particleComponent->m_dimensions);

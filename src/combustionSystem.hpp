@@ -1,24 +1,26 @@
 #pragma once
-#ifndef BURNINGSYSTEM_HPP
-#define BURNINGSYSTEM_HPP
+#ifndef COMBUSTIONSYSTEM_HPP
+#define COMBUSTIONSYSTEM_HPP
 
 #include "components.hpp"
 #include "ecsSystem.hpp"
 #include "ecsWorld.hpp"
+#include "quadTree.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
 using namespace mini;
 
-/////////////////////////////////////////////////////////////////////////
-/// \class  BurningSystem
-/// \brief  System used to lower the health of burning entities.
-class BurningSystem final : public ecsSystem {
+///////////////////////////////////////////////////////////////////////////
+/// \class  ExplosionSystem
+/// \brief  Class is used to combust explosive entities.
+class CombustionSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a cleanup system.
     /// \param  gameWorld   reference to the engine's game world.
-    explicit BurningSystem(ecsWorld& gameWorld);
+    CombustionSystem(
+        ecsWorld& gameWorld, const QuadTree<ParticleComponent*>& quadTree);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
@@ -31,6 +33,7 @@ class BurningSystem final : public ecsSystem {
 
     private:
     ecsWorld& m_gameWorld;
+    const QuadTree<ParticleComponent*>& m_quadTree;
 };
 
-#endif // BURNINGSYSTEM_HPP
+#endif // COMBUSTIONSYSTEM_HPP

@@ -26,8 +26,7 @@ class CollisionFinderSystem {
     /// \param  world       the game world to resolve for.
     void findCollisions(const double&, ecsWorld& world);
 
-    private:
-    QuadTree<const ParticleComponent*> m_quadTree; ///< Partitions world.
+    QuadTree<ParticleComponent*> m_quadTree; ///< Partitions world.
 };
 
 #endif // COLLISIONFINDERSYSTEM_HPP

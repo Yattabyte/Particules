@@ -99,6 +99,33 @@ template <typename T> class QuadTree {
         }
         return overlappingObjects;
     }
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Search this tree for all objects within a particular bounds.
+    /// \param  pos     the position of the bounds.
+    /// \param  scale   the scale of the bounds.
+    /// \return vector of all objects overlapping with this bounds.
+    [[nodiscard]] std::vector<T>
+    search(const vec2& pos, const float& radius) const {
+        // Copy all objects in this node
+        std::vector<T> overlappingObjects;
+        overlappingObjects.reserve(m_objects.size());
+        std::transform(
+            m_objects.cbegin(), m_objects.cend(),
+            std::back_inserter(overlappingObjects),
+            [](const auto& obj) { return std::get<0>(obj); });
+
+        // Copy all objects in children nodes
+        if (hasSubtree()) {
+            for (const auto& index : getChildIndex(pos, radius)) {
+                auto newObjs = m_children[index]->search(pos, radius);
+                overlappingObjects.insert(
+                    overlappingObjects.end(),
+                    std::make_move_iterator(newObjs.begin()),
+                    std::make_move_iterator(newObjs.end()));
+            }
+        }
+        return overlappingObjects;
+    }
 
     private:
     ///////////////////////////////////////////////////////////////////////////
@@ -155,6 +182,34 @@ template <typename T> class QuadTree {
             if (BoxVsBox(
                     m_children[index]->m_pos, m_children[index]->m_scale, pos,
                     scale))
+                indices.emplace_back(index);
+        return indices;
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Find all children that could contain the input bounds.
+    /// \param  pos     the position of the bounds.
+    /// \param  scale   the scale of the bounds.
+    /// \return a set of all applicable children containing the supplied bounds.
+    [[nodiscard]] std::vector<int>
+    getChildIndex(const vec2& pos, const float& radius) const {
+        constexpr auto BoxVsCircle = [](const vec2& posA, const vec2& sclA,
+                                        const vec2& posB,
+                                        const float& rad) noexcept {
+            vec2 difference = posB - posA;
+            vec2 clamped = difference;
+            clamped.x() = std::clamp(clamped.x(), -sclA.x(), sclA.x());
+            clamped.y() = std::clamp(clamped.y(), -sclA.y(), sclA.y());
+            const vec2 closest = posA + clamped;
+            difference = closest - posB;
+            return difference.length() < rad;
+        };
+
+        std::vector<int> indices;
+        indices.reserve(4);
+        for (auto index = 0; index < 4; ++index)
+            if (BoxVsCircle(
+                    m_children[index]->m_pos, m_children[index]->m_scale, pos,
+                    radius))
                 indices.emplace_back(index);
         return indices;
     }

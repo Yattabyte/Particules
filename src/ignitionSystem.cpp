@@ -26,10 +26,6 @@ void IgnitionSystem::updateComponents(
                     *manifold.otherEntity)) {
                 m_gameWorld.makeComponent<OnFireComponent>(
                     *manifold.otherEntity);
-                static_cast<ParticleComponent*>(
-                    m_gameWorld.getComponent<ParticleComponent>(
-                        *manifold.otherEntity))
-                    ->m_color = COLOR_FIRE;
             }
         }
     }

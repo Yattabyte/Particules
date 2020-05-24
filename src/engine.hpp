@@ -7,6 +7,7 @@
 #include "collisionCleanupSystem.hpp"
 #include "collisionFinderSystem.hpp"
 #include "collisionResolverSystem.hpp"
+#include "combustionSystem.hpp"
 #include "ecsWorld.hpp"
 #include "entityCleanupSystem.hpp"
 #include "gravitySystem.hpp"
@@ -68,6 +69,7 @@ class Engine {
     CollisionResolverSystem m_colResolver; ///< Resolve collision events.
     IgnitionSystem m_igniter;              ///< Ignites flammable particles.
     BurningSystem m_burner;                ///< Burns on fire components.
+    CombustionSystem m_combuster;          ///< Combusts explosive particles.
     EntityCleanupSystem m_cleanupSystem;   ///< Cleans-up out of bounds.
     CollisionCleanupSystem
         m_collisionCleanup; ///< System used to cleanup collision manifolds.

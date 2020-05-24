@@ -20,6 +20,7 @@ set(FILES
     entityCleanupSystem.hpp
     movementDetectorSystem.hpp
     ignitionSystem.hpp
+    combustionSystem.hpp
     burningSystem.hpp
 
     # Source files
@@ -35,6 +36,7 @@ set(FILES
     entityCleanupSystem.cpp
     movementDetectorSystem.cpp
     ignitionSystem.cpp
+    combustionSystem.cpp
     burningSystem.cpp
 )
 

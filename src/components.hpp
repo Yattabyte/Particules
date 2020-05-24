@@ -45,7 +45,12 @@ struct CollisionManifoldComponent final
 
 struct InnertComponent : public ecsComponent<InnertComponent> {};
 struct MovingComponent final : public ecsComponent<MovingComponent> {};
-struct FlammableComponent : public ecsComponent<FlammableComponent> {};
+struct FlammableComponent : public ecsComponent<FlammableComponent> {
+    float wickTime = 1.0F; ///< How long it will burn for.
+};
+struct ExplosiveComponent : public ecsComponent<ExplosiveComponent> {
+    float fuseTime = 1.0F; ///< How long it must burn until detonation.
+};
 struct OnFireComponent : public ecsComponent<OnFireComponent> {};
 
 #endif // COMPONENTS_HPP
