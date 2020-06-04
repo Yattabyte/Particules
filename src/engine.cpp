@@ -22,9 +22,8 @@ Engine::Engine(const Window& window)
     };
 
     // Fill game world with sand
-    for (auto x = 0; x < 2996; ++x) {
+    for (auto x = 0; x < 12499; ++x) {
         ParticleComponent particle;
-        PhysicsComponent physics;
         FlammableComponent flammable;
         ExplosiveComponent explosive;
         const auto entityHandle = m_gameWorld.makeEntity();
@@ -32,18 +31,18 @@ Engine::Engine(const Window& window)
         constexpr float numEntityTypes = 4.0F;
         const int entType = static_cast<int>(randNum(0, 3));
 
-        switch (entType) {
+        switch (0) {
         // default:
         case 0: // Make Sand
             particle.m_health = 10.0F;
             particle.m_color = COLOR_SAND;
-            physics.mass = randNum(8.0, 10);
+            particle.mass = randNum(8.0, 10);
             break;
         case 1: // Make Oil
             flammable.wickTime = 4.0F;
             particle.m_health = 4.0F;
             particle.m_color = COLOR_OIL;
-            physics.mass = randNum(8.5F, 10.5F);
+            particle.mass = randNum(8.5F, 10.5F);
             m_gameWorld.makeComponent(entityHandle, &flammable);
             break;
         case 2: // Make Gunpowder
@@ -51,7 +50,7 @@ Engine::Engine(const Window& window)
             flammable.wickTime = 1.5F;
             particle.m_health = 2.5F;
             particle.m_color = COLOR_GUNPOWDER;
-            physics.mass = randNum(7.0F, 10.0F);
+            particle.mass = randNum(7.0F, 10.0F);
             m_gameWorld.makeComponent(entityHandle, &explosive);
             m_gameWorld.makeComponent(entityHandle, &flammable);
             break;
@@ -60,64 +59,49 @@ Engine::Engine(const Window& window)
             flammable.wickTime = 7.5F;
             particle.m_health = 7.5F;
             particle.m_color = COLOR_GASOLINE;
-            physics.mass = randNum(9.0F, 11.0F);
+            particle.mass = randNum(9.0F, 11.0F);
             m_gameWorld.makeComponent(entityHandle, &explosive);
             m_gameWorld.makeComponent(entityHandle, &flammable);
             break;
         }
 
         particle.m_pos = vec2(
+            (randomFloats(generator) * 0.5F + 0.5F) * 500.0F,
+            (randomFloats(generator) * 0.5F + 0.5F) * 100.0F + 400.0F);
+        /*particle.m_velocity = vec2(
             randomFloats(generator) * 75.0F,
-            (randomFloats(generator) * 0.5F + 0.5F) * 100.0F + -100.0F);
-        particle.m_dimensions = vec2(1.0F);
-        physics.m_velocity = vec2(
-            randomFloats(generator) * 75.0F,
-            (randomFloats(generator) * 0.5F + 0.5F) * 12.5F);
-        physics.inv_mass = 1.0F / physics.mass;
-        m_gameWorld.makeComponent(entityHandle, &physics);
+            (randomFloats(generator) * 0.5F + 0.5F) * 12.5F);*/
+        particle.inv_mass = 1.0F / particle.mass;
         m_gameWorld.makeComponent(entityHandle, &particle);
     }
 
     {
-        // Add concrete particles to world
-        ParticleComponent particle;
-        particle.m_pos = vec2(0, -200);
-        particle.m_color = COLOR_CONCRETE;
-        particle.m_dimensions = vec2(200.0F, 10.0f);
-        particle.m_health = 1000.0F;
-        PhysicsComponent mass;
-        mass.mass = 0.0F;
-        mass.inv_mass = 0.0F;
-        auto entityHandle = m_gameWorld.makeEntity();
-        m_gameWorld.makeComponent(entityHandle, &particle);
-        m_gameWorld.makeComponent(entityHandle, &mass);
-        m_gameWorld.makeComponent<InnertComponent>(entityHandle);
-
-        entityHandle = m_gameWorld.makeEntity();
-        particle.m_pos = vec2(-190, -180);
-        particle.m_dimensions = vec2(10.0F, 10.0F);
-        m_gameWorld.makeComponent(entityHandle, &particle);
-        m_gameWorld.makeComponent(entityHandle, &mass);
-        m_gameWorld.makeComponent<InnertComponent>(entityHandle);
-
-        entityHandle = m_gameWorld.makeEntity();
-        particle.m_pos = vec2(190, -180);
-        particle.m_dimensions = vec2(10.0F, 10.0F);
-        m_gameWorld.makeComponent(entityHandle, &particle);
-        m_gameWorld.makeComponent(entityHandle, &mass);
-        m_gameWorld.makeComponent<InnertComponent>(entityHandle);
+        for (int y = 0; y < 1; ++y) {
+            for (int x = 0; x < 500; ++x) {
+                // Add concrete particles to world
+                ParticleComponent particle;
+                particle.m_pos =
+                    vec2(static_cast<float>(x), static_cast<float>(y + 100));
+                particle.m_color = COLOR_CONCRETE;
+                particle.m_health = 1000.0F;
+                particle.mass = 0.0F;
+                particle.inv_mass = 0.0F;
+                auto entityHandle = m_gameWorld.makeEntity();
+                m_gameWorld.makeComponent(entityHandle, &particle);
+                m_gameWorld.makeComponent<InnertComponent>(entityHandle);
+            }
+        }
 
         // Add one fire particle falling down
-        entityHandle = m_gameWorld.makeEntity();
+        ParticleComponent particle;
         FlammableComponent flammable;
+        auto entityHandle = m_gameWorld.makeEntity();
         flammable.wickTime = 15.0F;
         particle.m_health = 15.0F;
-        particle.m_pos = vec2(0, 250);
-        particle.m_dimensions = vec2(2);
+        particle.m_pos = vec2(250, 250);
         particle.m_color = COLOR_FIRE;
-        mass.mass = 15.0F;
+        particle.mass = 15.0F;
         m_gameWorld.makeComponent(entityHandle, &particle);
-        m_gameWorld.makeComponent(entityHandle, &mass);
         m_gameWorld.makeComponent(entityHandle, &flammable);
         m_gameWorld.makeComponent<OnFireComponent>(entityHandle);
     }
@@ -149,9 +133,9 @@ void Engine::gameTick(const double& deltaTime) {
     while (m_accumulator >= timeStep) {
         // Run Game Systems
         m_gameWorld.updateSystem(m_moveDetector, timeStep);
-        m_gameWorld.updateSystem(m_gravitySystem, timeStep);
+        // m_gameWorld.updateSystem(m_gravitySystem, timeStep);
         m_colFinder.findCollisions(timeStep, m_gameWorld);
-        m_colResolver.resolveCollisions(timeStep, m_gameWorld);
+        // m_colResolver.resolveCollisions(timeStep, m_gameWorld);
         m_gameWorld.updateSystem(m_igniter, timeStep);
         m_gameWorld.updateSystem(m_burner, timeStep);
         m_gameWorld.updateSystem(m_combuster, timeStep);

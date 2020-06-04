@@ -7,25 +7,23 @@
 void CollisionResolverSystem::resolveCollisions(
     const double& /*deltaTime*/, ecsWorld& world) {
     // Retrieve a list of all move-able physics objects
-    auto collidingEntities = world.getComponents<
-        ParticleComponent*, PhysicsComponent*, CollisionManifoldComponent*>(
-        { { ParticleComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::REQUIRED },
-          { PhysicsComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::REQUIRED },
-          { CollisionManifoldComponent::Runtime_ID,
-            ecsSystem::RequirementsFlag::REQUIRED } });
+    auto collidingEntities =
+        world.getComponents<ParticleComponent*, CollisionManifoldComponent*>(
+            { { ParticleComponent::Runtime_ID,
+                ecsSystem::RequirementsFlag::REQUIRED },
+              { CollisionManifoldComponent::Runtime_ID,
+                ecsSystem::RequirementsFlag::REQUIRED } });
 
     // Check if each move-able entity is colliding
     // against every other physics entity
     for (auto& entity1 : collidingEntities) {
-        auto& particle1 = *std::get<0>(entity1);
-        auto& physics1 = *std::get<1>(entity1);
+        // auto& particle1 = *std::get<0>(entity1);
+        auto& physics1 = *std::get<0>(entity1);
 
-        for (const auto& manifold : std::get<2>(entity1)->collisions) {
+        for (const auto& manifold : std::get<1>(entity1)->collisions) {
             const auto& [otherHandle, normal, depth] = manifold;
-            auto& physics2 = *static_cast<PhysicsComponent*>(
-                world.getComponent<PhysicsComponent>(*manifold.otherEntity));
+            auto& physics2 = *static_cast<ParticleComponent*>(
+                world.getComponent<ParticleComponent>(*manifold.otherEntity));
 
             // Calculate relative velocity
             const vec2 relativeVelocity =
@@ -52,14 +50,14 @@ void CollisionResolverSystem::resolveCollisions(
             physics2.m_velocity += impulse * physics2.mass;
 
             // Correct position
-            auto& particle2 = *static_cast<ParticleComponent*>(
+            /*auto& particle2 = *static_cast<ParticleComponent*>(
                 world.getComponent<ParticleComponent>(*manifold.otherEntity));
-            constexpr float percent = 0.8F;
-            constexpr float slop = 0.01F;
-            const vec2 correction = normal * std::max(depth - slop, 0.0F) /
-                                    (physics1.mass + physics2.mass) * percent;
-            particle1.m_pos -= correction * physics1.mass;
-            particle2.m_pos += correction * physics2.mass;
+             constexpr float percent = 0.8F;
+             constexpr float slop = 0.01F;
+             const vec2 correction = normal * std::max(depth - slop, 0.0F) /
+                                     (physics1.mass + physics2.mass) * percent;
+             particle1.m_pos -= correction * physics1.mass;
+             particle2.m_pos += correction * physics2.mass;*/
         }
     }
 }

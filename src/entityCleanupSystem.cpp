@@ -22,10 +22,10 @@ void EntityCleanupSystem::updateComponents(
         const auto& particleComponent =
             *static_cast<ParticleComponent*>(components[0]);
         const auto& position = particleComponent.m_pos;
-        const auto& extents = particleComponent.m_dimensions;
 
         // Find entities that are out-of-bounds
-        if (!areColliding_BoxVsBox(position, extents, vec2(0), vec2(250)))
+        if (!areColliding_BoxVsBox(
+                position, vec2(0.5), vec2(250), vec2(250, 250)))
             entitiesToDelete.emplace_back(particleComponent.m_entityHandle);
 
         // Find entities that are out-of-health

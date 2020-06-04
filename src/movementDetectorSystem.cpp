@@ -6,7 +6,7 @@
 
 MovementDetectorSystem::MovementDetectorSystem(ecsWorld& gameWorld)
     : m_gameWorld(gameWorld) {
-    addComponentType(PhysicsComponent::Runtime_ID, RequirementsFlag::REQUIRED);
+    addComponentType(ParticleComponent::Runtime_ID, RequirementsFlag::REQUIRED);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ void MovementDetectorSystem::updateComponents(
     const std::vector<std::vector<ecsBaseComponent*>>& entityComponents) {
     for (const auto& componentSet : entityComponents) {
         const auto& entityHandle = componentSet.front()->m_entityHandle;
-        auto& physics = *static_cast<PhysicsComponent*>(componentSet.front());
+        auto& physics = *static_cast<ParticleComponent*>(componentSet.front());
 
         if (physics.m_velocity.length() >= 0.0001F) {
             m_gameWorld.makeComponent<MovingComponent>(entityHandle);

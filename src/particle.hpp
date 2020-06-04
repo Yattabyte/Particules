@@ -25,7 +25,7 @@ struct GPU_Particle {
     vec3 m_color = vec3(1);
     int m_onFire = 0;
     vec2 m_pos = vec2(0.0F);
-    vec2 m_scale = vec2(1);
+    vec2 padding = vec2(1);
 };
 
 #endif // PARTICLE_HPP

@@ -6,7 +6,6 @@ constexpr auto const vertCode = R"END(
         vec3 color;
         int onFire;
         vec2 pos;
-        vec2 scale;
     };
 
     layout (location = 0) in vec3 vertex;
@@ -18,9 +17,8 @@ constexpr auto const vertCode = R"END(
     layout (location = 0) flat out vec4 color;
 
     void main() {
-        const vec3 scale = vec3(particles[gl_InstanceID].scale, 1.0);
         const vec3 offset = vec3(particles[gl_InstanceID].pos, 0.0);
-        gl_Position = pMatrix * vMatrix * vec4((vertex * scale) + offset,  1.0);
+        gl_Position = pMatrix * vMatrix * vec4((vertex * 0.5) + offset,  1.0);
         color = vec4(mix(particles[gl_InstanceID].color, vec3(1, 0.2F, 0), particles[gl_InstanceID].onFire * 0.75), 1.0F);
     }
 )END";
@@ -49,8 +47,8 @@ RenderSystem::RenderSystem()
 
     // Calculate viewing perspective and matrices
     const auto pMatrix = mat4::perspective(1.5708F, 1.0F, 0.01F, 10.0F);
-    const auto vMatrix =
-        mat4::lookAt(vec3{ 0, 0, 300 }, vec3{ 0, 0, 0 }, vec3{ 0, 1, 0 });
+    const auto vMatrix = mat4::lookAt(
+        vec3{ 250, 250, 250 }, vec3{ 250, 250, 0 }, vec3{ 0, 1, 0 });
 
     m_shader.uniformLocation(0, pMatrix);
     m_shader.uniformLocation(4, vMatrix);
@@ -70,9 +68,12 @@ void RenderSystem::updateComponents(
     for (const auto& components : entityComponents) {
         // Convert game particles into GPU renderable particles
         const auto& particle = *static_cast<ParticleComponent*>(components[0]);
-        const GPU_Particle data{ particle.m_color,
-                                 components[1] != nullptr ? 1 : 0,
-                                 particle.m_pos, particle.m_dimensions };
+        const GPU_Particle data{
+            particle.m_color, components[1] != nullptr ? 1 : 0,
+            vec2(
+                static_cast<float>(static_cast<int>(particle.m_pos.x())),
+                static_cast<float>(static_cast<int>(particle.m_pos.y())))
+        };
         m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);
         offset += sizeof(GPU_Particle);
     }

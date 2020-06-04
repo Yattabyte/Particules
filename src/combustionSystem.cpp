@@ -43,7 +43,6 @@ void CombustionSystem::updateComponents(
             auto possibleTargetPointer =
                 m_gameWorld.getEntity(possibleTarget->m_entityHandle);
             const auto& position2 = possibleTarget->m_pos;
-            const auto& scale2 = possibleTarget->m_dimensions;
 
             // Avoid colliding against self
             if (&particleComponent == possibleTarget)
@@ -52,8 +51,8 @@ void CombustionSystem::updateComponents(
             // Ignore anything out of the force radius
             vec2 deltaPos = position1 - position2;
             vec2 clamped = deltaPos;
-            clamped.x() = std::clamp(clamped.x(), -scale2.x(), scale2.x());
-            clamped.y() = std::clamp(clamped.y(), -scale2.y(), scale2.y());
+            clamped.x() = std::clamp(clamped.x(), -0.5F, 0.5F);
+            clamped.y() = std::clamp(clamped.y(), -0.5F, 0.5F);
             const vec2 closest = position2 + clamped;
             deltaPos = closest - position1;
             const float deltaLength = deltaPos.length();
@@ -66,7 +65,7 @@ void CombustionSystem::updateComponents(
             //     burningRadius));
 
             // Apply force to targets within radius
-            if (auto physics2 = m_gameWorld.getComponent<PhysicsComponent>(
+            if (auto physics2 = m_gameWorld.getComponent<ParticleComponent>(
                     possibleTarget->m_entityHandle)) {
                 // Only apply forces to particles with mass
                 if (physics2->mass < 0.0001F)

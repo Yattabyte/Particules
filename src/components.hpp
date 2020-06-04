@@ -16,21 +16,14 @@ using namespace mini;
 /// \class  ParticleComponent
 struct ParticleComponent final : public ecsComponent<ParticleComponent> {
     vec2 m_pos = vec2(0.0F);
-    vec2 m_dimensions = vec2(1.0F);
+    vec2 m_velocity = vec2(0.0F);
     vec3 m_color = vec3(1.0F);
     float m_health = 1.0F;
-};
-
-///////////////////////////////////////////////////////////////////////////
-/// \class  PhysicsComponent
-struct PhysicsComponent final : public ecsComponent<PhysicsComponent> {
-    vec2 m_velocity = vec2(0.0F);
     float mass = 1.0F;
     float inv_mass = 1.0F;
     float restitution = 0.5F;
-    vec3 padding;
+    float padding = 0.0F;
 };
-
 ///////////////////////////////////////////////////////////////////////////
 /// \class  CollisionManifoldComponent
 struct CollisionManifoldComponent final
