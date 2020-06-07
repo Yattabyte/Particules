@@ -18,7 +18,7 @@ class IgnitionSystem final : public ecsSystem {
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a cleanup system.
     /// \param  gameWorld   reference to the engine's game world.
-    IgnitionSystem(ecsWorld& gameWorld);
+    explicit IgnitionSystem(ecsWorld& gameWorld);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.

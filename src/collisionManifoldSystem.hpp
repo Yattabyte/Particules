@@ -1,25 +1,28 @@
 #pragma once
-#ifndef COLLISIONCLEANUPSYSTEM_HPP
-#define COLLISIONCLEANUPSYSTEM_HPP
+#ifndef COLLISIONSYSTEM_HPP
+#define COLLISIONSYSTEM_HPP
 
+#include "collision.hpp"
 #include "components.hpp"
-#include "ecsSystem.hpp"
 #include "ecsWorld.hpp"
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
 using namespace mini;
 
-/////////////////////////////////////////////////////////////////////////
-/// \class  CollisionCleanupSystem
-/// \brief  System used to delete un-processed collision manifolds.
-class CollisionCleanupSystem final : public ecsSystem {
+///////////////////////////////////////////////////////////////////////////
+/// \class  CollisionManifoldSystem
+/// \brief  Class is used to resolve collisions instances
+class CollisionManifoldSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
-    /// \brief  Construct a cleanup system.
-    /// \param  gameWorld   reference to the engine's game world.
-    explicit CollisionCleanupSystem(ecsWorld& gameWorld);
-
+    /// \brief  Construct a collision manifold system.
+    /// \param  gameWorld       reference to the engine's game world.
+    /// \param  particleArray   structure identifying particles spatially.
+    CollisionManifoldSystem(
+        ecsWorld& gameWorld,
+        std::shared_ptr<ParticleComponent* [513][513]>& particleArray);
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
     /// \param	deltaTime	    the amount of time passed since last update.
@@ -33,6 +36,7 @@ class CollisionCleanupSystem final : public ecsSystem {
     ///////////////////////////////////////////////////////////////////////////
     /// Private Members
     ecsWorld& m_gameWorld;
+    std::shared_ptr<ParticleComponent* [513][513]>& m_particleArray;
 };
 
-#endif // COLLISIONCLEANUPSYSTEM_HPP
+#endif // COLLISIONSYSTEM_HPP

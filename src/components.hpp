@@ -15,15 +15,14 @@ using namespace mini;
 ///////////////////////////////////////////////////////////////////////////
 /// \class  ParticleComponent
 struct ParticleComponent final : public ecsComponent<ParticleComponent> {
-    vec2 m_pos = vec2(0.0F);
-    vec2 m_velocity = vec2(0.0F);
     vec3 m_color = vec3(1.0F);
+    vec2 m_pos = vec2(0.0F);
     float m_health = 1.0F;
-    float mass = 1.0F;
-    float inv_mass = 1.0F;
-    float restitution = 0.5F;
-    float padding = 0.0F;
+    float m_density = 1.0f;
+    bool m_useGravity = true;
+    bool m_asleep = false;
 };
+constexpr auto qwe = sizeof(ParticleComponent);
 ///////////////////////////////////////////////////////////////////////////
 /// \class  CollisionManifoldComponent
 struct CollisionManifoldComponent final
@@ -31,13 +30,10 @@ struct CollisionManifoldComponent final
     struct CollisionManifold {
         std::shared_ptr<ecsEntity> otherEntity;
         vec2 normal = vec2(0.0F);
-        float depth = 0.0F;
     };
     std::vector<CollisionManifold> collisions;
 };
 
-struct InnertComponent : public ecsComponent<InnertComponent> {};
-struct MovingComponent final : public ecsComponent<MovingComponent> {};
 struct FlammableComponent : public ecsComponent<FlammableComponent> {
     float wickTime = 1.0F; ///< How long it will burn for.
 };

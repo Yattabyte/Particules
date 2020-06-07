@@ -12,10 +12,9 @@ set(FILES
     particle.hpp
     components.hpp
     collision.hpp
-    collisionFinderSystem.hpp
-    collisionResolverSystem.hpp
+    collisionSystem.hpp
+    collisionManifoldSystem.hpp
     collisionCleanupSystem.hpp
-    gravitySystem.hpp
     renderSystem.hpp
     entityCleanupSystem.hpp
     movementDetectorSystem.hpp
@@ -28,10 +27,9 @@ set(FILES
     window.cpp
     engine.cpp
     collision.cpp
-    collisionFinderSystem.cpp
-    collisionResolverSystem.cpp
+    collisionSystem.cpp
+    collisionManifoldSystem.cpp
     collisionCleanupSystem.cpp
-    gravitySystem.cpp
     renderSystem.cpp
     entityCleanupSystem.cpp
     movementDetectorSystem.cpp

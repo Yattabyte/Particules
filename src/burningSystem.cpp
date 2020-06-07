@@ -18,6 +18,7 @@ BurningSystem::BurningSystem(ecsWorld& gameWorld) : m_gameWorld(gameWorld) {
 void BurningSystem::updateComponents(
     const double& deltaTime,
     const std::vector<std::vector<ecsBaseComponent*>>& entityComponents) {
+    const auto dt = static_cast<float>(deltaTime);
     std::vector<EntityHandle> entitiesToExtinguish;
     for (const auto& components : entityComponents) {
         auto& particleComponent =
@@ -33,7 +34,6 @@ void BurningSystem::updateComponents(
             continue;
         }
 
-        const auto dt = static_cast<float>(deltaTime);
         particleComponent.m_health -= dt;
         flammableComponent.wickTime -= dt;
     }

@@ -48,7 +48,7 @@ RenderSystem::RenderSystem()
     // Calculate viewing perspective and matrices
     const auto pMatrix = mat4::perspective(1.5708F, 1.0F, 0.01F, 10.0F);
     const auto vMatrix = mat4::lookAt(
-        vec3{ 250, 250, 250 }, vec3{ 250, 250, 0 }, vec3{ 0, 1, 0 });
+        vec3{ 256, 256, 256 }, vec3{ 256, 256, 0 }, vec3{ 0, 1, 0 });
 
     m_shader.uniformLocation(0, pMatrix);
     m_shader.uniformLocation(4, vMatrix);
@@ -67,9 +67,10 @@ void RenderSystem::updateComponents(
     size_t offset(0ULL);
     for (const auto& components : entityComponents) {
         // Convert game particles into GPU renderable particles
-        const auto& particle = *static_cast<ParticleComponent*>(components[0]);
+        const auto& particle =
+            *static_cast<ParticleComponent*>(components.front());
         const GPU_Particle data{
-            particle.m_color, components[1] != nullptr ? 1 : 0,
+            particle.m_color, components.back() != nullptr ? 1 : 0,
             vec2(
                 static_cast<float>(static_cast<int>(particle.m_pos.x())),
                 static_cast<float>(static_cast<int>(particle.m_pos.y())))

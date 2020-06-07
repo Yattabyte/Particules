@@ -5,7 +5,7 @@
 #include "components.hpp"
 #include "ecsSystem.hpp"
 #include "ecsWorld.hpp"
-#include "quadTree.hpp"
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
@@ -18,9 +18,11 @@ class CombustionSystem final : public ecsSystem {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a cleanup system.
-    /// \param  gameWorld   reference to the engine's game world.
+    /// \param  gameWorld       reference to the engine's game world.
+    /// \param  particleArray   structure identifying particles spatially.
     CombustionSystem(
-        ecsWorld& gameWorld, const QuadTree<ParticleComponent*>& quadTree);
+        ecsWorld& gameWorld,
+        std::shared_ptr<ParticleComponent* [513][513]>& particleArray);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
@@ -32,8 +34,10 @@ class CombustionSystem final : public ecsSystem {
         final;
 
     private:
+    ///////////////////////////////////////////////////////////////////////////
+    /// Private Members
     ecsWorld& m_gameWorld;
-    const QuadTree<ParticleComponent*>& m_quadTree;
+    std::shared_ptr<ParticleComponent* [513][513]>& m_particleArray;
 };
 
 #endif // COMBUSTIONSYSTEM_HPP

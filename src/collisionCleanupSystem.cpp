@@ -17,7 +17,17 @@ CollisionCleanupSystem::CollisionCleanupSystem(ecsWorld& gameWorld)
 void CollisionCleanupSystem::updateComponents(
     const double& /*deltaTime*/,
     const std::vector<std::vector<ecsBaseComponent*>>& entityComponents) {
-    for (const auto& components : entityComponents)
-        static_cast<CollisionManifoldComponent*>(components.front())
-            ->collisions.clear();
+    std::vector<EntityHandle> entitiesToClean;
+    entitiesToClean.reserve(entityComponents.size());
+    for (const auto& components : entityComponents) {
+        auto collisionComponent =
+            static_cast<CollisionManifoldComponent*>(components.front());
+        if (collisionComponent->collisions.empty())
+            entitiesToClean.emplace_back(components.front()->m_entityHandle);
+        else
+            collisionComponent->collisions.clear();
+    }
+
+    for (const auto& handle : entitiesToClean)
+        m_gameWorld.removeComponent<CollisionManifoldComponent>(handle);
 }

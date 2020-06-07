@@ -2,19 +2,18 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
+#include "CollisionManifoldSystem.hpp"
+#include "CollisionSystem.hpp"
 #include "Utility/vec.hpp"
 #include "burningSystem.hpp"
 #include "collisionCleanupSystem.hpp"
-#include "collisionFinderSystem.hpp"
-#include "collisionResolverSystem.hpp"
 #include "combustionSystem.hpp"
 #include "ecsWorld.hpp"
 #include "entityCleanupSystem.hpp"
-#include "gravitySystem.hpp"
 #include "ignitionSystem.hpp"
-#include "movementDetectorSystem.hpp"
 #include "renderSystem.hpp"
 #include "window.hpp"
+#include <array>
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
@@ -60,17 +59,23 @@ class Engine {
     /// \param  deltaTime   the amount of time since last frame.
     void renderTick(const double& deltaTime);
 
+    private:
+    ///////////////////////////////////////////////////////////////////////////
+    /// Private Members
     const Window& m_window;     ///< OS level window.
     double m_accumulator = 0.0; ///< Time left in the accumulator.
-    ecsWorld m_gameWorld;       ///< The ECS world holding game state.
-    MovementDetectorSystem m_moveDetector; ///< Cleans-up out of bounds.
-    GravitySystem m_gravitySystem;         ///< System used to apply gravity.
-    CollisionFinderSystem m_colFinder;     ///< Find collision events.
-    CollisionResolverSystem m_colResolver; ///< Resolve collision events.
-    IgnitionSystem m_igniter;              ///< Ignites flammable particles.
-    BurningSystem m_burner;                ///< Burns on fire components.
-    CombustionSystem m_combuster;          ///< Combusts explosive particles.
-    EntityCleanupSystem m_cleanupSystem;   ///< Cleans-up out of bounds.
+    std::array<ecsWorld, 64>
+        m_gameWorlds;     ///< World divided into 64 pixel chunks
+    ecsWorld m_gameWorld; ///< The ECS world holding game state.
+    std::shared_ptr<ParticleComponent* [513][513]>
+        m_particleArray;         ///< Array of particles
+    CollisionSystem m_collision; ///< Sort and apply physics events
+    CollisionManifoldSystem
+        m_manifolds;              ///< Organize and apply collision manifolds.
+    IgnitionSystem m_igniter;     ///< Ignites flammable particles.
+    BurningSystem m_burner;       ///< Burns on fire components.
+    CombustionSystem m_combuster; ///< Combusts explosive particles.
+    EntityCleanupSystem m_cleanupSystem; ///< Cleans-up out of bounds.
     CollisionCleanupSystem
         m_collisionCleanup; ///< System used to cleanup collision manifolds.
     RenderSystem m_renderSystem; ///< System used to render the game.

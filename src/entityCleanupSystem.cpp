@@ -25,7 +25,7 @@ void EntityCleanupSystem::updateComponents(
 
         // Find entities that are out-of-bounds
         if (!areColliding_BoxVsBox(
-                position, vec2(0.5), vec2(250), vec2(250, 250)))
+                position, vec2(0.5), vec2(256), vec2(256, 256)))
             entitiesToDelete.emplace_back(particleComponent.m_entityHandle);
 
         // Find entities that are out-of-health

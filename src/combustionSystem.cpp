@@ -5,12 +5,15 @@
 //////////////////////////////////////////////////////////////////////
 
 CombustionSystem::CombustionSystem(
-    ecsWorld& gameWorld, const QuadTree<ParticleComponent*>& quadTree)
-    : m_gameWorld(gameWorld), m_quadTree(quadTree) {
+    ecsWorld& gameWorld,
+    std::shared_ptr<ParticleComponent* [513][513]>& particleArray)
+    : m_gameWorld(gameWorld), m_particleArray(particleArray) {
     addComponentType(ParticleComponent::Runtime_ID, RequirementsFlag::REQUIRED);
     addComponentType(
         ExplosiveComponent::Runtime_ID, RequirementsFlag::REQUIRED);
     addComponentType(OnFireComponent::Runtime_ID, RequirementsFlag::REQUIRED);
+    addComponentType(
+        CollisionManifoldComponent::Runtime_ID, RequirementsFlag::OPTIONAL);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -26,7 +29,11 @@ void CombustionSystem::updateComponents(
             *static_cast<ParticleComponent*>(components[0]);
         auto& explosiveComponent =
             *static_cast<ExplosiveComponent*>(components[1]);
+        auto collisionComponent =
+            dynamic_cast<CollisionManifoldComponent*>(components[2]);
         const auto dt = static_cast<float>(deltaTime);
+        const int x = static_cast<int>(particleComponent.m_pos.x());
+        const int y = static_cast<int>(particleComponent.m_pos.y());
 
         // Only detonate entities whose fuse ran out
         if (explosiveComponent.fuseTime > 0.0001F) {
@@ -34,56 +41,18 @@ void CombustionSystem::updateComponents(
             continue;
         }
 
-        const auto& position1 = particleComponent.m_pos;
-        constexpr float forceRadius = 10.0F;
-        constexpr float burningRadius = 5.0F;
+        if (collisionComponent != nullptr) {
+            auto entityPointer1 =
+                m_gameWorld.getEntity(particleComponent.m_entityHandle);
+            for ([[maybe_unused]] auto& collisionEntry :
+                 collisionComponent->collisions) {
+                ///\todo apply high pressure point at this position
 
-        // Search the quad tree for possible targets
-        for (auto possibleTarget : m_quadTree.search(position1, forceRadius)) {
-            auto possibleTargetPointer =
-                m_gameWorld.getEntity(possibleTarget->m_entityHandle);
-            const auto& position2 = possibleTarget->m_pos;
-
-            // Avoid colliding against self
-            if (&particleComponent == possibleTarget)
-                continue;
-
-            // Ignore anything out of the force radius
-            vec2 deltaPos = position1 - position2;
-            vec2 clamped = deltaPos;
-            clamped.x() = std::clamp(clamped.x(), -0.5F, 0.5F);
-            clamped.y() = std::clamp(clamped.y(), -0.5F, 0.5F);
-            const vec2 closest = position2 + clamped;
-            deltaPos = closest - position1;
-            const float deltaLength = deltaPos.length();
-            if (deltaLength > forceRadius)
-                continue;
-
-            // Apply force-damage to targets within radius
-            // possibleTarget->m_health -=
-            //     deltaLength * ((1.0F / burningRadius) * (1.0F /
-            //     burningRadius));
-
-            // Apply force to targets within radius
-            if (auto physics2 = m_gameWorld.getComponent<ParticleComponent>(
-                    possibleTarget->m_entityHandle)) {
-                // Only apply forces to particles with mass
-                if (physics2->mass < 0.0001F)
-                    continue;
-
-                constexpr float damping = 0.9999F;
-                const auto weightForce = deltaPos * 30.0F * physics2->mass;
-                const auto dampingForce = physics2->m_velocity * -damping;
-
-                physics2->m_velocity += (dampingForce + weightForce) * dt;
-            }
-
-            // Set targets within radius on fire
-            if (deltaLength <= burningRadius &&
-                m_gameWorld.getComponent<FlammableComponent>(
-                    *possibleTargetPointer)) {
-                m_gameWorld.makeComponent<OnFireComponent>(
-                    *possibleTargetPointer);
+                // Set targets within radius on fire
+                if (m_gameWorld.getComponent<FlammableComponent>(
+                        *entityPointer1)) {
+                    m_gameWorld.makeComponent<OnFireComponent>(*entityPointer1);
+                }
             }
         }
         particleComponent.m_color = COLOR_SLUDGE;
