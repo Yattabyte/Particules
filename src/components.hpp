@@ -41,5 +41,6 @@ struct ExplosiveComponent : public ecsComponent<ExplosiveComponent> {
     float fuseTime = 1.0F; ///< How long it must burn until detonation.
 };
 struct OnFireComponent : public ecsComponent<OnFireComponent> {};
+struct SpawnerComponent : public ecsComponent<SpawnerComponent> {};
 
 #endif // COMPONENTS_HPP

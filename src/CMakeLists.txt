@@ -17,10 +17,10 @@ set(FILES
     collisionCleanupSystem.hpp
     renderSystem.hpp
     entityCleanupSystem.hpp
-    movementDetectorSystem.hpp
     ignitionSystem.hpp
     combustionSystem.hpp
     burningSystem.hpp
+    spawnerSystem.hpp
 
     # Source files
     main.cpp
@@ -32,10 +32,10 @@ set(FILES
     collisionCleanupSystem.cpp
     renderSystem.cpp
     entityCleanupSystem.cpp
-    movementDetectorSystem.cpp
     ignitionSystem.cpp
     combustionSystem.cpp
     burningSystem.cpp
+    spawnerSystem.cpp
 )
 
 # Create Library using the supplied files

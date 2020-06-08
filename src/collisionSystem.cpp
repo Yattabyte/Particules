@@ -53,13 +53,23 @@ void CollisionSystem::updateComponents(
             };
 
             // Check if bottom is free
-            if (m_particleArray[y - 1][x] == nullptr)
+            if (m_particleArray[y - 1][x] == nullptr ||
+                (m_particleArray[y - 1][x]->m_useGravity &&
+                 m_particleArray[y - 1][x]->m_density < particle1->m_density))
                 swapTile(x, y - 1);
             // Check if bottom left is free
-            else if (m_particleArray[y - 1][x - 1] == nullptr)
+            else if (
+                m_particleArray[y - 1][x - 1] == nullptr ||
+                (m_particleArray[y - 1][x - 1]->m_useGravity &&
+                 m_particleArray[y - 1][x - 1]->m_density <
+                     particle1->m_density))
                 swapTile(x - 1, y - 1);
             // Check if bottom right is free
-            else if (m_particleArray[y - 1][x + 1] == nullptr)
+            else if (
+                m_particleArray[y - 1][x + 1] == nullptr ||
+                (m_particleArray[y - 1][x + 1]->m_useGravity &&
+                 m_particleArray[y - 1][x + 1]->m_density <
+                     particle1->m_density))
                 swapTile(x + 1, y - 1);
         }
     }

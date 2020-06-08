@@ -12,6 +12,7 @@
 #include "entityCleanupSystem.hpp"
 #include "ignitionSystem.hpp"
 #include "renderSystem.hpp"
+#include "spawnerSystem.hpp"
 #include "window.hpp"
 #include <array>
 
@@ -71,10 +72,11 @@ class Engine {
         m_particleArray;         ///< Array of particles
     CollisionSystem m_collision; ///< Sort and apply physics events
     CollisionManifoldSystem
-        m_manifolds;              ///< Organize and apply collision manifolds.
-    IgnitionSystem m_igniter;     ///< Ignites flammable particles.
-    BurningSystem m_burner;       ///< Burns on fire components.
-    CombustionSystem m_combuster; ///< Combusts explosive particles.
+        m_manifolds;               ///< Organize and apply collision manifolds.
+    SpawnerSystem m_spawnerSystem; ///< Spawns a particle beneath it every tick.
+    IgnitionSystem m_igniter;      ///< Ignites flammable particles.
+    BurningSystem m_burner;        ///< Burns on fire components.
+    CombustionSystem m_combuster;  ///< Combusts explosive particles.
     EntityCleanupSystem m_cleanupSystem; ///< Cleans-up out of bounds.
     CollisionCleanupSystem
         m_collisionCleanup; ///< System used to cleanup collision manifolds.
