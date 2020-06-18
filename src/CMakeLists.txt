@@ -8,34 +8,18 @@ set(FILES
     # Header files
     window.hpp
     engine.hpp
-    quadTree.hpp
     particle.hpp
-    components.hpp
-    collision.hpp
-    collisionSystem.hpp
-    collisionManifoldSystem.hpp
-    collisionCleanupSystem.hpp
-    renderSystem.hpp
-    entityCleanupSystem.hpp
-    ignitionSystem.hpp
-    combustionSystem.hpp
-    burningSystem.hpp
-    spawnerSystem.hpp
+    physics.hpp
+    renderer.hpp
+    definitions.hpp
+    utilities.hpp
 
     # Source files
     main.cpp
     window.cpp
     engine.cpp
-    collision.cpp
-    collisionSystem.cpp
-    collisionManifoldSystem.cpp
-    collisionCleanupSystem.cpp
-    renderSystem.cpp
-    entityCleanupSystem.cpp
-    ignitionSystem.cpp
-    combustionSystem.cpp
-    burningSystem.cpp
-    spawnerSystem.cpp
+    physics.cpp
+    renderer.cpp
 )
 
 # Create Library using the supplied files

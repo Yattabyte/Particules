@@ -2,19 +2,12 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include "CollisionManifoldSystem.hpp"
-#include "CollisionSystem.hpp"
 #include "Utility/vec.hpp"
-#include "burningSystem.hpp"
-#include "collisionCleanupSystem.hpp"
-#include "combustionSystem.hpp"
-#include "ecsWorld.hpp"
-#include "entityCleanupSystem.hpp"
-#include "ignitionSystem.hpp"
-#include "renderSystem.hpp"
-#include "spawnerSystem.hpp"
+#include "particle.hpp"
+#include "physics.hpp"
+#include "renderer.hpp"
 #include "window.hpp"
-#include <array>
+#include <memory>
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
@@ -51,36 +44,13 @@ class Engine {
     void tick(const double& deltaTime);
 
     private:
-    /////////////////////////////////////////////////////////////////////////
-    /// \brief  Tick the game logic ahead by delta-time.
-    /// \param  deltaTime   the amount of time since last frame.
-    void gameTick(const double& deltaTime);
-    /////////////////////////////////////////////////////////////////////////
-    /// \brief  Tick the render logic ahead by delta-time.
-    /// \param  deltaTime   the amount of time since last frame.
-    void renderTick(const double& deltaTime);
-
-    private:
     ///////////////////////////////////////////////////////////////////////////
     /// Private Members
     const Window& m_window;     ///< OS level window.
     double m_accumulator = 0.0; ///< Time left in the accumulator.
-    std::array<ecsWorld, 64>
-        m_gameWorlds;     ///< World divided into 64 pixel chunks
-    ecsWorld m_gameWorld; ///< The ECS world holding game state.
-    std::shared_ptr<ParticleComponent* [513][513]>
-        m_particleArray;         ///< Array of particles
-    CollisionSystem m_collision; ///< Sort and apply physics events
-    CollisionManifoldSystem
-        m_manifolds;               ///< Organize and apply collision manifolds.
-    SpawnerSystem m_spawnerSystem; ///< Spawns a particle beneath it every tick.
-    IgnitionSystem m_igniter;      ///< Ignites flammable particles.
-    BurningSystem m_burner;        ///< Burns on fire components.
-    CombustionSystem m_combuster;  ///< Combusts explosive particles.
-    EntityCleanupSystem m_cleanupSystem; ///< Cleans-up out of bounds.
-    CollisionCleanupSystem
-        m_collisionCleanup; ///< System used to cleanup collision manifolds.
-    RenderSystem m_renderSystem; ///< System used to render the game.
+    std::shared_ptr<Particle[769][769]> m_particles;
+    Physics m_physics;
+    Renderer m_renderer;
 };
 
 #endif // ENGINE_HPP

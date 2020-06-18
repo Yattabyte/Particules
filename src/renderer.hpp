@@ -1,41 +1,38 @@
 #pragma once
-#ifndef RENDERSYSTEM_HPP
-#define RENDERSYSTEM_HPP
+#ifndef Renderer_HPP
+#define Renderer_HPP
 
 #include "Model/model.hpp"
 #include "Multibuffer/glDynamicMultiBuffer.hpp"
 #include "Utility/indirectDraw.hpp"
 #include "Utility/shader.hpp"
-#include "components.hpp"
-#include "ecsSystem.hpp"
+#include "particle.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
 using namespace mini;
 
 /////////////////////////////////////////////////////////////////////////
-/// \class  RenderSystem
+/// \class  Renderer
 /// \brief  System used to render entities to the screen.
-class RenderSystem final : public ecsSystem {
+class Renderer {
     public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a rendering system.
-    RenderSystem();
+    /// \param  particles   structure identifying particles spatially.
+    explicit Renderer(std::shared_ptr<Particle[769][769]>& particles);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
     /// \param	deltaTime	    the amount of time passed since last update.
-    /// \param	components	    the components to update.
-    void updateComponents(
-        const double& deltaTime,
-        const std::vector<std::vector<ecsBaseComponent*>>& entityComponents)
-        final;
+    void draw(const double& deltaTime);
 
     private:
     Shader m_shader;                      ///< A shader for displaying particles
     Model m_model;                        ///< A model for particles
     IndirectDraw m_draw;                  ///< An indirect draw call GL object
     glDynamicMultiBuffer<3> m_dataBuffer; ///< GPU data container
+    std::shared_ptr<Particle[769][769]>& m_particles; ///< Array of particles
 };
 
-#endif // RENDERSYSTEM_HPP
+#endif // Renderer_HPP

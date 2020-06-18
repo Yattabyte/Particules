@@ -1,110 +1,86 @@
 #include "engine.hpp"
 #include "GLFW/glfw3.h"
-#include "collision.hpp"
-#include "components.hpp"
 #include <algorithm>
+#include <iostream>
 #include <random>
-
+#include <string>
 //////////////////////////////////////////////////////////////////////
 /// Custom Constructor
 //////////////////////////////////////////////////////////////////////
 
 Engine::Engine(const Window& window)
     : m_window(window),
-      m_particleArray(std::shared_ptr<ParticleComponent* [513][513]>(
-          new ParticleComponent*[513][513])),
-      m_collision(m_gameWorld, m_particleArray),
-      m_manifolds(m_gameWorld, m_particleArray),
-      m_spawnerSystem(m_gameWorld, m_particleArray), m_igniter(m_gameWorld),
-      m_burner(m_gameWorld), m_combuster(m_gameWorld, m_particleArray),
-      m_cleanupSystem(m_gameWorld), m_collisionCleanup(m_gameWorld) {
-    // Random number generation variables
+      m_particles(std::shared_ptr<Particle[769][769]>(new Particle[769][769])),
+      m_physics(m_particles), m_renderer(m_particles) {
+    // Populate example starter level
     std::uniform_real_distribution<float> randomFloats(-1.0F, 1.0F);
     std::mt19937 generator(0);
     const auto randNum = [&](const float& low, const float& high) {
         return std::round(
             ((0.5F * randomFloats(generator) + 0.5F) * (high - low)) + low);
     };
+    for (auto n = 0; n < 768; ++n) {
+        Particle wall;
+        wall.m_exists = true;
+        wall.m_moveable = false;
+        wall.m_color = COLOR_CONCRETE;
+        wall.m_health = 1000.0f;
+        wall.m_density = 1000.0f;
+        wall.m_state = Particle::MatterState::SOLID;
 
-    /* // Fill game world with sand
-     for (auto x = 0; x < 50000; ++x) {
-         ParticleComponent particle;
-         FlammableComponent flammable;
-         ExplosiveComponent explosive;
-         const auto entityHandle = m_gameWorld.makeEntity();
+        m_particles[0][n] = wall;
+        m_particles[n][0] = wall;
+        m_particles[n][767] = wall;
+    }
+    for (auto n = 0; n < 1000000; ++n) {
+        // Get random coordinates
+        vec2 pos = vec2(
+            (randomFloats(generator) * 0.5F + 0.5F) * 767,
+            (randomFloats(generator) * 0.5F + 0.5F) * 767);
+        const int x = static_cast<int>(pos.x());
+        const int y = static_cast<int>(pos.y());
+        Particle& particle = m_particles[y][x];
+        if (particle.m_exists)
+            continue;
 
-         constexpr float numEntityTypes = 4.0F;
-         const int entType = static_cast<int>(randNum(0, 3));
-         switch (entType) {
-         // default:
-         case 0: // Make Sand
-             particle.m_health = 10.0F;
-             particle.m_density = 1.0F;
-             particle.m_color = COLOR_SAND;
-             break;
-         case 1: // Make Oil
-             flammable.wickTime = 4.0F;
-             particle.m_health = 4.0F;
-             particle.m_density = 0.6F;
-             particle.m_color = COLOR_OIL;
-             m_gameWorld.makeComponent(entityHandle, &flammable);
-             break;
-         case 2: // Make Gunpowder
-             explosive.fuseTime = 0.125F;
-             flammable.wickTime = 1.5F;
-             particle.m_health = 2.5F;
-             particle.m_density = 0.8F;
-             particle.m_color = COLOR_GUNPOWDER;
-             m_gameWorld.makeComponent(entityHandle, &explosive);
-             m_gameWorld.makeComponent(entityHandle, &flammable);
-             break;
-         case 3: // Make gasoline
-             explosive.fuseTime = 0.875F;
-             flammable.wickTime = 7.5F;
-             particle.m_health = 7.5F;
-             particle.m_density = 0.4F;
-             particle.m_color = COLOR_GASOLINE;
-             m_gameWorld.makeComponent(entityHandle, &explosive);
-             m_gameWorld.makeComponent(entityHandle, &flammable);
-             break;
-         }
-         particle.m_useGravity = true;
-         particle.m_pos = vec2(
-             (randomFloats(generator) * 0.5F + 0.5F) * 511,
-             ((randomFloats(generator) * 0.5F + 0.5F) * 200) + 311);
-         m_gameWorld.makeComponent(entityHandle, &particle);
-     }*/
+        particle.m_exists = true;
+        particle.m_moveable = true;
 
-    {
-        for (int x = 0; x < 512; ++x) {
-            // Add concrete particles to world
-            ParticleComponent particle;
-            // FlammableComponent flammable;
-            // flammable.wickTime = 1000.0F;
-            particle.m_pos = vec2(static_cast<float>(x), 0.0F);
-            particle.m_color = COLOR_CONCRETE;
-            particle.m_health = 1000.0F;
-            particle.m_density = 1000.0F;
-            particle.m_useGravity = false;
-            auto entityHandle = m_gameWorld.makeEntity();
-            m_gameWorld.makeComponent(entityHandle, &particle);
-            entityHandle = m_gameWorld.makeEntity();
-            particle.m_pos = vec2(0, static_cast<float>(x));
-            m_gameWorld.makeComponent(entityHandle, &particle);
-            entityHandle = m_gameWorld.makeEntity();
-            particle.m_pos = vec2(511, static_cast<float>(x));
-            m_gameWorld.makeComponent(entityHandle, &particle);
+        // Get random attributes
+        constexpr float numEntityTypes = 4.0F;
+        const int entType = static_cast<int>(randNum(0, 3));
+        switch (entType) {
+            // default:
+        case 0: // Make Sand
+            particle.m_health = 10.0F;
+            particle.m_density = 1.0F;
+            particle.m_color = COLOR_SAND;
+            particle.m_state = Particle::MatterState::SOLID;
+            break;
+        case 1: // Make Oil
+            // flammable.wickTime = 4.0F;
+            particle.m_health = 4.0F;
+            particle.m_density = 0.6F;
+            particle.m_color = COLOR_WATER;
+            particle.m_state = Particle::MatterState::LIQUID;
+            break;
+        case 2: // Make Gunpowder
+            // explosive.fuseTime = 0.125F;
+            // flammable.wickTime = 1.5F;
+            particle.m_health = 2.5F;
+            particle.m_density = 0.8F;
+            particle.m_color = COLOR_GUNPOWDER;
+            particle.m_state = Particle::MatterState::SOLID;
+            break;
+        case 3: // Make gasoline
+            // explosive.fuseTime = 0.875F;
+            // flammable.wickTime = 7.5F;
+            particle.m_health = 7.5F;
+            particle.m_density = 0.4F;
+            particle.m_color = COLOR_GASOLINE;
+            particle.m_state = Particle::MatterState::LIQUID;
+            break;
         }
-
-        ParticleComponent particle;
-        particle.m_health = 1000.0F;
-        particle.m_density = 1000.0F;
-        particle.m_pos = vec2(256, 511);
-        particle.m_color = COLOR_FIRE;
-        particle.m_useGravity = false;
-        auto entityHandle = m_gameWorld.makeEntity();
-        m_gameWorld.makeComponent(entityHandle, &particle);
-        m_gameWorld.makeComponent<SpawnerComponent>(entityHandle);
     }
 }
 
@@ -112,54 +88,20 @@ Engine::Engine(const Window& window)
 /// tick
 //////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <string>
-
+constexpr double timeStep = 0.015;
 void Engine::tick(const double& deltaTime) {
     const auto start = glfwGetTime();
-    gameTick(deltaTime);
-    renderTick(deltaTime);
-    const auto end = glfwGetTime();
 
-    std::cout << std::to_string(end - start) << std::endl;
-}
-
-//////////////////////////////////////////////////////////////////////
-/// gameTick
-//////////////////////////////////////////////////////////////////////
-
-void Engine::gameTick(const double& deltaTime) {
-    constexpr double timeStep = 0.025;
+    // Game Loop
     m_accumulator += deltaTime;
     while (m_accumulator >= timeStep) {
-        // Clear particle pointer array
-        std::fill(&m_particleArray[0][0], &m_particleArray[512][512], nullptr);
-        // Apply physics
-        m_gameWorld.updateSystem(m_collision, timeStep);
-
-        // Apply collision manifolds
-        // m_gameWorld.updateSystem(m_manifolds, timeStep);
-
-        m_gameWorld.updateSystem(m_spawnerSystem, timeStep);
-
-        // Ignite particles touching burning particles
-        m_gameWorld.updateSystem(m_igniter, timeStep);
-        // Hurt burning particles over-time
-        m_gameWorld.updateSystem(m_burner, timeStep);
-        // Explode burning combustible particles
-        m_gameWorld.updateSystem(m_combuster, timeStep);
-        // Delete dead or out-of-bounds particles
-        m_gameWorld.updateSystem(m_cleanupSystem, timeStep);
-        // Remove collision manifolds
-        m_gameWorld.updateSystem(m_collisionCleanup, timeStep);
+        m_physics.simulate(timeStep);
         m_accumulator -= timeStep;
     }
-}
 
-//////////////////////////////////////////////////////////////////////
-/// renderTick
-//////////////////////////////////////////////////////////////////////
+    // Draw
+    m_renderer.draw(deltaTime);
 
-void Engine::renderTick(const double& deltaTime) {
-    m_gameWorld.updateSystem(m_renderSystem, deltaTime);
+    const auto end = glfwGetTime();
+    std::cout << std::to_string(end - start) << std::endl;
 }
