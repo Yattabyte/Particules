@@ -3,6 +3,7 @@
 #define ENGINE_HPP
 
 #include "Utility/vec.hpp"
+#include "definitions.hpp"
 #include "particle.hpp"
 #include "physics.hpp"
 #include "renderer.hpp"
@@ -48,7 +49,7 @@ class Engine {
     /// Private Members
     const Window& m_window;     ///< OS level window.
     double m_accumulator = 0.0; ///< Time left in the accumulator.
-    std::shared_ptr<Particle[769][769]> m_particles;
+    std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]> m_particles;
     Physics m_physics;
     Renderer m_renderer;
 };

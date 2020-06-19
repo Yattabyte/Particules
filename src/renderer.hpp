@@ -6,6 +6,7 @@
 #include "Multibuffer/glDynamicMultiBuffer.hpp"
 #include "Utility/indirectDraw.hpp"
 #include "Utility/shader.hpp"
+#include "definitions.hpp"
 #include "particle.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -20,7 +21,8 @@ class Renderer {
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a rendering system.
     /// \param  particles   structure identifying particles spatially.
-    explicit Renderer(std::shared_ptr<Particle[769][769]>& particles);
+    explicit Renderer(
+        std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>& particles);
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
@@ -32,7 +34,8 @@ class Renderer {
     Model m_model;                        ///< A model for particles
     IndirectDraw m_draw;                  ///< An indirect draw call GL object
     glDynamicMultiBuffer<3> m_dataBuffer; ///< GPU data container
-    std::shared_ptr<Particle[769][769]>& m_particles; ///< Array of particles
+    std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>&
+        m_particles; ///< Array of particles
 };
 
 #endif // Renderer_HPP

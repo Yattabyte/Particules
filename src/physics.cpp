@@ -7,7 +7,7 @@
 /// Custom Constructor
 //////////////////////////////////////////////////////////////////////
 
-Physics::Physics(std::shared_ptr<Particle[769][769]>& particles)
+Physics::Physics(std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>& particles)
     : m_particles(particles) {}
 
 //////////////////////////////////////////////////////////////////////
@@ -16,8 +16,8 @@ Physics::Physics(std::shared_ptr<Particle[769][769]>& particles)
 
 void Physics::simulate(const double& /*deltaTime*/) {
     // Apply Gravity
-    for (int y = 0; y < 768; ++y) {
-        for (int x = 0; x < 768; ++x) {
+    for (int y = 0; y < HEIGHT; ++y) {
+        for (int x = 0; x < WIDTH; ++x) {
             auto& particle = m_particles[y][x];
 
             // Only act on particles that can move

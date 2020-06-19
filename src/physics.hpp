@@ -2,6 +2,7 @@
 #ifndef Physics_HPP
 #define Physics_HPP
 
+#include "definitions.hpp"
 #include "particle.hpp"
 #include <memory>
 
@@ -17,7 +18,8 @@ class Physics {
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Construct a physics simulator.
     /// \param  particles       structure identifying particles spatially.
-    explicit Physics(std::shared_ptr<Particle[769][769]>& particles);
+    explicit Physics(
+        std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>& particles);
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
     /// \param	deltaTime	    the amount of time passed since last update.
@@ -32,7 +34,8 @@ class Physics {
 
     ///////////////////////////////////////////////////////////////////////////
     /// Private Members
-    std::shared_ptr<Particle[769][769]>& m_particles; ///< Array of particles
+    std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>&
+        m_particles; ///< Array of particles
 };
 
 #endif // Physics_HPP

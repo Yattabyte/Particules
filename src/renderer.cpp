@@ -9,8 +9,7 @@ constexpr auto const vertCode = R"END(
     };
 
     layout (location = 0) in vec3 vertex;
-    layout (location = 0) uniform mat4 pMatrix;
-    layout (location = 4) uniform mat4 vMatrix;
+    layout (location = 0) uniform mat4 orthoMatrix;
     layout (std430, binding = 1) readonly buffer Particle_Buffer {
 	    Particle particles[];
     };
@@ -18,7 +17,7 @@ constexpr auto const vertCode = R"END(
 
     void main() {
         const vec3 offset = vec3(particles[gl_InstanceID].pos, 0.0);
-        gl_Position = pMatrix * vMatrix * vec4((vertex * 0.5) + offset,  1.0);
+        gl_Position = orthoMatrix * vec4((vertex * 0.5) + offset,  1.0);
         color = mix(particles[gl_InstanceID].color, vec4(1, 0.2F, 0, 1), particles[gl_InstanceID].onFire * 0.75);
     }
 )END";
@@ -38,17 +37,14 @@ constexpr auto const fragCode = R"END(
 /// Custom Constructor
 //////////////////////////////////////////////////////////////////////
 
-Renderer::Renderer(std::shared_ptr<Particle[769][769]>& particles)
+Renderer::Renderer(std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>& particles)
     : m_shader(vertCode, fragCode), m_model({ vec3(-1, -1, 0), vec3(1, -1, 0),
                                               vec3(1, 1, 0), vec3(-1, 1, 0) }),
       m_draw(4, 0, 0, GL_DYNAMIC_STORAGE_BIT), m_particles(particles) {
-    // Calculate viewing perspective and matrices
-    const auto pMatrix = mat4::perspective(1.5708F, 1.0F, 0.01F, 10.0F);
-    const auto vMatrix = mat4::lookAt(
-        vec3{ 384, 384, 384 }, vec3{ 384, 384, 0 }, vec3{ 0, 1, 0 });
-
-    m_shader.uniformLocation(0, pMatrix);
-    m_shader.uniformLocation(4, vMatrix);
+    const mat4 orthoMatrix = mat4::orthographic(
+        0.0F, static_cast<float>(WIDTH), static_cast<float>(HEIGHT), 0.0f,
+        -1.0F, 1.0F);
+    m_shader.uniformLocation(0, orthoMatrix);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -57,11 +53,11 @@ Renderer::Renderer(std::shared_ptr<Particle[769][769]>& particles)
 
 void Renderer::draw(const double& /*deltaTime*/) {
     // Update buffered data
-    m_draw.setPrimitiveCount(static_cast<GLuint>(768 * 768));
+    m_draw.setPrimitiveCount(static_cast<GLuint>(HEIGHT * WIDTH));
     m_dataBuffer.beginWriting();
     size_t offset(0ULL);
-    for (int y = 0; y < 768; ++y) {
-        for (int x = 0; x < 768; ++x) {
+    for (int y = 0; y < HEIGHT; ++y) {
+        for (int x = 0; x < WIDTH; ++x) {
             const auto& particle = m_particles[y][x];
             // Convert game particles into GPU renderable particles
             const GPU_Particle data{

@@ -1,5 +1,6 @@
 #define GLFW_INCLUDE_NONE
 #include "Utility/vec.hpp"
+#include "definitions.hpp"
 #include "engine.hpp"
 #include "window.hpp"
 #include <GLFW/glfw3.h>
@@ -18,7 +19,7 @@ static void register_debug();
 //////////////////////////////////////////////////////////////////////
 
 int main() noexcept {
-    const Window window = init_backend(vec2(768));
+    const Window window = init_backend(vec2(WIDTH, HEIGHT));
     Engine engine(window);
 
     // Main Loop

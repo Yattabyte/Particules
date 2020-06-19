@@ -10,7 +10,8 @@
 
 Engine::Engine(const Window& window)
     : m_window(window),
-      m_particles(std::shared_ptr<Particle[769][769]>(new Particle[769][769])),
+      m_particles(std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>(
+          new Particle[HEIGHT + 1][WIDTH + 1])),
       m_physics(m_particles), m_renderer(m_particles) {
     // Populate example starter level
     std::uniform_real_distribution<float> randomFloats(-1.0F, 1.0F);
@@ -19,7 +20,19 @@ Engine::Engine(const Window& window)
         return std::round(
             ((0.5F * randomFloats(generator) + 0.5F) * (high - low)) + low);
     };
-    for (auto n = 0; n < 768; ++n) {
+    for (auto n = 0; n < HEIGHT; ++n) {
+        Particle wall;
+        wall.m_exists = true;
+        wall.m_moveable = false;
+        wall.m_color = COLOR_CONCRETE;
+        wall.m_health = 1000.0f;
+        wall.m_density = 1000.0f;
+        wall.m_state = Particle::MatterState::SOLID;
+
+        m_particles[n][0] = wall;
+        m_particles[n][WIDTH - 1] = wall;
+    }
+    for (auto n = 0; n < WIDTH; ++n) {
         Particle wall;
         wall.m_exists = true;
         wall.m_moveable = false;
@@ -29,14 +42,12 @@ Engine::Engine(const Window& window)
         wall.m_state = Particle::MatterState::SOLID;
 
         m_particles[0][n] = wall;
-        m_particles[n][0] = wall;
-        m_particles[n][767] = wall;
     }
     for (auto n = 0; n < 1000000; ++n) {
         // Get random coordinates
         vec2 pos = vec2(
-            (randomFloats(generator) * 0.5F + 0.5F) * 767,
-            (randomFloats(generator) * 0.5F + 0.5F) * 767);
+            (randomFloats(generator) * 0.5F + 0.5F) * WIDTH - 1,
+            (randomFloats(generator) * 0.5F + 0.5F) * HEIGHT - 1);
         const int x = static_cast<int>(pos.x());
         const int y = static_cast<int>(pos.y());
         Particle& particle = m_particles[y][x];
@@ -88,7 +99,7 @@ Engine::Engine(const Window& window)
 /// tick
 //////////////////////////////////////////////////////////////////////
 
-constexpr double timeStep = 0.015;
+constexpr double timeStep = 0.025;
 void Engine::tick(const double& deltaTime) {
     const auto start = glfwGetTime();
 
