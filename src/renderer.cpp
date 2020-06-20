@@ -37,39 +37,45 @@ constexpr auto const fragCode = R"END(
 /// Custom Constructor
 //////////////////////////////////////////////////////////////////////
 
-Renderer::Renderer(std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>& particles)
+Renderer::Renderer(
+    std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>& particles) noexcept
     : m_shader(vertCode, fragCode), m_model({ vec3(-1, -1, 0), vec3(1, -1, 0),
                                               vec3(1, 1, 0), vec3(-1, 1, 0) }),
       m_draw(4, 0, 0, GL_DYNAMIC_STORAGE_BIT), m_particles(particles) {
     const mat4 orthoMatrix = mat4::orthographic(
-        0.0F, static_cast<float>(WIDTH), static_cast<float>(HEIGHT), 0.0f,
-        -1.0F, 1.0F);
+        -1.0F, static_cast<float>(WIDTH - 1), static_cast<float>(HEIGHT - 1),
+        -1.0F, -1.0F, 1.0F);
     m_shader.uniformLocation(0, orthoMatrix);
 }
 
 //////////////////////////////////////////////////////////////////////
-/// updateComponents
+/// draw
 //////////////////////////////////////////////////////////////////////
 
-void Renderer::draw(const double& /*deltaTime*/) {
+void Renderer::draw(const double& /*deltaTime*/) noexcept {
     // Update buffered data
-    m_draw.setPrimitiveCount(static_cast<GLuint>(HEIGHT * WIDTH));
     m_dataBuffer.beginWriting();
     size_t offset(0ULL);
+    unsigned int count(0);
     for (int y = 0; y < HEIGHT; ++y) {
         for (int x = 0; x < WIDTH; ++x) {
             const auto& particle = m_particles[y][x];
+            if (!particle.m_exists)
+                continue;
+
             // Convert game particles into GPU renderable particles
             const GPU_Particle data{
                 particle.m_color,
                 vec2(static_cast<float>(x), static_cast<float>(y)),
-                particle.m_onFire,
+                static_cast<int>(particle.m_onFire),
             };
             m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);
             offset += sizeof(GPU_Particle);
+            ++count;
         }
     }
     m_dataBuffer.endWriting();
+    m_draw.setPrimitiveCount(static_cast<GLuint>(count));
 
     // Flush buffers and set starting parameters
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -12,7 +12,7 @@
 /// Forward Declarations
 static Window init_backend(const vec2& windowSize);
 static void error_shutdown(const std::string& errorMsg);
-static void register_debug();
+static void register_debug() noexcept;
 
 //////////////////////////////////////////////////////////////////////
 /// main
@@ -80,7 +80,7 @@ static void error_shutdown(const std::string& errorMsg) {
 /// register_debug
 //////////////////////////////////////////////////////////////////////
 
-static void register_debug() {
+static void register_debug() noexcept {
 #ifdef DEBUG
     if (GLAD_GL_KHR_debug != 0) {
         GLint v(0);

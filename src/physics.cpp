@@ -7,31 +7,34 @@
 /// Custom Constructor
 //////////////////////////////////////////////////////////////////////
 
-Physics::Physics(std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>& particles)
+Physics::Physics(
+    std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>& particles) noexcept
     : m_particles(particles) {}
 
 //////////////////////////////////////////////////////////////////////
-/// findCollisions
+/// simulate
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulate(const double& /*deltaTime*/) {
+void Physics::simulate(
+    const double& /*deltaTime*/, const int& beginX, const int& beginY,
+    const int& endX, const int& endY) noexcept {
     // Apply Gravity
-    for (int y = 0; y < HEIGHT; ++y) {
-        for (int x = 0; x < WIDTH; ++x) {
-            auto& particle = m_particles[y][x];
+    for (int y = beginY; y < endY; ++y) {
+        for (int x = beginX; x < endX; ++x) {
+            const auto& particle = m_particles[y][x];
 
             // Only act on particles that can move
             if (!particle.m_exists || particle.m_asleep || !particle.m_moveable)
                 continue;
 
             switch (particle.m_state) {
-            case Particle::MatterState::SOLID:
+            case MatterState::SOLID:
                 simulateSolid(x, y);
                 break;
-            case Particle::MatterState::LIQUID:
+            case MatterState::LIQUID:
                 simulateLiquid(x, y);
                 break;
-            case Particle::MatterState::GAS:
+            case MatterState::GAS:
                 simulateGas(x, y);
                 break;
             }
@@ -39,13 +42,17 @@ void Physics::simulate(const double& /*deltaTime*/) {
     }
 }
 
+//////////////////////////////////////////////////////////////////////
+/// simulateSolid
+//////////////////////////////////////////////////////////////////////
+
 void Physics::simulateSolid(const int& x, const int& y) noexcept {
     struct ivec2 {
         int x, y;
     };
     constexpr std::array<std::array<ivec2, 3>, 2> offsets = {
         std::array<ivec2, 3>{ ivec2{ 0, -1 }, { -1, -1 }, { 1, -1 } },
-        std::array<ivec2, 3>{ ivec2{ 0, -1 }, { 1, -1 }, { -1, -1 } }
+        std::array<ivec2, 3>{ ivec2{ 0, -1 }, { 1, -1 }, { -1, -1 } },
     };
     const auto directions = offsets[fastRand() % 2];
 
@@ -65,6 +72,10 @@ void Physics::simulateSolid(const int& x, const int& y) noexcept {
     }
 }
 
+//////////////////////////////////////////////////////////////////////
+/// simulateLiquid
+//////////////////////////////////////////////////////////////////////
+
 void Physics::simulateLiquid(const int& x, const int& y) noexcept {
     struct ivec2 {
         int x, y;
@@ -77,7 +88,7 @@ void Physics::simulateLiquid(const int& x, const int& y) noexcept {
         std::array<ivec2, 5>{
             ivec2{ 0, -1 }, { -1, -1 }, { 1, -1 }, { 1, 0 }, { -1, 0 } },
         std::array<ivec2, 5>{
-            ivec2{ 0, -1 }, { 1, -1 }, { -1, -1 }, { -1, 0 }, { 1, 0 } }
+            ivec2{ 0, -1 }, { 1, -1 }, { -1, -1 }, { -1, 0 }, { 1, 0 } },
     };
     const auto directions = offsets[fastRand() % 4];
 
@@ -96,6 +107,10 @@ void Physics::simulateLiquid(const int& x, const int& y) noexcept {
         break;
     }
 }
+
+//////////////////////////////////////////////////////////////////////
+/// simulateGas
+//////////////////////////////////////////////////////////////////////
 
 void Physics::simulateGas(const int& x, const int& y) noexcept {
     struct ivec2 {
@@ -128,6 +143,10 @@ void Physics::simulateGas(const int& x, const int& y) noexcept {
         break;
     }
 }
+
+//////////////////////////////////////////////////////////////////////
+/// swapTile
+//////////////////////////////////////////////////////////////////////
 
 void Physics::swapTile(Particle& particleA, Particle& particleB) noexcept {
     std::swap(particleA, particleB);

@@ -8,7 +8,6 @@ set(FILES
     # Header files
     window.hpp
     engine.hpp
-    particle.hpp
     physics.hpp
     renderer.hpp
     definitions.hpp

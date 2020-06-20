@@ -4,7 +4,6 @@
 
 #include "Utility/vec.hpp"
 #include "definitions.hpp"
-#include "particle.hpp"
 #include "physics.hpp"
 #include "renderer.hpp"
 #include "window.hpp"
