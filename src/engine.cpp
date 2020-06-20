@@ -105,15 +105,30 @@ void Engine::tick(const double& deltaTime) {
     // Prepare game loop for multi-threading
     constexpr int numCellsX = WIDTH / CELL_SIZE;
     constexpr int numCellsY = HEIGHT / CELL_SIZE;
-    constexpr std::pair<int, int> patternArray[4] = { std::make_pair(0, 0),
-                                                      std::make_pair(1, 0),
-                                                      std::make_pair(0, 1),
-                                                      std::make_pair(1, 1) };
+    constexpr std::pair<int, int> patternArray[8][4] = {
+        { std::make_pair(0, 0), std::make_pair(1, 0), std::make_pair(1, 1),
+          std::make_pair(0, 1) },
+        { std::make_pair(1, 1), std::make_pair(1, 0), std::make_pair(0, 0),
+          std::make_pair(0, 1) },
+        { std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(1, 1),
+          std::make_pair(1, 0) },
+        { std::make_pair(1, 1), std::make_pair(0, 1), std::make_pair(0, 0),
+          std::make_pair(1, 0) },
+        { std::make_pair(0, 0), std::make_pair(1, 1), std::make_pair(0, 1),
+          std::make_pair(1, 0) },
+        { std::make_pair(0, 0), std::make_pair(1, 1), std::make_pair(1, 0),
+          std::make_pair(0, 1) },
+        { std::make_pair(1, 1), std::make_pair(0, 0), std::make_pair(1, 0),
+          std::make_pair(0, 1) },
+        { std::make_pair(1, 1), std::make_pair(0, 0), std::make_pair(0, 1),
+          std::make_pair(1, 0) },
+    };
+    static int frameNum = 0;
 
     // Game Loop
     m_accumulator += deltaTime;
     while (m_accumulator >= TIME_STEP) {
-        for (const auto& [offsetX, offsetY] : patternArray) {
+        for (const auto& [offsetX, offsetY] : patternArray[frameNum++ % 8]) {
             for (int cellY = offsetY; cellY < numCellsY; cellY += 2) {
                 const int beginY = cellY * CELL_SIZE;
                 const int endY = beginY + CELL_SIZE;

@@ -12,7 +12,7 @@ using namespace mini;
 /// Cross-application definitions
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 768;
-constexpr int CELL_SIZE = 256;
+constexpr int CELL_SIZE = 64;
 constexpr double TIME_STEP = 0.025;
 constexpr vec4 COLOR_CONCRETE = vec4(0.4F, 0.4F, 0.4F, 1);
 constexpr vec4 COLOR_SLUDGE = vec4(0.15F, 0.15F, 0.15F, 1.0F);
