@@ -13,6 +13,16 @@ Engine::Engine(const Window& window)
       m_particles(std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>(
           new Particle[HEIGHT + 1][WIDTH + 1])),
       m_physics(m_particles), m_renderer(m_particles) {
+    // Create threads
+    const unsigned int maxThreads =
+        std::max(1U, std::thread::hardware_concurrency() - 1);
+    m_threads.resize(maxThreads);
+    for (auto& [workerThread, exitSignal] : m_threads) {
+        workerThread = std::thread(
+            &Engine::gameTick_threaded, this, exitSignal.get_future());
+        workerThread.detach();
+    }
+
     // Populate example starter level
     std::uniform_real_distribution<float> randomFloats(-1.0F, 1.0F);
     std::mt19937 generator(0);
@@ -44,6 +54,7 @@ Engine::Engine(const Window& window)
         m_particles[0][n] = wall;
     }
     for (auto n = 0; n < 2000000; ++n) {
+        // for (auto n = 0; n < 1000; ++n) {
         // Get random coordinates
         vec2 pos = vec2(
             (randomFloats(generator) * 0.5F + 0.5F) * WIDTH - 1,
@@ -101,7 +112,13 @@ Engine::Engine(const Window& window)
 
 void Engine::tick(const double& deltaTime) {
     const auto start = glfwGetTime();
+    gameTick(deltaTime);
+    renderTick(deltaTime);
+    const auto end = glfwGetTime();
+    std::cout << std::to_string(end - start) << std::endl;
+}
 
+void Engine::gameTick(const double& deltaTime) {
     // Prepare game loop for multi-threading
     constexpr int numCellsX = WIDTH / CELL_SIZE;
     constexpr int numCellsY = HEIGHT / CELL_SIZE;
@@ -128,6 +145,7 @@ void Engine::tick(const double& deltaTime) {
     // Game Loop
     m_accumulator += deltaTime;
     while (m_accumulator >= TIME_STEP) {
+        // Assign jobs
         for (const auto& [offsetX, offsetY] : patternArray[frameNum++ % 8]) {
             for (int cellY = offsetY; cellY < numCellsY; cellY += 2) {
                 const int beginY = cellY * CELL_SIZE;
@@ -135,16 +153,46 @@ void Engine::tick(const double& deltaTime) {
                 for (int cellX = offsetX; cellX < numCellsX; cellX += 2) {
                     const int beginX = cellX * CELL_SIZE;
                     const int endX = beginX + CELL_SIZE;
-                    m_physics.simulate(TIME_STEP, beginX, beginY, endX, endY);
+                    m_jobs.emplace_back(beginX, beginY, endX, endY);
                 }
             }
+            m_numJobsRemaining = static_cast<int>(m_jobs.size());
+            m_threadReady = true;
+            while (m_numJobsRemaining > 0) {
+                continue;
+            }
+            m_threadReady = false;
         }
         m_accumulator -= TIME_STEP;
     }
+}
 
-    // Draw
+void Engine::gameTick_threaded(std::future<void> exitObject) {
+    while (true) {
+        if (m_threadReady == false) {
+            std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+            continue;
+        }
+        // Get last job
+        std::unique_lock<std::shared_mutex> writeGuard(m_jobMutex);
+        if (!m_jobs.empty()) {
+            const CellChunk chunk = m_jobs.back();
+            m_jobs.pop_back();
+            writeGuard.unlock();
+            writeGuard.release();
+
+            // Perform job
+            m_physics.simulate(
+                TIME_STEP, chunk.m_beginX, chunk.m_beginY, chunk.m_endX,
+                chunk.m_endY);
+            --m_numJobsRemaining;
+        } else {
+            m_threadReady = false;
+        }
+    }
+}
+
+void Engine::renderTick(const double& deltaTime) {
+    // Draw the particles
     m_renderer.draw(deltaTime);
-
-    const auto end = glfwGetTime();
-    std::cout << std::to_string(end - start) << std::endl;
 }

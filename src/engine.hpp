@@ -7,7 +7,12 @@
 #include "physics.hpp"
 #include "renderer.hpp"
 #include "window.hpp"
+#include <atomic>
+#include <condition_variable>
+#include <future>
 #include <memory>
+#include <shared_mutex>
+#include <thread>
 
 ///////////////////////////////////////////////////////////////////////////
 /// Use the shared mini namespace
@@ -44,9 +49,17 @@ class Engine {
     void tick(const double& deltaTime);
 
     private:
+    void gameTick(const double& deltaTime);
+    void gameTick_threaded(std::future<void> exitObject);
+    void renderTick(const double& deltaTime);
     ///////////////////////////////////////////////////////////////////////////
     /// Private Members
-    const Window& m_window;     ///< OS level window.
+    const Window& m_window; ///< OS level window.
+    std::shared_mutex m_jobMutex;
+    std::atomic<bool> m_threadReady = false;
+    std::atomic<int> m_numJobsRemaining;
+    std::vector<CellChunk> m_jobs;
+    std::vector<std::tuple<std::thread, std::promise<void>>> m_threads;
     double m_accumulator = 0.0; ///< Time left in the accumulator.
     std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]> m_particles;
     Physics m_physics;

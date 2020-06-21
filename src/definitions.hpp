@@ -25,26 +25,38 @@ constexpr vec4 COLOR_WATER = vec4(0.1F, 0.2F, 1.0F, 1.0F);
 enum class MatterState { SOLID, LIQUID, GAS };
 
 /////////////////////////////////////////////////////////////////////////
-/// \class Particle
+/// \struct Particle
 struct Particle {
     bool m_exists = false;
     bool m_moveable = true;
     bool m_asleep = false;
     bool m_onFire = false;
     MatterState m_state = MatterState::SOLID;
-    float m_density = 0.0f;
+    float m_density = 0.0F;
     float m_health = 1.0F;
     vec4 m_color = vec4(0);
 };
 constexpr auto particle_size = sizeof(Particle);
 
 /////////////////////////////////////////////////////////////////////////
-/// \class GPU_Particle
+/// \struct GPU_Particle
 struct GPU_Particle {
     vec4 m_color = vec4(0);
     vec2 m_pos = vec2(0.0F);
     int m_onFire = 0;
     float padding = 1.0f;
+};
+
+/////////////////////////////////////////////////////////////////////////
+/// \struct GPU_Particle
+struct CellChunk {
+    int m_beginX = 0;
+    int m_beginY = 0;
+    int m_endX = 0;
+    int m_endY = 0;
+    CellChunk(
+        const int& beginX, const int& beginY, const int& endX, const int& endY)
+        : m_beginX(beginX), m_beginY(beginY), m_endX(endX), m_endY(endY) {}
 };
 
 #endif // DEFINITIONS_HPP
