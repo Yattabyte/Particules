@@ -6,6 +6,7 @@
 #include "definitions.hpp"
 #include "physics.hpp"
 #include "renderer.hpp"
+#include "utilities.hpp"
 #include "window.hpp"
 #include <atomic>
 #include <condition_variable>
@@ -47,11 +48,14 @@ class Engine {
     /// \brief  Tick the engine state. To be called externally by main loop.
     /// \param  deltaTime   the amount of time since last frame.
     void tick(const double& deltaTime);
+    void setMouseEvent(const MouseEvent& mouseEvent);
 
     private:
+    void inputTick(const double& deltaTime);
     void gameTick(const double& deltaTime);
     void gameTick_threaded(std::future<void> exitObject);
     void renderTick(const double& deltaTime);
+
     ///////////////////////////////////////////////////////////////////////////
     /// Private Members
     const Window& m_window; ///< OS level window.
@@ -64,6 +68,8 @@ class Engine {
     std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]> m_particles;
     Physics m_physics;
     Renderer m_renderer;
+    MouseEvent m_mouseEvent;
+    int m_tickNum = 0;
 };
 
 #endif // ENGINE_HPP

@@ -5,7 +5,6 @@ constexpr auto const vertCode = R"END(
     struct Particle {
         vec4 color;
         vec2 pos;
-        int onFire;
     };
 
     layout (location = 0) in vec3 vertex;
@@ -18,7 +17,7 @@ constexpr auto const vertCode = R"END(
     void main() {
         const vec3 offset = vec3(particles[gl_InstanceID].pos, 0.0);
         gl_Position = orthoMatrix * vec4((vertex * 0.5) + offset,  1.0);
-        color = mix(particles[gl_InstanceID].color, vec4(1, 0.2F, 0, 1), particles[gl_InstanceID].onFire * 0.75);
+        color = particles[gl_InstanceID].color;
     }
 )END";
 
@@ -60,14 +59,13 @@ void Renderer::draw(const double& /*deltaTime*/) noexcept {
     for (int y = 0; y < HEIGHT; ++y) {
         for (int x = 0; x < WIDTH; ++x) {
             const auto& particle = m_particles[y][x];
-            if (!particle.m_exists)
+            if (particle.m_element == Element::AIR)
                 continue;
 
             // Convert game particles into GPU renderable particles
             const GPU_Particle data{
-                particle.m_color,
+                COLORS[static_cast<int>(particle.m_element)],
                 vec2(static_cast<float>(x), static_cast<float>(y)),
-                static_cast<int>(particle.m_onFire),
             };
             m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);
             offset += sizeof(GPU_Particle);

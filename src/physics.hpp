@@ -24,13 +24,28 @@ class Physics {
     /// \param	deltaTime	    the amount of time passed since last update.
     /// \param	components	    the components to update.
     void simulate(
-        const double& deltaTime, const int& beginX, const int& beginY,
-        const int& endX, const int& endY) noexcept;
+        const double& deltaTime, const int& tickNum, const int& beginX,
+        const int& beginY, const int& endX, const int& endY) noexcept;
 
     private:
-    void simulateSolid(const int& x, const int& y) noexcept;
-    void simulateLiquid(const int& x, const int& y) noexcept;
-    void simulateGas(const int& x, const int& y) noexcept;
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Simulate state properties for particles.
+    /// \param	x	            the x coordinate of the particle's tile.
+    /// \param	y	            the y coordinate of the particle's tile.
+    void simulateState_Solid(const int& x, const int& y) noexcept;
+    void simulateState_Liquid(const int& x, const int& y) noexcept;
+    void simulateState_Gas(const int& x, const int& y) noexcept;
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief  Simulate element properties for particles.
+    /// \param	x	            the x coordinate of the particle's tile.
+    /// \param	y	            the y coordinate of the particle's tile.
+    void simulateElement_Air(const int& x, const int& y) noexcept;
+    void simulateElement_Sand(const int& x, const int& y) noexcept;
+    void simulateElement_Concrete(const int& x, const int& y) noexcept;
+    void simulateElement_Fire(const int& x, const int& y) noexcept;
+    void simulateElement_Smoke(const int& x, const int& y) noexcept;
+
     static void swapTile(Particle& a, Particle& b) noexcept;
 
     ///////////////////////////////////////////////////////////////////////////

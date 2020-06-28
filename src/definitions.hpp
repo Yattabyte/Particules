@@ -9,42 +9,77 @@
 using namespace mini;
 
 /////////////////////////////////////////////////////////////////////////
-/// Cross-application definitions
+/// Application definitions
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 768;
 constexpr int CELL_SIZE = 64;
 constexpr double TIME_STEP = 0.025;
-constexpr vec4 COLOR_CONCRETE = vec4(0.4F, 0.4F, 0.4F, 1);
-constexpr vec4 COLOR_SLUDGE = vec4(0.15F, 0.15F, 0.15F, 1.0F);
-constexpr vec4 COLOR_SAND = vec4(0.75F, 0.6F, 0.4F, 1.0F);
-constexpr vec4 COLOR_OIL = vec4(0.1F, 0.25F, 0.05F, 1.0F);
-constexpr vec4 COLOR_GUNPOWDER = vec4(0.90F, 0.90F, 0.90F, 1.0F);
-constexpr vec4 COLOR_GASOLINE = vec4(0.75F, 0.75F, 0.2F, 1.0F);
-constexpr vec4 COLOR_FIRE = vec4(1.0F, 0.2F, 0.0F, 1.0F);
-constexpr vec4 COLOR_WATER = vec4(0.1F, 0.2F, 1.0F, 1.0F);
 enum class MatterState { SOLID, LIQUID, GAS };
+enum Attributes {
+    INERT = 0b00000000,
+    TURNS_TO_SOLID = 0b00000001,
+    TURNS_TO_LIQUID = 0b00000010,
+    TURNS_TO_GAS = 0b00000100,
+    FLAMMABLE = 0b00001000,
+    EXPLOSIVE = 0b00011000,
+};
+enum class Element {
+    AIR,
+    SAND,
+    CONCRETE,
+    FIRE,
+    SMOKE,
+    WATER,
+    OIL,
+    GUNPOWDER,
+    GASOLINE,
+    METAL,
+};
+constexpr vec4 COLORS[] = {
+    vec4(0),                          ///< AIR
+    vec4(0.75F, 0.6F, 0.4F, 1.0F),    ///< SAND
+    vec4(vec4(0.4F, 0.4F, 0.4F, 1)),  ///< CONCRETE
+    vec4(1.0F, 0.2F, 0.1F, 1.0F),     ///< FIRE
+    vec4(0.75F, 0.75F, 0.75F, 0.75F), ///< SMOKE
+    vec4(0.1F, 0.2F, 1.0F, 1.0F),     ///< WATER
+    vec4(0.1F, 0.25F, 0.05F, 1.0F),   ///< OIL
+    vec4(0.90F, 0.90F, 0.90F, 1.0F),  ///< GUNPOWDER
+    vec4(0.75F, 0.75F, 0.2F, 1.0F),   ///< GASOLINE
+    vec4(0.6F, 0.4F, 0.2F, 1.0F),     ///< METAL
+};
+constexpr unsigned int ATTRIBUTES[] = {
+    INERT,                                         ///< AIR
+    INERT,                                         ///< SAND
+    INERT,                                         ///< CONCRETE
+    INERT,                                         ///< FIRE
+    INERT,                                         ///< SMOKE
+    TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS, ///< WATER
+    FLAMMABLE,                                     ///< OIL
+    EXPLOSIVE,                                     ///< GUNPOWDER
+    EXPLOSIVE,                                     ///< GASOLINE
+    INERT,                                         ///< METAL
+};
 
 /////////////////////////////////////////////////////////////////////////
 /// \struct Particle
 struct Particle {
-    bool m_exists = false;
+    int m_tickNum = 0;
     bool m_moveable = true;
     bool m_asleep = false;
-    bool m_onFire = false;
-    MatterState m_state = MatterState::SOLID;
     float m_density = 0.0F;
-    float m_health = 1.0F;
-    vec4 m_color = vec4(0);
+    float m_health = 0.0F;
+    int m_attributes = Attributes::INERT;
+    MatterState m_state = MatterState::GAS;
+    Element m_element = Element::AIR;
 };
-constexpr auto particle_size = sizeof(Particle);
+constexpr auto particleSize = sizeof(Particle);
 
 /////////////////////////////////////////////////////////////////////////
 /// \struct GPU_Particle
 struct GPU_Particle {
     vec4 m_color = vec4(0);
     vec2 m_pos = vec2(0.0F);
-    int m_onFire = 0;
-    float padding = 1.0f;
+    vec2 padding = vec2(0.0F);
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -55,7 +90,8 @@ struct CellChunk {
     int m_endX = 0;
     int m_endY = 0;
     CellChunk(
-        const int& beginX, const int& beginY, const int& endX, const int& endY)
+        const int& beginX, const int& beginY, const int& endX,
+        const int& endY) noexcept
         : m_beginX(beginX), m_beginY(beginY), m_endX(endX), m_endY(endY) {}
 };
 

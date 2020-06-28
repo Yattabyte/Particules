@@ -2,6 +2,7 @@
 #include "Utility/vec.hpp"
 #include "definitions.hpp"
 #include "engine.hpp"
+#include "utilities.hpp"
 #include "window.hpp"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -13,16 +14,19 @@
 static Window init_backend(const vec2& windowSize);
 static void error_shutdown(const std::string& errorMsg);
 static void register_debug() noexcept;
+static MouseEvent mouseEvent;
 
 //////////////////////////////////////////////////////////////////////
 /// main
 //////////////////////////////////////////////////////////////////////
 
 int main() noexcept {
-    const Window window = init_backend(vec2(WIDTH, HEIGHT));
+    // Initialize application
+    Window window = init_backend(vec2(WIDTH, HEIGHT));
     Engine engine(window);
+    glfwSetWindowUserPointer(window.pointer(), &engine);
 
-    // Main Loop
+    // Core Loop
     double lastTime(0.0);
     while (glfwWindowShouldClose(window.pointer()) == 0) {
         const auto time = glfwGetTime();
@@ -51,19 +55,46 @@ static Window init_backend(const vec2& windowSize) {
         error_shutdown("Failed to initialize GLFW\n");
 
     // Create Window
-    Window window(
+    Window appwindow(
         static_cast<int>(windowSize.x()), static_cast<int>(windowSize.y()));
-    if (!window.exists())
+    if (!appwindow.exists())
         error_shutdown("Failed to create a window.\n");
 
     // Init GL functions
-    glfwMakeContextCurrent(window.pointer());
+    glfwMakeContextCurrent(appwindow.pointer());
     if (gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)) ==
         0)
         error_shutdown("Failed to initialize OpenGL context.\n");
     register_debug();
-
-    return window;
+    glfwSetCursorPosCallback(
+        appwindow.pointer(), [](GLFWwindow* window, double xPos, double yPos) {
+            Engine& engine =
+                *static_cast<Engine*>(glfwGetWindowUserPointer(window));
+            mouseEvent.m_xPos = xPos;
+            mouseEvent.m_yPos = yPos;
+            mouseEvent.m_action |= MouseEvent::Action::MOVE;
+            engine.setMouseEvent(mouseEvent);
+        });
+    glfwSetMouseButtonCallback(
+        appwindow.pointer(),
+        [](GLFWwindow* window, int button, int action, int mods) {
+            Engine& engine =
+                *static_cast<Engine*>(glfwGetWindowUserPointer(window));
+            mouseEvent.m_button = static_cast<MouseEvent::Key>(button);
+            if (action == 1) {
+                mouseEvent.m_action |= MouseEvent::Action::PRESS;
+            } else {
+                mouseEvent.m_action &= ~MouseEvent::Action::PRESS;
+            }
+            mouseEvent.m_mods = mods;
+            engine.setMouseEvent(mouseEvent);
+        });
+    /*glfwSetCharCallback(
+        window.pointer(), [](GLFWwindow* window, unsigned int character) {});
+    glfwSetKeyCallback(
+        window.pointer(),
+        [](GLFWwindow* window, int a, int b, int c, int d) {});*/
+    return appwindow;
 }
 
 //////////////////////////////////////////////////////////////////////

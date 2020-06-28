@@ -8,6 +8,7 @@ set(FILES
     # Header files
     window.hpp
     engine.hpp
+    particleFactory.hpp
     physics.hpp
     renderer.hpp
     definitions.hpp
@@ -17,6 +18,7 @@ set(FILES
     main.cpp
     window.cpp
     engine.cpp
+    particleFactory.cpp
     physics.cpp
     renderer.cpp
 )
