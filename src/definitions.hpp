@@ -13,7 +13,7 @@ using namespace mini;
 constexpr int WIDTH = 1280;
 constexpr int HEIGHT = 768;
 constexpr int CELL_SIZE = 64;
-constexpr double TIME_STEP = 0.025;
+constexpr double TIME_STEP = 0.0125;
 enum class MatterState { SOLID, LIQUID, GAS };
 enum Attributes {
     INERT = 0b00000000,
@@ -26,6 +26,7 @@ enum Attributes {
 enum class Element {
     AIR,
     SAND,
+    SAWDUST,
     CONCRETE,
     FIRE,
     SMOKE,
@@ -38,6 +39,7 @@ enum class Element {
 constexpr vec4 COLORS[] = {
     vec4(0),                          ///< AIR
     vec4(0.75F, 0.6F, 0.4F, 1.0F),    ///< SAND
+    vec4(0.9F, 0.75F, 0.65F, 1.0F),   ///< SAWDUST
     vec4(vec4(0.4F, 0.4F, 0.4F, 1)),  ///< CONCRETE
     vec4(1.0F, 0.2F, 0.1F, 1.0F),     ///< FIRE
     vec4(0.75F, 0.75F, 0.75F, 0.75F), ///< SMOKE
@@ -50,6 +52,7 @@ constexpr vec4 COLORS[] = {
 constexpr unsigned int ATTRIBUTES[] = {
     INERT,                                         ///< AIR
     INERT,                                         ///< SAND
+    FLAMMABLE,                                     ///< SAWDUST
     INERT,                                         ///< CONCRETE
     INERT,                                         ///< FIRE
     INERT,                                         ///< SMOKE
@@ -67,7 +70,9 @@ struct Particle {
     bool m_moveable = true;
     bool m_asleep = false;
     float m_density = 0.0F;
-    float m_health = 0.0F;
+    float m_health = 1.0F;
+    float m_mass = 0.0F;
+    float m_impulseAccumulator = 0.0F;
     int m_attributes = Attributes::INERT;
     MatterState m_state = MatterState::GAS;
     Element m_element = Element::AIR;
@@ -95,4 +100,7 @@ struct CellChunk {
         : m_beginX(beginX), m_beginY(beginY), m_endX(endX), m_endY(endY) {}
 };
 
+struct ivec2 {
+    int x, y;
+};
 #endif // DEFINITIONS_HPP

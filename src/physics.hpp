@@ -30,11 +30,16 @@ class Physics {
     private:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Simulate state properties for particles.
+    /// \brief  Tick this system by deltaTime.
+    /// \param	deltaTime	    the amount of time passed since last update.
     /// \param	x	            the x coordinate of the particle's tile.
     /// \param	y	            the y coordinate of the particle's tile.
-    void simulateState_Solid(const int& x, const int& y) noexcept;
-    void simulateState_Liquid(const int& x, const int& y) noexcept;
-    void simulateState_Gas(const int& x, const int& y) noexcept;
+    ivec2 simulateState_Solid(
+        const double& deltaTime, const int& x, const int& y) noexcept;
+    ivec2 simulateState_Liquid(
+        const double& deltaTime, const int& x, const int& y) noexcept;
+    ivec2 simulateState_Gas(
+        const double& deltaTime, const int& x, const int& y) noexcept;
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Simulate element properties for particles.
