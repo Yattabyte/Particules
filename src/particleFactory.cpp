@@ -24,9 +24,9 @@ ParticleFactory::ParticleFactory() {
 
     // Create SAWDUST
     m_particleTypes[Element::SAWDUST].m_moveable = true;
-    m_particleTypes[Element::SAWDUST].m_health = 8.0F;
+    m_particleTypes[Element::SAWDUST].m_health = 65.0F;
     m_particleTypes[Element::SAWDUST].m_density = 0.4F;
-    m_particleTypes[Element::SAWDUST].m_mass = 1.0F;
+    m_particleTypes[Element::SAWDUST].m_mass = 0.9F;
     m_particleTypes[Element::SAWDUST].m_state = MatterState::SOLID;
     m_particleTypes[Element::SAWDUST].m_element = Element::SAWDUST;
     m_particleTypes[Element::SAWDUST].m_attributes =
@@ -84,7 +84,7 @@ ParticleFactory::ParticleFactory() {
 
     // Create GUNPOWDER
     m_particleTypes[Element::GUNPOWDER].m_moveable = true;
-    m_particleTypes[Element::GUNPOWDER].m_health = 0.125F;
+    m_particleTypes[Element::GUNPOWDER].m_health = 35.0F;
     m_particleTypes[Element::GUNPOWDER].m_density = 0.8F;
     m_particleTypes[Element::GUNPOWDER].m_mass = 1.5F;
     m_particleTypes[Element::GUNPOWDER].m_state = MatterState::SOLID;
@@ -96,7 +96,7 @@ ParticleFactory::ParticleFactory() {
     m_particleTypes[Element::GASOLINE].m_moveable = true;
     m_particleTypes[Element::GASOLINE].m_health = 100.0F;
     m_particleTypes[Element::GASOLINE].m_density = -0.2F;
-    m_particleTypes[Element::GASOLINE].m_mass = 1.8F;
+    m_particleTypes[Element::GASOLINE].m_mass = 0.8F;
     m_particleTypes[Element::GASOLINE].m_state = MatterState::GAS;
     m_particleTypes[Element::GASOLINE].m_element = Element::GASOLINE;
     m_particleTypes[Element::GASOLINE].m_attributes =
