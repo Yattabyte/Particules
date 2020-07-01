@@ -76,7 +76,7 @@ ParticleFactory::ParticleFactory() {
     m_particleTypes[Element::OIL].m_moveable = true;
     m_particleTypes[Element::OIL].m_health = 300.0F;
     m_particleTypes[Element::OIL].m_density = 0.4F;
-    m_particleTypes[Element::OIL].m_mass = 5.0F;
+    m_particleTypes[Element::OIL].m_mass = 6.0F;
     m_particleTypes[Element::OIL].m_state = MatterState::LIQUID;
     m_particleTypes[Element::OIL].m_element = Element::OIL;
     m_particleTypes[Element::OIL].m_attributes =
