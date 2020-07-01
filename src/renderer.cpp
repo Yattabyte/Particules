@@ -64,7 +64,10 @@ void Renderer::draw(const double& /*deltaTime*/) noexcept {
 
             // Convert game particles into GPU renderable particles
             const GPU_Particle data{
-                COLORS[static_cast<int>(particle.m_element)],
+                (particle.m_attributes & Attributes::ON_FIRE) !=
+                        Attributes::ON_FIRE
+                    ? COLORS[static_cast<int>(particle.m_element)]
+                    : COLORS[static_cast<int>(Element::FIRE)],
                 vec2(static_cast<float>(x), static_cast<float>(y)),
             };
             m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);

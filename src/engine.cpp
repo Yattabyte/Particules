@@ -113,7 +113,7 @@ void Engine::inputTick(const double& /*deltaTime*/) {
             Particle& particle = m_particles[y][x];
 
             if (m_mouseEvent.m_button == MouseEvent::Key::LEFT) {
-                particle = ParticleFactory::makeType(Element::SAWDUST);
+                particle = ParticleFactory::makeType(Element::OIL);
             } else if (m_mouseEvent.m_button == MouseEvent::Key::RIGHT) {
                 particle = ParticleFactory::makeType(Element::FIRE);
             } else if (m_mouseEvent.m_button == MouseEvent::Key::MIDDLE) {

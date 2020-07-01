@@ -44,7 +44,7 @@ ParticleFactory::ParticleFactory() {
 
     // Create FIRE
     m_particleTypes[Element::FIRE].m_moveable = true;
-    m_particleTypes[Element::FIRE].m_health = 30.0F;
+    m_particleTypes[Element::FIRE].m_health = 60.0F;
     m_particleTypes[Element::FIRE].m_density = -0.01F;
     m_particleTypes[Element::FIRE].m_mass = 2.0F;
     m_particleTypes[Element::FIRE].m_state = MatterState::GAS;
@@ -64,7 +64,7 @@ ParticleFactory::ParticleFactory() {
 
     // Create WATER
     m_particleTypes[Element::WATER].m_moveable = true;
-    m_particleTypes[Element::WATER].m_health = 50.0F;
+    m_particleTypes[Element::WATER].m_health = 8.0F;
     m_particleTypes[Element::WATER].m_density = 0.5F;
     m_particleTypes[Element::WATER].m_mass = 4.0F;
     m_particleTypes[Element::WATER].m_state = MatterState::LIQUID;

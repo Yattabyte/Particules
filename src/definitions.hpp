@@ -15,13 +15,14 @@ constexpr int HEIGHT = 768;
 constexpr int CELL_SIZE = 64;
 constexpr double TIME_STEP = 0.0125;
 enum class MatterState { SOLID, LIQUID, GAS };
-enum Attributes {
+enum Attributes : unsigned int {
     INERT = 0b00000000,
     TURNS_TO_SOLID = 0b00000001,
     TURNS_TO_LIQUID = 0b00000010,
     TURNS_TO_GAS = 0b00000100,
-    FLAMMABLE = 0b00001000,
-    EXPLOSIVE = 0b00011000,
+    ON_FIRE = 0b00001000,
+    FLAMMABLE = 0b00010000,
+    EXPLOSIVE = 0b00110000,
 };
 enum class Element {
     AIR,
@@ -54,7 +55,7 @@ constexpr unsigned int ATTRIBUTES[] = {
     INERT,                                         ///< SAND
     FLAMMABLE,                                     ///< SAWDUST
     INERT,                                         ///< CONCRETE
-    INERT,                                         ///< FIRE
+    ON_FIRE,                                       ///< FIRE
     INERT,                                         ///< SMOKE
     TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS, ///< WATER
     FLAMMABLE,                                     ///< OIL

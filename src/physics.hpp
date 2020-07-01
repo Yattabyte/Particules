@@ -50,6 +50,9 @@ class Physics {
     void simulateElement_Concrete(const int& x, const int& y) noexcept;
     void simulateElement_Fire(const int& x, const int& y) noexcept;
     void simulateElement_Smoke(const int& x, const int& y) noexcept;
+    void simulateElement_Water(const int& x, const int& y) noexcept;
+
+    void simulateAttributes(const int& x, const int& y) noexcept;
 
     static void swapTile(Particle& a, Particle& b) noexcept;
 

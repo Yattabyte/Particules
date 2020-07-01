@@ -37,21 +37,20 @@ void Physics::simulate(
                 continue;
             particle->m_tickNum = tickNum;
 
-            // Delete based on low-health
-            if (particle->m_health <= 0.0F) {
-                *particle = ParticleFactory::makeType(Element::AIR);
-                continue;
-            }
+            // Simulate the particle n times (based on its mass)
+            particle->m_impulseAccumulator += particle->m_mass;
+            const auto timesToMove =
+                static_cast<int>(particle->m_impulseAccumulator);
+            ivec2 particlePos{ x, y };
+            while (particle->m_impulseAccumulator + 0.0001F > 1.0F) {
+                // Delete based on low-health
+                if (particle->m_health <= 0.0F) {
+                    *particle = ParticleFactory::makeType(Element::AIR);
+                    continue;
+                }
 
-            // Simulate movement based on matter-state
-            if (particle->m_moveable && !particle->m_asleep) {
-                // Move the particle n times (based on its mass)
-                particle->m_impulseAccumulator += particle->m_mass;
-                const auto timesToMove =
-                    static_cast<int>(particle->m_impulseAccumulator);
-                ivec2 particlePos{ x, y };
-
-                while (particle->m_impulseAccumulator + 0.0001F > 1.0F) {
+                // Simulate movement based on matter-state
+                if (particle->m_moveable && !particle->m_asleep) {
                     switch (particle->m_state) {
                     default:
                     case MatterState::SOLID:
@@ -72,28 +71,33 @@ void Physics::simulate(
                     particle = &m_particles[particleY][particleX];
                     particle->m_impulseAccumulator -= 1.0F;
                 }
-            }
 
-            // Simulate state change next with heat simulation
-            // simulateStateChange(x, y);
+                // Simulate state change next with heat simulation
+                // simulateStateChange(x, y);
 
-            // Simulate interactions based on element
-            switch (particle->m_element) {
-            case Element::AIR:
-                simulateElement_Air(particleX, particleY);
-                break;
-            case Element::SAND:
-                simulateElement_Sand(particleX, particleY);
-                break;
-            case Element::CONCRETE:
-                simulateElement_Concrete(particleX, particleY);
-                break;
-            case Element::FIRE:
-                simulateElement_Fire(particleX, particleY);
-                break;
-            case Element::SMOKE:
-                simulateElement_Smoke(particleX, particleY);
-                break;
+                // Simulate interactions based on element
+                switch (particle->m_element) {
+                case Element::AIR:
+                    simulateElement_Air(particleX, particleY);
+                    break;
+                case Element::SAND:
+                    simulateElement_Sand(particleX, particleY);
+                    break;
+                case Element::CONCRETE:
+                    simulateElement_Concrete(particleX, particleY);
+                    break;
+                case Element::FIRE:
+                    simulateElement_Fire(particleX, particleY);
+                    break;
+                case Element::SMOKE:
+                    simulateElement_Smoke(particleX, particleY);
+                    break;
+                case Element::WATER:
+                    simulateElement_Water(particleX, particleY);
+                    break;
+                }
+
+                simulateAttributes(particleX, particleY);
             }
         }
     }
@@ -214,51 +218,10 @@ void Physics::simulateElement_Concrete(
 
 //////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 void Physics::simulateElement_Fire(const int& x, const int& y) noexcept {
-    constexpr std::array<ivec2, 8> directions = { ivec2{ 0, 1 }, { -1, 1 },
-                                                  { -1, 0 },     { -1, -1 },
-                                                  { 0, -1 },     { 1, -1 },
-                                                  { 1, 0 },      { 1, 1 } };
     // Tick down its health
     auto& particle = m_particles[y][x];
     particle.m_health -= 1.0F;
-
-    // 1/5 chance of igniting surroundings
-    if (fastRand() % 10 > 7) {
-        for (const auto& direction : directions) {
-            if (x + direction.x < 0 || y + direction.y < 0)
-                continue;
-            Particle& adjacentParticle =
-                m_particles[y + direction.y][x + direction.x];
-            if (fastRand() % 10 > 8) {
-                if ((adjacentParticle.m_attributes & Attributes::FLAMMABLE) ==
-                    Attributes::FLAMMABLE) {
-                    adjacentParticle.m_element = Element::FIRE;
-                    adjacentParticle.m_attributes &= Attributes::FLAMMABLE;
-                    adjacentParticle.m_asleep = false;
-                }
-            }
-        }
-    }
-
-    // Check if target has room to spawn stuff
-    const auto& direction = directions[fastRand() % 8];
-    if (x + direction.x < 0 || y + direction.y < 0)
-        return;
-    Particle& adjacentParticle = m_particles[y + direction.y][x + direction.x];
-    if (adjacentParticle.m_element != Element::AIR)
-        return;
-
-    // 2/10 chance of making smoke
-    if (fastRand() % 1000 >= 996) {
-        adjacentParticle = ParticleFactory::makeType(Element::SMOKE);
-    }
-
-    // 2/10 chance of creating an ember
-    if (fastRand() % 1000 >= 996) {
-        adjacentParticle = ParticleFactory::makeType(Element::FIRE);
-    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -267,6 +230,81 @@ void Physics::simulateElement_Smoke(const int& x, const int& y) noexcept {
     // Tick down its health
     auto& particle = m_particles[y][x];
     particle.m_health -= 100.0F;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void Physics::simulateElement_Water(const int& x, const int& y) noexcept {
+    constexpr std::array<ivec2, 8> directions = { ivec2{ 0, 1 }, { -1, 1 },
+                                                  { -1, 0 },     { -1, -1 },
+                                                  { 0, -1 },     { 1, -1 },
+                                                  { 1, 0 },      { 1, 1 } };
+    // Douse fires on each direction
+    auto& particle = m_particles[y][x];
+    for (const auto& direction : directions) {
+        if (x + direction.x < 0 || y + direction.y < 0)
+            continue;
+        Particle& adjacentParticle =
+            m_particles[y + direction.y][x + direction.x];
+        if ((adjacentParticle.m_attributes & Attributes::ON_FIRE) ==
+            Attributes::ON_FIRE) {
+            adjacentParticle.m_attributes ^= Attributes::ON_FIRE;
+            particle.m_health -= 1.0F;
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+/// simulateAttributes
+//////////////////////////////////////////////////////////////////////
+
+void Physics::simulateAttributes(const int& x, const int& y) noexcept {
+    auto& particle = m_particles[y][x];
+
+    if ((particle.m_attributes & Attributes::ON_FIRE) == Attributes::ON_FIRE) {
+        constexpr std::array<ivec2, 8> directions = { ivec2{ 0, 1 }, { -1, 1 },
+                                                      { -1, 0 },     { -1, -1 },
+                                                      { 0, -1 },     { 1, -1 },
+                                                      { 1, 0 },      { 1, 1 } };
+        // Tick down its health
+        particle.m_health -= 1.0F;
+
+        // 1/5 chance of igniting surroundings
+        if (fastRand() % 10 > 7) {
+            for (const auto& direction : directions) {
+                if (x + direction.x < 0 || y + direction.y < 0)
+                    continue;
+                Particle& adjacentParticle =
+                    m_particles[y + direction.y][x + direction.x];
+                if (fastRand() % 10 > 8) {
+                    if ((adjacentParticle.m_attributes &
+                         Attributes::FLAMMABLE) == Attributes::FLAMMABLE) {
+                        adjacentParticle.m_attributes |= Attributes::ON_FIRE;
+                        adjacentParticle.m_asleep = false;
+                    }
+                }
+            }
+        }
+
+        // Check if target has room to spawn stuff
+        const auto& direction = directions[fastRand() % 8];
+        if (x + direction.x < 0 || y + direction.y < 0)
+            return;
+        Particle& adjacentParticle =
+            m_particles[y + direction.y][x + direction.x];
+        if (adjacentParticle.m_element != Element::AIR)
+            return;
+
+        // 2/10 chance of making smoke
+        if (fastRand() % 1000 >= 996) {
+            adjacentParticle = ParticleFactory::makeType(Element::SMOKE);
+        }
+
+        // 2/10 chance of creating an ember
+        if (fastRand() % 1000 >= 996) {
+            adjacentParticle = ParticleFactory::makeType(Element::FIRE);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
