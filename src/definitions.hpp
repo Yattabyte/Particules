@@ -10,11 +10,14 @@ using namespace mini;
 
 /////////////////////////////////////////////////////////////////////////
 /// Application definitions
-constexpr int WIDTH = 1280;
+constexpr int WIDTH = 1024;
 constexpr int HEIGHT = 768;
 constexpr int CELL_SIZE = 64;
 constexpr double TIME_STEP = 0.0125;
-enum class MatterState { SOLID, LIQUID, GAS };
+constexpr float ROOM_TEMP = 25.0F;
+enum class MatterState { SOLID,
+                         LIQUID,
+                         GAS };
 enum Attributes : unsigned int {
     INERT = 0b00000000,
     TURNS_TO_SOLID = 0b00000001,
@@ -23,6 +26,7 @@ enum Attributes : unsigned int {
     ON_FIRE = 0b00001000,
     FLAMMABLE = 0b00010000,
     EXPLOSIVE = 0b00110000,
+    WET = 0b01000000,
 };
 enum class Element {
     AIR,
@@ -32,6 +36,8 @@ enum class Element {
     FIRE,
     SMOKE,
     WATER,
+    ICE,
+    STEAM,
     OIL,
     GUNPOWDER,
     GASOLINE,
@@ -41,27 +47,31 @@ constexpr vec4 COLORS[] = {
     vec4(0),                          ///< AIR
     vec4(0.75F, 0.6F, 0.4F, 1.0F),    ///< SAND
     vec4(0.9F, 0.75F, 0.65F, 1.0F),   ///< SAWDUST
-    vec4(vec4(0.4F, 0.4F, 0.4F, 1)),  ///< CONCRETE
+    vec4(0.4F, 0.4F, 0.4F, 1),        ///< CONCRETE
     vec4(1.0F, 0.2F, 0.1F, 1.0F),     ///< FIRE
     vec4(0.75F, 0.75F, 0.75F, 0.75F), ///< SMOKE
     vec4(0.1F, 0.2F, 1.0F, 1.0F),     ///< WATER
+    vec4(0.2F, 0.8F, 1.0F, 1.0F),     ///< ICE
+    vec4(0.6F, 0.8F, 1.0F, 0.8F),     ///< STEAM
     vec4(0.1F, 0.25F, 0.05F, 1.0F),   ///< OIL
     vec4(0.90F, 0.90F, 0.90F, 1.0F),  ///< GUNPOWDER
     vec4(0.75F, 0.75F, 0.2F, 1.0F),   ///< GASOLINE
-    vec4(0.6F, 0.4F, 0.2F, 1.0F),     ///< METAL
+    vec4(0.4F, 0.2F, 0.6F, 1.0F),     ///< METAL
 };
 constexpr unsigned int ATTRIBUTES[] = {
-    INERT,                                         ///< AIR
-    INERT,                                         ///< SAND
-    FLAMMABLE,                                     ///< SAWDUST
-    INERT,                                         ///< CONCRETE
-    ON_FIRE,                                       ///< FIRE
-    INERT,                                         ///< SMOKE
-    TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS, ///< WATER
-    FLAMMABLE,                                     ///< OIL
-    EXPLOSIVE,                                     ///< GUNPOWDER
-    EXPLOSIVE,                                     ///< GASOLINE
-    INERT,                                         ///< METAL
+    INERT,                                              ///< AIR
+    INERT,                                              ///< SAND
+    FLAMMABLE,                                          ///< SAWDUST
+    INERT,                                              ///< CONCRETE
+    ON_FIRE,                                            ///< FIRE
+    INERT,                                              ///< SMOKE
+    TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS& WET, ///< WATER
+    TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS& WET, ///< ICE
+    TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS& WET, ///< STEAM
+    FLAMMABLE,                                          ///< OIL
+    EXPLOSIVE,                                          ///< GUNPOWDER
+    EXPLOSIVE,                                          ///< GASOLINE
+    INERT,                                              ///< METAL
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -73,6 +83,8 @@ struct Particle {
     float m_density = 0.0F;
     float m_health = 1.0F;
     float m_mass = 0.0F;
+    float m_thermalConductivity = 1.0F;
+    float m_temp = ROOM_TEMP;
     float m_impulseAccumulator = 0.0F;
     int m_attributes = Attributes::INERT;
     MatterState m_state = MatterState::GAS;
@@ -91,17 +103,13 @@ struct GPU_Particle {
 /////////////////////////////////////////////////////////////////////////
 /// \struct GPU_Particle
 struct CellChunk {
-    int m_beginX = 0;
-    int m_beginY = 0;
-    int m_endX = 0;
-    int m_endY = 0;
+    ivec2 m_begin;
+    ivec2 m_end;
     CellChunk(
         const int& beginX, const int& beginY, const int& endX,
         const int& endY) noexcept
-        : m_beginX(beginX), m_beginY(beginY), m_endX(endX), m_endY(endY) {}
-};
-
-struct ivec2 {
-    int x, y;
+        : m_begin(beginX, beginY), m_end(endX, endY) {}
+    CellChunk(const ivec2& begin, const ivec2& end) noexcept
+        : m_begin(begin), m_end(end) {}
 };
 #endif // DEFINITIONS_HPP

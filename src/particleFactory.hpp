@@ -10,13 +10,19 @@
 /// \brief  Makes specific particle types.
 class ParticleFactory {
     public:
+    ///////////////////////////////////////////////////////////////////////////
+    /// Public (De)Constructors
     ~ParticleFactory() = default;
     ParticleFactory();
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// Public Methods
     static ParticleFactory& getInstance();
     static Particle makeType(const Element& element);
 
     private:
+    ///////////////////////////////////////////////////////////////////////////
+    /// Private Members
     std::map<Element, Particle> m_particleTypes;
 };
 

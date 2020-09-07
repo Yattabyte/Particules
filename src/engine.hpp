@@ -47,14 +47,16 @@ class Engine {
     /////////////////////////////////////////////////////////////////////////
     /// \brief  Tick the engine state. To be called externally by main loop.
     /// \param  deltaTime   the amount of time since last frame.
-    void tick(const double& deltaTime);
+    void tick(const double deltaTime);
     void setMouseEvent(const MouseEvent& mouseEvent);
 
     private:
-    void inputTick(const double& deltaTime);
-    void gameTick(const double& deltaTime);
+    ///////////////////////////////////////////////////////////////////////////
+    /// Private Methods
+    void inputTick(const double deltaTime);
+    void gameTick(const double deltaTime);
     void gameTick_threaded(std::future<void> exitObject);
-    void renderTick(const double& deltaTime);
+    void renderTick(const double deltaTime);
 
     ///////////////////////////////////////////////////////////////////////////
     /// Private Members

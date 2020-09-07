@@ -33,15 +33,16 @@ Engine::Engine(const Window& window)
         return std::round(
             ((0.5F * randomFloats(generator) + 0.5F) * (high - low)) + low);
     };
+    for (int y = 0; y < HEIGHT + 1; ++y)
+        for (int x = 0; x < WIDTH + 1; ++x)
+            m_physics.spawnParticle(Element::AIR, ivec2(x, y));
     for (auto n = 0; n < HEIGHT; ++n) {
-        m_particles[n][0] = ParticleFactory::makeType(Element::CONCRETE);
-        m_particles[n][WIDTH - 1] =
-            ParticleFactory::makeType(Element::CONCRETE);
+        m_physics.spawnParticle(Element::CONCRETE, ivec2(0, n));
+        m_physics.spawnParticle(Element::CONCRETE, ivec2(WIDTH - 1, n));
     }
     for (auto n = 0; n < WIDTH; ++n) {
-        m_particles[0][n] = ParticleFactory::makeType(Element::CONCRETE);
-        m_particles[HEIGHT - 1][n] =
-            ParticleFactory::makeType(Element::CONCRETE);
+        m_physics.spawnParticle(Element::CONCRETE, ivec2(n, 0));
+        m_physics.spawnParticle(Element::CONCRETE, ivec2(n, HEIGHT - 1));
     }
 
     ///*for (int n = 0; n < 512; ++n) {
@@ -86,7 +87,7 @@ Engine::Engine(const Window& window)
 /// tick
 //////////////////////////////////////////////////////////////////////
 
-void Engine::tick(const double& deltaTime) {
+void Engine::tick(const double deltaTime) {
     const auto start = glfwGetTime();
     inputTick(deltaTime);
     gameTick(deltaTime);
@@ -97,27 +98,51 @@ void Engine::tick(const double& deltaTime) {
 
 //////////////////////////////////////////////////////////////////////
 
-void Engine::inputTick(const double& /*deltaTime*/) {
+void Engine::inputTick(const double /*deltaTime*/) {
     if ((m_mouseEvent.m_action & MouseEvent::Action::PRESS) ==
         MouseEvent::Action::PRESS) {
         const int mouseX = static_cast<int>(m_mouseEvent.m_xPos);
         const int mouseY = HEIGHT - static_cast<int>(m_mouseEvent.m_yPos);
 
-        // Offset within a radius to create a wider brush-stroke
         constexpr int radius = 25;
+        /*// Offset within a radius to create a wider brush-stroke
         for (int n = 0; n < radius; ++n) {
             const int x =
                 std::clamp<int>((fastRand() % radius) + mouseX, 0, WIDTH);
             const int y =
                 std::clamp<int>((fastRand() % radius) + mouseY, 0, HEIGHT);
-            Particle& particle = m_particles[y][x];
 
-            if (m_mouseEvent.m_button == MouseEvent::Key::LEFT) {
-                particle = ParticleFactory::makeType(Element::OIL);
-            } else if (m_mouseEvent.m_button == MouseEvent::Key::RIGHT) {
-                particle = ParticleFactory::makeType(Element::FIRE);
-            } else if (m_mouseEvent.m_button == MouseEvent::Key::MIDDLE) {
-                particle = ParticleFactory::makeType(Element::WATER);
+            if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT)
+                continue;
+
+            if (m_mouseEvent.m_button == MouseEvent::Key::LEFT)
+                m_physics.spawnParticle(Element::ICE, x, y);
+
+            else if (m_mouseEvent.m_button == MouseEvent::Key::MIDDLE)
+                m_physics.spawnParticle(Element::STEAM, x, y);
+
+            else if (m_mouseEvent.m_button == MouseEvent::Key::RIGHT)
+                m_physics.spawnParticle(Element::FIRE, x, y);
+        }*/
+
+        for (int ry = 0; ry < radius; ++ry) {
+            for (int rx = 0; rx < radius; ++rx) {
+                const ivec2 coords(rx + mouseX, ry + mouseY);
+
+                if (coords.x() <= 1 || coords.x() >= WIDTH - 2 || coords.y() <= 1 || coords.y() >= HEIGHT - 2)
+                    continue;
+
+                if (m_physics.getParticle(coords).m_element != Element::AIR)
+                    continue;
+
+                if (m_mouseEvent.m_button == MouseEvent::Key::LEFT)
+                    m_physics.spawnParticle(Element::ICE, coords);
+
+                else if (m_mouseEvent.m_button == MouseEvent::Key::MIDDLE)
+                    m_physics.spawnParticle(Element::WATER, coords);
+
+                else if (m_mouseEvent.m_button == MouseEvent::Key::RIGHT)
+                    m_physics.spawnParticle(Element::FIRE, coords);
             }
         }
     }
@@ -125,27 +150,19 @@ void Engine::inputTick(const double& /*deltaTime*/) {
 
 //////////////////////////////////////////////////////////////////////
 
-void Engine::gameTick(const double& deltaTime) {
+void Engine::gameTick(const double deltaTime) {
     // Prepare game loop for multi-threading
     constexpr int numCellsX = WIDTH / CELL_SIZE;
     constexpr int numCellsY = HEIGHT / CELL_SIZE;
-    constexpr std::pair<int, int> patternArray[8][4] = {
-        { std::make_pair(0, 0), std::make_pair(1, 0), std::make_pair(1, 1),
-          std::make_pair(0, 1) },
-        { std::make_pair(1, 1), std::make_pair(1, 0), std::make_pair(0, 0),
-          std::make_pair(0, 1) },
-        { std::make_pair(0, 0), std::make_pair(0, 1), std::make_pair(1, 1),
-          std::make_pair(1, 0) },
-        { std::make_pair(1, 1), std::make_pair(0, 1), std::make_pair(0, 0),
-          std::make_pair(1, 0) },
-        { std::make_pair(0, 0), std::make_pair(1, 1), std::make_pair(0, 1),
-          std::make_pair(1, 0) },
-        { std::make_pair(0, 0), std::make_pair(1, 1), std::make_pair(1, 0),
-          std::make_pair(0, 1) },
-        { std::make_pair(1, 1), std::make_pair(0, 0), std::make_pair(1, 0),
-          std::make_pair(0, 1) },
-        { std::make_pair(1, 1), std::make_pair(0, 0), std::make_pair(0, 1),
-          std::make_pair(1, 0) },
+    constexpr ivec2 patternArray[8][4] = {
+        { { 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 } },
+        { { 1, 1 }, { 1, 0 }, { 0, 0 }, { 0, 1 } },
+        { { 0, 0 }, { 0, 1 }, { 1, 1 }, { 1, 0 } },
+        { { 1, 1 }, { 0, 1 }, { 0, 0 }, { 1, 0 } },
+        { { 0, 0 }, { 1, 1 }, { 0, 1 }, { 1, 0 } },
+        { { 0, 0 }, { 1, 1 }, { 1, 0 }, { 0, 1 } },
+        { { 1, 1 }, { 0, 0 }, { 1, 0 }, { 0, 1 } },
+        { { 1, 1 }, { 0, 0 }, { 0, 1 }, { 1, 0 } },
     };
 
     // Game Loop
@@ -153,12 +170,12 @@ void Engine::gameTick(const double& deltaTime) {
     m_accumulator += deltaTime;
     while (m_accumulator >= TIME_STEP) {
         // Assign jobs
-        for (const auto& [offsetX, offsetY] : patternArray[patternNum++ % 8]) {
+        for (const auto& offset : patternArray[patternNum++ % 8]) {
             m_tickNum++;
-            for (int cellY = offsetY; cellY < numCellsY; cellY += 2) {
+            for (int cellY = offset.y(); cellY < numCellsY; cellY += 2) {
                 const int beginY = cellY * CELL_SIZE;
                 const int endY = beginY + CELL_SIZE;
-                for (int cellX = offsetX; cellX < numCellsX; cellX += 2) {
+                for (int cellX = offset.x(); cellX < numCellsX; cellX += 2) {
                     const int beginX = cellX * CELL_SIZE;
                     const int endX = beginX + CELL_SIZE;
                     m_jobs.emplace_back(beginX, beginY, endX, endY);
@@ -192,9 +209,7 @@ void Engine::gameTick_threaded(std::future<void> exitObject) {
             writeGuard.release();
 
             // Perform job
-            m_physics.simulate(
-                TIME_STEP, m_tickNum, chunk.m_beginX, chunk.m_beginY,
-                chunk.m_endX, chunk.m_endY);
+            m_physics.simulate(m_tickNum, chunk.m_begin, chunk.m_end);
             --m_numJobsRemaining;
         } else {
             m_threadReady = false;
@@ -204,7 +219,7 @@ void Engine::gameTick_threaded(std::future<void> exitObject) {
 
 //////////////////////////////////////////////////////////////////////
 
-void Engine::renderTick(const double& deltaTime) {
+void Engine::renderTick(const double deltaTime) {
     // Draw the particles
     m_renderer.draw(deltaTime);
 }

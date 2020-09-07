@@ -17,7 +17,7 @@ class Window {
     /// \brief  Construct a window with a given size.
     /// \param  width       the width to make the window.
     /// \param  height      the height to make the window.
-    Window(const int& width, const int& height) noexcept;
+    Window(const int width, const int height) noexcept;
     //////////////////////////////////////////////////////////////////////
     /// \brief  Default copy constructor.
     Window(const Window& other) = delete;
@@ -50,6 +50,8 @@ class Window {
     [[nodiscard]] int getHeight() const noexcept { return m_height; }
 
     private:
+    //////////////////////////////////////////////////////////////////////
+    /// Private Members
     int m_width = 1;                ///< The window width.
     int m_height = 1;               ///< The window height.
     GLFWwindow* m_window = nullptr; ///< The GLFW window object pointer.

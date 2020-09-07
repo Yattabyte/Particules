@@ -26,9 +26,11 @@ class Renderer {
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Tick this system by deltaTime.
     /// \param	deltaTime	    the amount of time passed since last update.
-    void draw(const double& deltaTime) noexcept;
+    void draw(const double deltaTime) noexcept;
 
     private:
+    //////////////////////////////////////////////////////////////////////
+    /// Private Members
     Shader m_shader;                      ///< A shader for displaying particles
     Model m_model;                        ///< A model for particles
     IndirectDraw m_draw;                  ///< An indirect draw call GL object

@@ -15,7 +15,7 @@ Window::~Window() { glfwDestroyWindow(m_window); }
 /// Custom Constructor
 //////////////////////////////////////////////////////////////////////
 
-Window::Window(const int& width, const int& height) noexcept
+Window::Window(const int width, const int height) noexcept
     : m_width(width), m_height(height) {
     const auto& mainMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwWindowHint(GLFW_RED_BITS, mainMode->redBits);

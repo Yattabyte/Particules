@@ -51,7 +51,7 @@ Renderer::Renderer(
 /// draw
 //////////////////////////////////////////////////////////////////////
 
-void Renderer::draw(const double& /*deltaTime*/) noexcept {
+void Renderer::draw(const double /*deltaTime*/) noexcept {
     // Update buffered data
     m_dataBuffer.beginWriting();
     size_t offset(0ULL);
@@ -59,15 +59,22 @@ void Renderer::draw(const double& /*deltaTime*/) noexcept {
     for (int y = 0; y < HEIGHT; ++y) {
         for (int x = 0; x < WIDTH; ++x) {
             const auto& particle = m_particles[y][x];
-            if (particle.m_element == Element::AIR)
-                continue;
+            // if (particle.m_element == Element::AIR)
+            //    continue;
 
-            // Convert game particles into GPU renderable particles
+            /*// Convert game particles into GPU renderable particles
+            const auto value =
+                (particle.m_temp / 100.0F) * 3.14159F / 2.0F;
+            vec4 color(
+                std::sin(value), std::sin(value * 2), std::cos(value), 1.0);*/
+
+            //vec4 color(std::clamp(particle.m_temp / 100.0F, 0.0F, 1.0F));
             const GPU_Particle data{
                 (particle.m_attributes & Attributes::ON_FIRE) !=
                         Attributes::ON_FIRE
                     ? COLORS[static_cast<int>(particle.m_element)]
                     : COLORS[static_cast<int>(Element::FIRE)],
+                //color,
                 vec2(static_cast<float>(x), static_cast<float>(y)),
             };
             m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);
