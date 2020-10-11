@@ -79,7 +79,7 @@ ParticleFactory::ParticleFactory() {
 
     // Create WATER
     m_particleTypes[Element::WATER].m_moveable = true;
-    m_particleTypes[Element::WATER].m_health = 60.0F;
+    m_particleTypes[Element::WATER].m_health = 500.0F;
     m_particleTypes[Element::WATER].m_density = 997.0F;
     m_particleTypes[Element::WATER].m_mass = 5.0F;
     m_particleTypes[Element::WATER].m_temp = ROOM_TEMP;
@@ -89,12 +89,24 @@ ParticleFactory::ParticleFactory() {
     m_particleTypes[Element::WATER].m_attributes =
         ATTRIBUTES[static_cast<int>(Element::WATER)];
 
+    // Create SNOW
+    m_particleTypes[Element::SNOW].m_moveable = true;
+    m_particleTypes[Element::SNOW].m_health = 500.0F;
+    m_particleTypes[Element::SNOW].m_density = 0.75F;
+    m_particleTypes[Element::SNOW].m_mass = 1.0F;
+    m_particleTypes[Element::SNOW].m_temp = -100.0f;
+    m_particleTypes[Element::SNOW].m_thermalConductivity = 0.4F;
+    m_particleTypes[Element::SNOW].m_state = MatterState::SOLID;
+    m_particleTypes[Element::SNOW].m_element = Element::SNOW;
+    m_particleTypes[Element::SNOW].m_attributes =
+        ATTRIBUTES[static_cast<int>(Element::SNOW)];
+
     // Create ICE
     m_particleTypes[Element::ICE].m_moveable = false;
-    m_particleTypes[Element::ICE].m_health = 60.0F;
+    m_particleTypes[Element::ICE].m_health = 500.0F;
     m_particleTypes[Element::ICE].m_density = 0.90F;
     m_particleTypes[Element::ICE].m_mass = 0.0F;
-    m_particleTypes[Element::ICE].m_temp = -200.0f;
+    m_particleTypes[Element::ICE].m_temp = -100.0f;
     m_particleTypes[Element::ICE].m_thermalConductivity = 0.3045F;
     m_particleTypes[Element::ICE].m_state = MatterState::SOLID;
     m_particleTypes[Element::ICE].m_element = Element::ICE;
@@ -103,10 +115,10 @@ ParticleFactory::ParticleFactory() {
 
     // Create STEAM
     m_particleTypes[Element::STEAM].m_moveable = true;
-    m_particleTypes[Element::STEAM].m_health = 60.0F;
+    m_particleTypes[Element::STEAM].m_health = 500.0F;
     m_particleTypes[Element::STEAM].m_density = 0.6F;
     m_particleTypes[Element::STEAM].m_mass = 5.0F;
-    m_particleTypes[Element::STEAM].m_temp = 150.0;
+    m_particleTypes[Element::STEAM].m_temp = 150.0F;
     m_particleTypes[Element::STEAM].m_thermalConductivity = 0.45675F;
     m_particleTypes[Element::STEAM].m_state = MatterState::GAS;
     m_particleTypes[Element::STEAM].m_element = Element::STEAM;

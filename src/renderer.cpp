@@ -70,10 +70,9 @@ void Renderer::draw(const double /*deltaTime*/) noexcept {
 
             //vec4 color(std::clamp(particle.m_temp / 100.0F, 0.0F, 1.0F));
             const GPU_Particle data{
-                (particle.m_attributes & Attributes::ON_FIRE) !=
-                        Attributes::ON_FIRE
-                    ? COLORS[static_cast<int>(particle.m_element)]
-                    : COLORS[static_cast<int>(Element::FIRE)],
+                particle.hasAttribute(Attributes::IGNITES)
+                    ? COLORS[static_cast<int>(Element::FIRE)]
+                    : COLORS[static_cast<int>(particle.m_element)],
                 //color,
                 vec2(static_cast<float>(x), static_cast<float>(y)),
             };

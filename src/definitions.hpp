@@ -15,18 +15,17 @@ constexpr int HEIGHT = 768;
 constexpr int CELL_SIZE = 64;
 constexpr double TIME_STEP = 0.0125;
 constexpr float ROOM_TEMP = 25.0F;
-enum class MatterState { SOLID,
-                         LIQUID,
-                         GAS };
+enum class MatterState {
+    SOLID,
+    LIQUID,
+    GAS
+};
 enum Attributes : unsigned int {
     INERT = 0b00000000,
-    TURNS_TO_SOLID = 0b00000001,
-    TURNS_TO_LIQUID = 0b00000010,
-    TURNS_TO_GAS = 0b00000100,
-    ON_FIRE = 0b00001000,
-    FLAMMABLE = 0b00010000,
-    EXPLOSIVE = 0b00110000,
-    WET = 0b01000000,
+    IGNITES = 0b00000001,
+    FLAMMABLE = 0b00000010,
+    EXPLOSIVE = 0b00000110,
+    DOUSES = 0b00001000,
 };
 enum class Element {
     AIR,
@@ -36,6 +35,7 @@ enum class Element {
     FIRE,
     SMOKE,
     WATER,
+    SNOW,
     ICE,
     STEAM,
     OIL,
@@ -43,7 +43,7 @@ enum class Element {
     GASOLINE,
     METAL,
 };
-constexpr vec4 COLORS[] = {
+constexpr vec4 COLORS[14] = {
     vec4(0),                          ///< AIR
     vec4(0.75F, 0.6F, 0.4F, 1.0F),    ///< SAND
     vec4(0.9F, 0.75F, 0.65F, 1.0F),   ///< SAWDUST
@@ -51,6 +51,7 @@ constexpr vec4 COLORS[] = {
     vec4(1.0F, 0.2F, 0.1F, 1.0F),     ///< FIRE
     vec4(0.75F, 0.75F, 0.75F, 0.75F), ///< SMOKE
     vec4(0.1F, 0.2F, 1.0F, 1.0F),     ///< WATER
+    vec4(0.9F, 0.9F, 0.9F, 1.0F),     ///< SNOW
     vec4(0.2F, 0.8F, 1.0F, 1.0F),     ///< ICE
     vec4(0.6F, 0.8F, 1.0F, 0.8F),     ///< STEAM
     vec4(0.1F, 0.25F, 0.05F, 1.0F),   ///< OIL
@@ -58,20 +59,21 @@ constexpr vec4 COLORS[] = {
     vec4(0.75F, 0.75F, 0.2F, 1.0F),   ///< GASOLINE
     vec4(0.4F, 0.2F, 0.6F, 1.0F),     ///< METAL
 };
-constexpr unsigned int ATTRIBUTES[] = {
-    INERT,                                              ///< AIR
-    INERT,                                              ///< SAND
-    FLAMMABLE,                                          ///< SAWDUST
-    INERT,                                              ///< CONCRETE
-    ON_FIRE,                                            ///< FIRE
-    INERT,                                              ///< SMOKE
-    TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS& WET, ///< WATER
-    TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS& WET, ///< ICE
-    TURNS_TO_SOLID& TURNS_TO_LIQUID& TURNS_TO_GAS& WET, ///< STEAM
-    FLAMMABLE,                                          ///< OIL
-    EXPLOSIVE,                                          ///< GUNPOWDER
-    EXPLOSIVE,                                          ///< GASOLINE
-    INERT,                                              ///< METAL
+constexpr unsigned int ATTRIBUTES[14] = {
+    INERT,     ///< AIR
+    INERT,     ///< SAND
+    FLAMMABLE, ///< SAWDUST
+    INERT,     ///< CONCRETE
+    IGNITES,   ///< FIRE
+    INERT,     ///< SMOKE
+    DOUSES,    ///< WATER
+    DOUSES,    ///< SNOW
+    DOUSES,    ///< ICE
+    DOUSES,    ///< STEAM
+    FLAMMABLE, ///< OIL
+    EXPLOSIVE, ///< GUNPOWDER
+    EXPLOSIVE, ///< GASOLINE
+    INERT,     ///< METAL
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -89,6 +91,10 @@ struct Particle {
     int m_attributes = Attributes::INERT;
     MatterState m_state = MatterState::GAS;
     Element m_element = Element::AIR;
+
+    [[nodiscard]] bool hasAttribute(const Attributes& attribute) const noexcept {
+        return (m_attributes & attribute) == attribute;
+    }
 };
 constexpr auto particleSize = sizeof(Particle);
 

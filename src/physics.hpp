@@ -24,6 +24,7 @@ class Physics {
     void simulate(const int tickNum, const ivec2& begin, const ivec2& end) noexcept;
 
     void spawnParticle(const Element elementType, const ivec2& coords);
+    void spawnParticleKeepTemp(const Element elementType, const ivec2& coords);
 
     [[nodiscard]] Particle& getParticle(const ivec2& coords);
 
@@ -34,24 +35,30 @@ class Physics {
     /// \param	deltaTime	    the amount of time passed since last update.
     /// \param	x	            the x coordinate of the particle's tile.
     /// \param	y	            the y coordinate of the particle's tile.
-    [[nodiscard]] ivec2 simulateState(const ivec2& coords) noexcept;
-    [[nodiscard]] ivec2 simulateState_Solid(const ivec2& coords) noexcept;
-    [[nodiscard]] ivec2 simulateState_Liquid(const ivec2& coords) noexcept;
-    [[nodiscard]] ivec2 simulateState_Gas(const ivec2& coords) noexcept;
+    [[nodiscard]] void simulateState(ivec2& coords) noexcept;
+    [[nodiscard]] bool simulateState_Solid(ivec2& coords) noexcept;
+    [[nodiscard]] bool simulateState_Liquid(ivec2& coords) noexcept;
+    [[nodiscard]] bool simulateState_Gas(ivec2& coords) noexcept;
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief  Simulate element properties for particles.
     /// \param	x	            the x coordinate of the particle's tile.
     /// \param	y	            the y coordinate of the particle's tile.
     void simulateElement(const Element element, const ivec2& coords) noexcept;
-    void simulateElement_Air(const ivec2& coords) noexcept;
-    void simulateElement_Sand(const ivec2& coords) noexcept;
-    void simulateElement_Concrete(const ivec2& coords) noexcept;
-    void simulateElement_Fire(const ivec2& coords) noexcept;
-    void simulateElement_Smoke(const ivec2& coords) noexcept;
-    void simulateElement_Water(const ivec2& coords) noexcept;
-    void simulateElement_Ice(const ivec2& coords) noexcept;
-    void simulateElement_Steam(const ivec2& coords) noexcept;
+    void simulateElement_AIR(const ivec2& coords) noexcept;
+    void simulateElement_SAND(const ivec2& coords) noexcept;
+    void simulateElement_SAWDUST(const ivec2& coords) noexcept;
+    void simulateElement_CONCRETE(const ivec2& coords) noexcept;
+    void simulateElement_FIRE(const ivec2& coords) noexcept;
+    void simulateElement_SMOKE(const ivec2& coords) noexcept;
+    void simulateElement_WATER(const ivec2& coords) noexcept;
+    void simulateElement_SNOW(const ivec2& coords) noexcept;
+    void simulateElement_ICE(const ivec2& coords) noexcept;
+    void simulateElement_STEAM(const ivec2& coords) noexcept;
+    void simulateElement_OIL(const ivec2& coords) noexcept;
+    void simulateElement_GUNPOWDER(const ivec2& coords) noexcept;
+    void simulateElement_GASOLINE(const ivec2& coords) noexcept;
+    void simulateElement_METAL(const ivec2& coords) noexcept;
 
     void simulateAttributes(const ivec2& coords) noexcept;
 

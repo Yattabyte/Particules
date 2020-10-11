@@ -2,7 +2,9 @@
 #ifndef UTILITIES_HPP
 #define UTILITIES_HPP
 
+#include <memory>
 #include <numeric>
+#include <shared_mutex>
 
 ///////////////////////////////////////////////////////////////////////////
 /// Useful definitions
@@ -38,6 +40,28 @@ struct MouseEvent {
         RIGHT = 1,
         MIDDLE = 2,
     } m_button = Key::LEFT;
+};
+
+class ThreadStatus {
+    public:
+    enum class Status {
+        WAITING_ON_NEXT_FRAME,
+        WAITING_ON_JOBS,
+        READY
+    };
+
+    void setStatus(const Status status) {
+        std::unique_lock<std::shared_mutex> writeGuard(m_mutex);
+        m_status = status;
+    }
+    Status getStatus() {
+        std::shared_lock<std::shared_mutex> readGuard(m_mutex);
+        return m_status;
+    }
+
+    private:
+    std::shared_mutex m_mutex;
+    Status m_status = Status::WAITING_ON_NEXT_FRAME;
 };
 
 #endif // UTILITIES_HPP

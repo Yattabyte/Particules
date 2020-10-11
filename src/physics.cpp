@@ -32,29 +32,31 @@ void Physics::simulate(const int tickNum, const ivec2& begin, const ivec2& end) 
     for (int y = begin.y(); y < end.y(); ++y) {
         for (int x = begin.x(); x < end.x(); ++x) {
             ivec2 coords(x, y);
-            auto* particle = &getParticle(coords);
+            auto& particle = getParticle(coords);
 
             // Avoid acting twice on a particle per tick in case they move or are spawned
-            if (particle->m_tickNum >= tickNum)
+            if (particle.m_tickNum >= tickNum) {
                 continue;
-            particle->m_tickNum = tickNum;
+            }
+            particle.m_tickNum = tickNum;
 
             // Perform heat-transfer simulation
             simulateHeat(coords);
 
             // Air is neutral, only simulate heat through it
-            if (particle->m_element == Element::AIR)
+            if (particle.m_element == Element::AIR) {
                 continue;
+            }
 
             // Delete based on low-health
-            if (particle->m_health <= 0.0F) {
+            else if (particle.m_health <= 0.0F) {
                 spawnParticle(Element::AIR, coords);
                 continue;
             }
 
             // Simulate the particle n times (based on its mass)
-            const Element elementCopy = particle->m_element;
-            coords = simulateState(coords);
+            const Element elementCopy = particle.m_element;
+            simulateState(coords);
 
             // Simulate interactions based on element
             simulateElement(elementCopy, coords);
@@ -69,38 +71,44 @@ void Physics::simulate(const int tickNum, const ivec2& begin, const ivec2& end) 
 /// simulateState_*
 //////////////////////////////////////////////////////////////////////
 
-ivec2 Physics::simulateState(const ivec2& coords) noexcept {
-    auto* particle = &getParticle(coords);
-    particle->m_impulseAccumulator += particle->m_mass;
-    const auto timesToMove = static_cast<int>(particle->m_impulseAccumulator);
-
-    ivec2 newCoords(coords);
-    while ((particle->m_impulseAccumulator + 0.0001F) > 1.0F) {
-        // Simulate movement based on matter-state
-        if (particle->m_moveable && !particle->m_asleep) {
-            switch (particle->m_state) {
-            default:
-            case MatterState::SOLID:
-                newCoords = simulateState_Solid(newCoords);
-                break;
-            case MatterState::LIQUID:
-                newCoords = simulateState_Liquid(newCoords);
-                break;
-            case MatterState::GAS:
-                newCoords = simulateState_Gas(newCoords);
-                break;
-            }
-            particle = &getParticle(newCoords);
-            particle->m_impulseAccumulator -= 1.0F;
-        }
+void Physics::simulateState(ivec2& coords) noexcept {
+    Particle& particle = getParticle(coords);
+    if (!particle.m_moveable || particle.m_asleep) {
+        return;
     }
-    return newCoords;
+
+    // Retrieve the amount of times this particle should move
+    particle.m_impulseAccumulator += particle.m_mass;
+    int numberOfIterations = static_cast<int>(particle.m_impulseAccumulator);
+    particle.m_impulseAccumulator -= numberOfIterations;
+
+    // Perform different simulations based on matter type of particle
+    switch (particle.m_state) {
+    case MatterState::SOLID:
+        for (int x = 0; x < numberOfIterations; ++x) {
+            if (!simulateState_Solid(coords))
+                return;
+        }
+        break;
+    case MatterState::LIQUID:
+        for (int x = 0; x < numberOfIterations; ++x) {
+            if (!simulateState_Liquid(coords))
+                return;
+        }
+        break;
+    case MatterState::GAS:
+        for (int x = 0; x < numberOfIterations; ++x) {
+            if (!simulateState_Gas(coords))
+                return;
+        }
+        break;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
 
-ivec2 Physics::simulateState_Solid(
-    const ivec2& coords) noexcept {
+bool Physics::simulateState_Solid(
+    ivec2& coords) noexcept {
     constexpr std::array<std::array<ivec2, 3>, 2> offsets = {
         std::array<ivec2, 3>{ ivec2{ 0, -1 }, { -1, -1 }, { 1, -1 } },
         std::array<ivec2, 3>{ ivec2{ 0, -1 }, { 1, -1 }, { -1, -1 } },
@@ -117,15 +125,16 @@ ivec2 Physics::simulateState_Solid(
             continue;
 
         swapTile(coords, coords + offset);
-        return coords + offset;
+        coords += offset;
+        return true;
     }
-    return coords;
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////
 
-ivec2 Physics::simulateState_Liquid(
-    const ivec2& coords) noexcept {
+bool Physics::simulateState_Liquid(
+    ivec2& coords) noexcept {
     constexpr std::array<std::array<ivec2, 5>, 4> offsets = {
         std::array<ivec2, 5>{
             ivec2{ 0, -1 }, { -1, -1 }, { 1, -1 }, { -1, 0 }, { 1, 0 } },
@@ -147,14 +156,15 @@ ivec2 Physics::simulateState_Liquid(
             continue;
 
         swapTile(coords, coords + offset);
-        return coords + offset;
+        coords += offset;
+        return true;
     }
-    return coords;
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////
 
-ivec2 Physics::simulateState_Gas(const ivec2& coords) noexcept {
+bool Physics::simulateState_Gas(ivec2& coords) noexcept {
     constexpr std::array<std::array<ivec2, 5>, 4> offsets = {
         std::array<ivec2, 5>{
             ivec2{ 0, 1 }, { -1, 1 }, { 1, 1 }, { -1, 0 }, { 1, 0 } },
@@ -165,12 +175,12 @@ ivec2 Physics::simulateState_Gas(const ivec2& coords) noexcept {
         std::array<ivec2, 5>{
             ivec2{ 0, 1 }, { 1, 1 }, { -1, 1 }, { -1, 0 }, { 1, 0 } }
     };
-    const auto& directions = offsets[fastRand() % 4];
 
-    auto& particle = getParticle(coords);
     // Tick down its health as it disperses itself
+    auto& particle = getParticle(coords);
     particle.m_health -= 1.0F;
 
+    const auto& directions = offsets[fastRand() % 4];
     for (const auto& offset : directions) {
         if (coords.x() + offset.x() < 0 || coords.y() + offset.y() < 0)
             continue;
@@ -180,9 +190,10 @@ ivec2 Physics::simulateState_Gas(const ivec2& coords) noexcept {
             continue;
 
         swapTile(coords, coords + offset);
-        return coords + offset;
+        coords += offset;
+        return true;
     }
-    return coords;
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -192,94 +203,158 @@ ivec2 Physics::simulateState_Gas(const ivec2& coords) noexcept {
 void Physics::simulateElement(const Element element, const ivec2& coords) noexcept {
     switch (element) {
     case Element::AIR:
-        simulateElement_Air(coords);
+        simulateElement_AIR(coords);
         break;
     case Element::SAND:
-        simulateElement_Sand(coords);
+        simulateElement_SAND(coords);
+        break;
+    case Element::SAWDUST:
+        simulateElement_SAWDUST(coords);
         break;
     case Element::CONCRETE:
-        simulateElement_Concrete(coords);
+        simulateElement_CONCRETE(coords);
         break;
     case Element::FIRE:
-        simulateElement_Fire(coords);
+        simulateElement_FIRE(coords);
         break;
     case Element::SMOKE:
-        simulateElement_Smoke(coords);
+        simulateElement_SMOKE(coords);
         break;
     case Element::WATER:
-        simulateElement_Water(coords);
+        simulateElement_WATER(coords);
+        break;
+    case Element::SNOW:
+        simulateElement_SNOW(coords);
         break;
     case Element::ICE:
-        simulateElement_Ice(coords);
+        simulateElement_ICE(coords);
         break;
     case Element::STEAM:
-        simulateElement_Steam(coords);
+        simulateElement_STEAM(coords);
+        break;
+    case Element::OIL:
+        simulateElement_OIL(coords);
+        break;
+    case Element::GUNPOWDER:
+        simulateElement_GUNPOWDER(coords);
+        break;
+    case Element::GASOLINE:
+        simulateElement_GASOLINE(coords);
+        break;
+    case Element::METAL:
+        simulateElement_METAL(coords);
         break;
     }
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulateElement_Air(const ivec2& /*coords*/) noexcept {
-    // Inert
+void Physics::simulateElement_AIR(const ivec2& /*coords*/) noexcept {
+    // INERT
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulateElement_Sand(const ivec2& /*coords*/) noexcept {
-    // Inert
+void Physics::simulateElement_SAND(const ivec2& /*coords*/) noexcept {
+    // INERT
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulateElement_Concrete(const ivec2& /*coords*/) noexcept {
-    // Inert
+void Physics::simulateElement_SAWDUST(const ivec2& /*coords*/) noexcept {
+    // FLAMMABLE
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulateElement_Fire(const ivec2& coords) noexcept {
+void Physics::simulateElement_CONCRETE(const ivec2& /*coords*/) noexcept {
+    // INERT
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void Physics::simulateElement_FIRE(const ivec2& coords) noexcept {
     // Tick down its health
     auto& particle = getParticle(coords);
     particle.m_health -= 1.0F;
+    // IGNITES
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulateElement_Smoke(const ivec2& coords) noexcept {
+void Physics::simulateElement_SMOKE(const ivec2& coords) noexcept {
     // Tick down its health
     auto& particle = getParticle(coords);
     particle.m_health -= 1.0F;
+    // INERT
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulateElement_Water(const ivec2& coords) noexcept {
+void Physics::simulateElement_WATER(const ivec2& coords) noexcept {
     // Turn to ice
     auto& particle = getParticle(coords);
     if (particle.m_temp < 0.0F)
-        spawnParticle(Element::ICE, coords);
+        spawnParticleKeepTemp(Element::ICE, coords);
     // Turn to steam
     else if (particle.m_temp > 100.0F)
-        spawnParticle(Element::STEAM, coords);
+        spawnParticleKeepTemp(Element::STEAM, coords);
+    // DOUSES
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulateElement_Ice(const ivec2& coords) noexcept {
+void Physics::simulateElement_SNOW(const ivec2& coords) noexcept {
+    // Turn to ice
+    auto& particle = getParticle(coords);
+    if (particle.m_temp > 0.0F)
+        spawnParticleKeepTemp(Element::WATER, coords);
+    // DOUSES
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void Physics::simulateElement_ICE(const ivec2& coords) noexcept {
     // Turn to water
     auto& particle = getParticle(coords);
     if (particle.m_temp > 0.0F)
-        spawnParticle(Element::WATER, coords);
+        spawnParticleKeepTemp(Element::WATER, coords);
+
+    // DOUSES
 }
 
 //////////////////////////////////////////////////////////////////////
 
-void Physics::simulateElement_Steam(const ivec2& coords) noexcept {
+void Physics::simulateElement_STEAM(const ivec2& coords) noexcept {
     // Turn to water
     auto& particle = getParticle(coords);
     if (particle.m_temp < 100.0F)
-        spawnParticle(Element::WATER, coords);
+        spawnParticleKeepTemp(Element::WATER, coords);
+    // DOUSES
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void Physics::simulateElement_OIL(const ivec2& /*coords*/) noexcept {
+    // FLAMMABLE
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void Physics::simulateElement_GUNPOWDER(const ivec2& /*coords*/) noexcept {
+    // EXPLOSIVE
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void Physics::simulateElement_GASOLINE(const ivec2& /*coords*/) noexcept {
+    // EXPLOSIVE
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void Physics::simulateElement_METAL(const ivec2& /*coords*/) noexcept {
+    // INERT
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -287,29 +362,30 @@ void Physics::simulateElement_Steam(const ivec2& coords) noexcept {
 //////////////////////////////////////////////////////////////////////
 
 void Physics::simulateAttributes(const ivec2& coords) noexcept {
-    constexpr std::array<ivec2, 8> directions = { ivec2{ 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
+    //constexpr std::array<ivec2, 8> directions = { ivec2{ 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
+    constexpr std::array<ivec2, 4> directions = { ivec2{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
     auto& particle = getParticle(coords);
 
     // Skip if this particle does nothing or has no condition set
-    if ((particle.m_attributes & Attributes::INERT) == Attributes::INERT)
+    if (particle.hasAttribute(Attributes::INERT))
         return;
 
     // Retrieve a random number for this attribute simulation
     const auto randomNumber = fastRand();
 
     // Burning particle
-    if ((particle.m_attributes & Attributes::ON_FIRE) == Attributes::ON_FIRE) {
+    if (particle.hasAttribute(Attributes::IGNITES)) {
         // Tick down its health as it expends itself
         particle.m_health -= 1.0F;
 
         // Ignite a random adjacent cell
-        const auto& direction = directions[randomNumber % 8];
+        const auto& direction = directions[randomNumber % 4];
         if (coords.x() + direction.x() >= 0 && coords.y() + direction.y() >= 0) {
-            auto& adjacentParticle = getParticle(coords + directions[randomNumber % 8]);
+            auto& adjacentParticle = getParticle(coords + directions[randomNumber % 4]);
 
             // If adjacent particle is flammable, ignite it
-            if ((adjacentParticle.m_attributes & Attributes::FLAMMABLE) == Attributes::FLAMMABLE) {
-                adjacentParticle.m_attributes |= Attributes::ON_FIRE;
+            if (adjacentParticle.hasAttribute(Attributes::FLAMMABLE)) {
+                adjacentParticle.m_attributes |= Attributes::IGNITES;
                 adjacentParticle.m_asleep = false;
             }
         }
@@ -320,7 +396,7 @@ void Physics::simulateAttributes(const ivec2& coords) noexcept {
             else
                 spawnParticle(Element::FIRE, coords + direction);
         }
-    } /*else if ((particle.m_attributes & Attributes::WET) == Attributes::WET) {
+    } /*else if (particle.hasAttribute(Attributes::DOUSES)) {
         // Tick down its health as it expends itself
         particle.m_health -= 1.0F;
 
@@ -330,9 +406,8 @@ void Physics::simulateAttributes(const ivec2& coords) noexcept {
                 continue;
 
             auto& adjacentParticle = getParticle(coords + direction);
-            if ((adjacentParticle.m_attributes & Attributes::ON_FIRE) ==
-                Attributes::ON_FIRE) {
-                adjacentParticle.m_attributes ^= Attributes::ON_FIRE;
+            if (adjacentParticle.hasAttribute(Attributes::IGNITES)) {
+                adjacentParticle.m_attributes ^= Attributes::IGNITES;
                 adjacentParticle.m_asleep = false;
             }
         }
@@ -344,12 +419,11 @@ void Physics::simulateAttributes(const ivec2& coords) noexcept {
 //////////////////////////////////////////////////////////////////////
 
 void Physics::simulateHeat(const ivec2& coords) noexcept {
-    auto& particle = getParticle(coords);
-    float adjacentDeltaHeat = 0.0F;
-
     //constexpr ivec2 offsets[8] = { ivec2{ -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
     constexpr ivec2 offsets[4] = { ivec2{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
 
+    auto& particle = getParticle(coords);
+    float adjacentDeltaHeat = 0.0F;
     for (const auto& offset : offsets) {
         const ivec2 finalCoords = coords + offset;
         if (finalCoords.x() <= 0 || finalCoords.x() >= WIDTH - 1 || finalCoords.y() <= 0 || finalCoords.y() >= HEIGHT - 1)
@@ -371,6 +445,18 @@ void Physics::spawnParticle(const Element elementType, const ivec2& coords) {
     particle = ParticleFactory::makeType(elementType);
     particle.m_tickNum = tickCopy;
     m_previousTemps[coords.y()][coords.x()] = particle.m_temp;
+}
+
+//////////////////////////////////////////////////////////////////////
+/// spawnParticleKeepTemp
+//////////////////////////////////////////////////////////////////////
+
+void Physics::spawnParticleKeepTemp(const Element elementType, const ivec2& coords) {
+    auto& particle = getParticle(coords);
+    const int tickCopy = particle.m_tickNum;
+    const float tempCopy = particle.m_temp;
+    particle = ParticleFactory::makeType(elementType);
+    particle.m_tickNum = tickCopy;
 }
 
 //////////////////////////////////////////////////////////////////////

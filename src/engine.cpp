@@ -106,24 +106,24 @@ void Engine::inputTick(const double /*deltaTime*/) {
 
         constexpr int radius = 25;
         /*// Offset within a radius to create a wider brush-stroke
-        for (int n = 0; n < radius; ++n) {
-            const int x =
-                std::clamp<int>((fastRand() % radius) + mouseX, 0, WIDTH);
-            const int y =
-                std::clamp<int>((fastRand() % radius) + mouseY, 0, HEIGHT);
+            for (int n = 0; n < radius; ++n) {
+                const int x =
+                    std::clamp<int>((fastRand() % radius) + mouseX, 0, WIDTH);
+                const int y =
+                    std::clamp<int>((fastRand() % radius) + mouseY, 0, HEIGHT);
 
-            if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT)
-                continue;
+                if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT)
+                    continue;
 
-            if (m_mouseEvent.m_button == MouseEvent::Key::LEFT)
-                m_physics.spawnParticle(Element::ICE, x, y);
+                if (m_mouseEvent.m_button == MouseEvent::Key::LEFT)
+                    m_physics.spawnParticle(Element::ICE, x, y);
 
-            else if (m_mouseEvent.m_button == MouseEvent::Key::MIDDLE)
-                m_physics.spawnParticle(Element::STEAM, x, y);
+                else if (m_mouseEvent.m_button == MouseEvent::Key::MIDDLE)
+                    m_physics.spawnParticle(Element::STEAM, x, y);
 
-            else if (m_mouseEvent.m_button == MouseEvent::Key::RIGHT)
-                m_physics.spawnParticle(Element::FIRE, x, y);
-        }*/
+                else if (m_mouseEvent.m_button == MouseEvent::Key::RIGHT)
+                    m_physics.spawnParticle(Element::FIRE, x, y);
+            }*/
 
         for (int ry = 0; ry < radius; ++ry) {
             for (int rx = 0; rx < radius; ++rx) {
@@ -166,10 +166,13 @@ void Engine::gameTick(const double deltaTime) {
     };
 
     // Game Loop
+    m_threadStatus.setStatus(ThreadStatus::Status::WAITING_ON_JOBS);
     static int patternNum = 0;
-    m_accumulator += deltaTime;
-    while (m_accumulator >= TIME_STEP) {
-        // Assign jobs
+    m_gameAccumulator += deltaTime;
+    while (m_gameAccumulator >= TIME_STEP) {
+        m_gameAccumulator -= TIME_STEP;
+
+        // Assign physics jobs
         for (const auto& offset : patternArray[patternNum++ % 8]) {
             m_tickNum++;
             for (int cellY = offset.y(); cellY < numCellsY; cellY += 2) {
@@ -182,27 +185,38 @@ void Engine::gameTick(const double deltaTime) {
                 }
             }
             m_numJobsRemaining = static_cast<int>(m_jobs.size());
-            m_threadReady = true;
+            m_threadStatus.setStatus(ThreadStatus::Status::READY);
             while (m_numJobsRemaining > 0) {
                 continue;
             }
-            m_threadReady = false;
         }
-        m_accumulator -= TIME_STEP;
+
+        // todo: do game input here
     }
+
+    m_threadStatus.setStatus(ThreadStatus::Status::WAITING_ON_NEXT_FRAME);
 }
 
 //////////////////////////////////////////////////////////////////////
 
 void Engine::gameTick_threaded(std::future<void> exitObject) {
     while (true) {
-        if (m_threadReady == false) {
+        switch (m_threadStatus.getStatus()) {
+        case ThreadStatus::Status::WAITING_ON_NEXT_FRAME:
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            continue;
+        case ThreadStatus::Status::WAITING_ON_JOBS:
             std::this_thread::sleep_for(std::chrono::nanoseconds(1));
             continue;
         }
+
         // Get last job
         std::unique_lock<std::shared_mutex> writeGuard(m_jobMutex);
-        if (!m_jobs.empty()) {
+        if (m_jobs.empty()) {
+            writeGuard.unlock();
+            writeGuard.release();
+            m_threadStatus.setStatus(ThreadStatus::Status::WAITING_ON_JOBS);
+        } else {
             const CellChunk chunk = m_jobs.back();
             m_jobs.pop_back();
             writeGuard.unlock();
@@ -211,8 +225,6 @@ void Engine::gameTick_threaded(std::future<void> exitObject) {
             // Perform job
             m_physics.simulate(m_tickNum, chunk.m_begin, chunk.m_end);
             --m_numJobsRemaining;
-        } else {
-            m_threadReady = false;
         }
     }
 }
