@@ -69,13 +69,17 @@ void Renderer::draw(const double /*deltaTime*/) noexcept {
                 std::sin(value), std::sin(value * 2), std::cos(value), 1.0);*/
 
             //vec4 color(std::clamp(particle.m_temp / 100.0F, 0.0F, 1.0F));
-            const GPU_Particle data{
+            GPU_Particle data{
                 particle.hasAttribute(Attributes::IGNITES)
                     ? COLORS[static_cast<int>(Element::FIRE)]
                     : COLORS[static_cast<int>(particle.m_element)],
                 //color,
                 vec2(static_cast<float>(x), static_cast<float>(y)),
             };
+
+            // Debug asleep -> awake = colored, asleep = white
+            //data.m_color = particle.m_asleep ? vec4(1) : data.m_color;
+
             m_dataBuffer.write(offset, sizeof(GPU_Particle), &data);
             offset += sizeof(GPU_Particle);
             ++count;

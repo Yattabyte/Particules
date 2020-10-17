@@ -66,6 +66,8 @@ class Physics {
 
     void swapTile(const ivec2& coordA, const ivec2& coordB) noexcept;
 
+    void wakeNeighbouringCells(const ivec2& coords) noexcept;
+
     ///////////////////////////////////////////////////////////////////////////
     /// Private Members
     std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]>&

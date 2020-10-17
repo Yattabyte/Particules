@@ -66,7 +66,8 @@ class Engine {
     std::atomic<int> m_numJobsRemaining;
     std::vector<CellChunk> m_jobs;
     std::vector<std::tuple<std::thread, std::promise<void>>> m_threads;
-    double m_gameAccumulator = 0.0; ///< Time left in the accumulator.
+    double m_gameAccumulator = 0.0;
+    double m_inputAccumulator = 0.0;
     std::shared_ptr<Particle[HEIGHT + 1][WIDTH + 1]> m_particles;
     Physics m_physics;
     Renderer m_renderer;

@@ -13,6 +13,7 @@ using namespace mini;
 constexpr int WIDTH = 1024;
 constexpr int HEIGHT = 768;
 constexpr int CELL_SIZE = 64;
+constexpr int CELL_SIZE_HALF = static_cast<int>(0.5 * CELL_SIZE);
 constexpr double TIME_STEP = 0.0125;
 constexpr float ROOM_TEMP = 25.0F;
 enum class MatterState {

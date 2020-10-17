@@ -78,7 +78,7 @@ void Physics::simulateState(ivec2& coords) noexcept {
     }
 
     // Retrieve the amount of times this particle should move
-    particle.m_impulseAccumulator += particle.m_mass;
+    particle.m_impulseAccumulator = std::min(particle.m_impulseAccumulator + particle.m_mass, static_cast<float>(CELL_SIZE_HALF));
     int numberOfIterations = static_cast<int>(particle.m_impulseAccumulator);
     particle.m_impulseAccumulator -= numberOfIterations;
 
@@ -86,20 +86,26 @@ void Physics::simulateState(ivec2& coords) noexcept {
     switch (particle.m_state) {
     case MatterState::SOLID:
         for (int x = 0; x < numberOfIterations; ++x) {
-            if (!simulateState_Solid(coords))
+            if (!simulateState_Solid(coords)) {
+                particle.m_asleep = true;
                 return;
+            }
         }
         break;
     case MatterState::LIQUID:
         for (int x = 0; x < numberOfIterations; ++x) {
-            if (!simulateState_Liquid(coords))
+            if (!simulateState_Liquid(coords)) {
+                particle.m_asleep = true;
                 return;
+            }
         }
         break;
     case MatterState::GAS:
         for (int x = 0; x < numberOfIterations; ++x) {
-            if (!simulateState_Gas(coords))
+            if (!simulateState_Gas(coords)) {
+                particle.m_asleep = true;
                 return;
+            }
         }
         break;
     }
@@ -124,6 +130,7 @@ bool Physics::simulateState_Solid(
         if (!targetParticle.m_moveable || targetParticle.m_density >= particle.m_density)
             continue;
 
+        wakeNeighbouringCells(coords);
         swapTile(coords, coords + offset);
         coords += offset;
         return true;
@@ -155,6 +162,7 @@ bool Physics::simulateState_Liquid(
         if (!targetParticle.m_moveable || targetParticle.m_density >= particle.m_density)
             continue;
 
+        wakeNeighbouringCells(coords);
         swapTile(coords, coords + offset);
         coords += offset;
         return true;
@@ -189,6 +197,7 @@ bool Physics::simulateState_Gas(ivec2& coords) noexcept {
         if (!targetParticle.m_moveable || targetParticle.m_density < particle.m_density)
             continue;
 
+        wakeNeighbouringCells(coords);
         swapTile(coords, coords + offset);
         coords += offset;
         return true;
@@ -420,7 +429,7 @@ void Physics::simulateAttributes(const ivec2& coords) noexcept {
 
 void Physics::simulateHeat(const ivec2& coords) noexcept {
     //constexpr ivec2 offsets[8] = { ivec2{ -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
-    constexpr ivec2 offsets[4] = { ivec2{ -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
+    constexpr ivec2 offsets[4] = { ivec2{ 0, -1 }, { -1, 0 }, { 1, 0 }, { 0, 1 } };
 
     auto& particle = getParticle(coords);
     float adjacentDeltaHeat = 0.0F;
@@ -478,4 +487,20 @@ void Physics::swapTile(const ivec2& coordA, const ivec2& coordB) noexcept {
     particleB.m_asleep = false;
     std::swap(particleA, particleB);
     std::swap(m_previousTemps[coordA.y()][coordA.x()], m_previousTemps[coordB.y()][coordB.x()]);
+}
+
+//////////////////////////////////////////////////////////////////////
+/// wakeNeighbouringCells
+//////////////////////////////////////////////////////////////////////
+
+void Physics::wakeNeighbouringCells(const ivec2& coords) noexcept {
+    constexpr ivec2 offsets[4] = { ivec2{ 0, -1 }, { -1, 0 }, { 1, 0 }, { 0, 1 } };
+    for (const auto& offset : offsets) {
+        const ivec2 finalCoords = coords + offset;
+        if (finalCoords.x() <= 0 || finalCoords.x() >= WIDTH - 1 || finalCoords.y() <= 0 || finalCoords.y() >= HEIGHT - 1)
+            continue;
+
+        auto& particle = getParticle(finalCoords);
+        particle.m_asleep = false;
+    }
 }

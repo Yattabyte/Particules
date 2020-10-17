@@ -36,7 +36,6 @@ int main() noexcept {
         engine.tick(deltaTime);
 
         lastTime = time;
-        glfwPollEvents();
         glfwSwapBuffers(window.pointer());
     }
 

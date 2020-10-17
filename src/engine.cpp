@@ -89,7 +89,6 @@ Engine::Engine(const Window& window)
 
 void Engine::tick(const double deltaTime) {
     const auto start = glfwGetTime();
-    inputTick(deltaTime);
     gameTick(deltaTime);
     renderTick(deltaTime);
     const auto end = glfwGetTime();
@@ -99,6 +98,9 @@ void Engine::tick(const double deltaTime) {
 //////////////////////////////////////////////////////////////////////
 
 void Engine::inputTick(const double /*deltaTime*/) {
+    // Update mouse and keyboard events
+    glfwPollEvents();
+
     if ((m_mouseEvent.m_action & MouseEvent::Action::PRESS) ==
         MouseEvent::Action::PRESS) {
         const int mouseX = static_cast<int>(m_mouseEvent.m_xPos);
@@ -171,6 +173,7 @@ void Engine::gameTick(const double deltaTime) {
     m_gameAccumulator += deltaTime;
     while (m_gameAccumulator >= TIME_STEP) {
         m_gameAccumulator -= TIME_STEP;
+        inputTick(deltaTime);
 
         // Assign physics jobs
         for (const auto& offset : patternArray[patternNum++ % 8]) {
@@ -190,10 +193,7 @@ void Engine::gameTick(const double deltaTime) {
                 continue;
             }
         }
-
-        // todo: do game input here
     }
-
     m_threadStatus.setStatus(ThreadStatus::Status::WAITING_ON_NEXT_FRAME);
 }
 
@@ -202,29 +202,33 @@ void Engine::gameTick(const double deltaTime) {
 void Engine::gameTick_threaded(std::future<void> exitObject) {
     while (true) {
         switch (m_threadStatus.getStatus()) {
+        default:
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            [[fallthrough]];
         case ThreadStatus::Status::WAITING_ON_NEXT_FRAME:
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            continue;
+            [[fallthrough]];
         case ThreadStatus::Status::WAITING_ON_JOBS:
             std::this_thread::sleep_for(std::chrono::nanoseconds(1));
             continue;
+        case ThreadStatus::Status::READY: {
+            // Get last job
+            std::unique_lock<std::shared_mutex> writeGuard(m_jobMutex);
+            if (m_jobs.empty()) {
+                writeGuard.unlock();
+                writeGuard.release();
+                m_threadStatus.setStatus(ThreadStatus::Status::WAITING_ON_JOBS);
+            } else {
+                const CellChunk chunk = m_jobs.back();
+                m_jobs.pop_back();
+                writeGuard.unlock();
+                writeGuard.release();
+
+                // Perform job
+                m_physics.simulate(m_tickNum, chunk.m_begin, chunk.m_end);
+                --m_numJobsRemaining;
+            }
         }
-
-        // Get last job
-        std::unique_lock<std::shared_mutex> writeGuard(m_jobMutex);
-        if (m_jobs.empty()) {
-            writeGuard.unlock();
-            writeGuard.release();
-            m_threadStatus.setStatus(ThreadStatus::Status::WAITING_ON_JOBS);
-        } else {
-            const CellChunk chunk = m_jobs.back();
-            m_jobs.pop_back();
-            writeGuard.unlock();
-            writeGuard.release();
-
-            // Perform job
-            m_physics.simulate(m_tickNum, chunk.m_begin, chunk.m_end);
-            --m_numJobsRemaining;
         }
     }
 }
